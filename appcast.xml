@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"  xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title>Puzzle Tokens</title>
+        <link>https://github.com/ingrammicro/puzzle-token/raw/master/appcast.xml</link>
+        <description>Apply tokens to Sketch layers and styles</description>
+        <language>en</language>
+         <item>
+            <title>Version 3.0.0</title>
+            <date>21 Aug 2019</date>
+            <enclosure url="https://github.com/ingrammicro/puzzle-tokens/raw/master/PuzzleTokens.sketchplugin.zip" sparkle:version="3.0.0"/>
+        </item> 
+        
+    </channel>
+</rss>
