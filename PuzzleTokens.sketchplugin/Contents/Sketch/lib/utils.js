@@ -78,6 +78,11 @@ class Utils {
         return NSString.stringWithContentsOfFile_encoding_error(path, NSUTF8StringEncoding, null);
     }
 
+    static fileExistsAtPath(filePath) {
+        const fileManager = NSFileManager.defaultManager();
+        return fileManager.fileExistsAtPath(filePath);
+    }
+
     static deleteFile(filePath) {
         const fileManager = NSFileManager.defaultManager();
 

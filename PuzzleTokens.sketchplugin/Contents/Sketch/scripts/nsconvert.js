@@ -31,7 +31,12 @@ function loadLessVars(fileName1,fileName2){
     var lessVars = {}
 
     var data = ''
-    data = data + fs.readFileSync(fileName1, 'utf8');
+    const data1 = fs.readFileSync(fileName1, 'utf8');
+    if(null==data1){
+        console.log("Can't open file by path:"+fileName1)
+        return lessVars
+    }
+    data = data + data1;
     if(fileName2!=undefined){
         data = data + fs.readFileSync(fileName2, 'utf8');
     }

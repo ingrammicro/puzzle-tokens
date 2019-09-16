@@ -77,13 +77,15 @@ class DSApp {
         if(!this._showDialog()) return false
         this.pathToTokens = this.pathToTokensLess.substring(0, this.pathToTokensLess.lastIndexOf("/"));
 
-        this._initPages()
+        while(true){
+            this._initPages()
 
+            if( !this.loadLess()) break
+            if( !this._applyLess() ) break
+            if(this.genSymbTokens) this._saveElements()
 
-        if( !this.loadLess()) return false        
-        if( !this._applyLess() ) return false
-
-        if(this.genSymbTokens) this._saveElements()
+            break
+        }
 
         // show final message
         if(this.errors.length>0){
@@ -99,10 +101,6 @@ class DSApp {
 
 
     _saveElements(){
-        /*
-        const pathToRules = this.pathToSketchStylesJSON.substring(0, this.pathToSketchStylesJSON.lastIndexOf("/"))
-             + "/" + this.doc.name + "." + Constants.SYMBOLTOKENFILE_POSTFIX
-        */
         const pathDetails = path.parse(this.jDoc.path)
         const pathToRules = pathDetails.dir + "/" + pathDetails.name + Constants.SYMBOLTOKENFILE_POSTFIX
         log(pathToRules)
@@ -150,17 +148,12 @@ class DSApp {
         return true
     }
 
-    _getTokensText(){
-        var tokensStr = ''
-
-        tokensStr = tokensStr + Utils.readFile(this.pathToTokensLess)
-
-        return tokensStr
-    }
-
-
     _applyLess() {
         var tokensStr = Utils.readFile(this.pathToSketchStylesJSON)
+        if(null==tokensStr){
+            this.logError("Can not find .json file by path: "+this.pathToSketchStylesJSON)
+            return false
+        }
         var tokens = JSON.parse(tokensStr)
 
         for(var tokenName of Object.keys(tokens)){
@@ -251,6 +244,16 @@ class DSApp {
 
     loadLess() {
         const tempFolder = Utils.getPathToTempFolder()
+
+        // check files
+        if(!Utils.fileExistsAtPath(this.pathToTokensLess)){
+            this.logError("Can not find .less file by path: "+this.pathToTokensLess)
+            return false
+        }
+        if(!Utils.fileExistsAtPath(this.pathToSketchStylesJSON)){
+            this.logError("Can not find .json file by path: "+this.pathToSketchStylesJSON)
+            return false
+        }
 
         // Copy less2json conversion script 
         const scriptPath = Utils.copyScript('nsconvert.js',tempFolder)
