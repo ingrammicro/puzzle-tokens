@@ -174,6 +174,10 @@ class Utils {
         return hex
     }
 
+    static stripStr(str) {
+        return str.replace(/^\s+|\s+$/g, '');
+    }
+
     static cloneDict(dict) {
         return Object.assign({}, dict);
     }

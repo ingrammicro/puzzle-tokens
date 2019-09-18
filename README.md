@@ -37,15 +37,8 @@ Text Layers:
 
 Shape Layers:
 -----------------------------------------
-"fill-color":            "#B0AFB1",
+"fill-color":            "#B0AFB1", // or "linear-gradient(#B0AFB1,#B0AFB4)" or "linear-radial(#B0AFB1,#B0AFB4)"
 "fill-color-opacity":    "63%", // "63%" or "0.42"
-
-"fill-gradient-type":    "linear", // or "radial" or "angular" 
-"fill-color-from":        "#B0AFB1",
-"fill-color-from-opacity": "63%", // "63%" or "0.42"
-"fill-color-to":        "#B0AFB1",
-"fill-color-to-opacity": "63%", // "63%" or "0.42"
-
 
 "border-color":          "#000000",
 "border-width":          "2", //px

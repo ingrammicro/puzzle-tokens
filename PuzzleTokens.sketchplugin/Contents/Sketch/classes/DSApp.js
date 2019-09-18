@@ -223,8 +223,6 @@ class DSApp {
                     this._applyTextStyle(token,tokenName,sketchObj)               
                 if('fill-color' in token)
                     this._applyFillColor(token,tokenName,sketchObj,token['fill-color'])
-                if('fill-from-color' in token)
-                    this._applyFillGradient(token,tokenName,sketchObj)
                 if('shadow' in token)
                    this._applyShadow(token,tokenName,sketchObj, false, token['shadow'])
                 if('inner-shadow' in token)
@@ -430,7 +428,9 @@ class DSApp {
  
     _applyFillColor(token, tokenName, obj, color) {
         
-        if(color!=""){
+        if(color.indexOf("gradient")>0){
+            return this._applyFillGradient(token, tokenName, obj, color)
+        }else if(color!=""){
             if('transparent'==color){
                 var opacity = "0%"
                 color =  "#FFFFFF" + Utils.opacityToHex(opacity)
@@ -453,17 +453,31 @@ class DSApp {
     }
 
 
-    _applyFillGradient(token, tokenName, obj) {
-        var colorFrom = this._applyFillGradientProcessColor(token,'from')
-        var colorTo = this._applyFillGradientProcessColor(token,'to')
-    
-        const gradientTypes={
-            'linear':       Style.GradientType.Linear,
-            'radial':       Style.GradientType.Radial,
-            'angular':      Style.GradientType.Angular
+    _applyFillGradient(token, tokenName, obj,colorsRaw) {
+        // parse string in format: linear-gradient(#00000,#F0000);
+        const i1 = colorsRaw.indexOf("(");
+        const i2 = colorsRaw.lastIndexOf(")");
+        if(i1<0 || i2<0){
+            return this.logError("Wrong gradient format: "+colorsRaw+". Can't find ( or )")
+        }
+        const colors = colorsRaw.substring(i1+1,i2).split(",")
+        if(colors.length!=2){
+            return this.logError("Wrong gradient format: "+colorsRaw+". Can't find two colors")
         }
 
-        const gradientTypeSrc = 'fill-gradient-type' in token?token['fill-gradient-type']:'linear'
+        var colorFrom = Utils.stripStr(colors[0])
+        var colorTo = Utils.stripStr(colors[1])
+
+        const gradientTypes={
+            'linear-gradient':      Style.GradientType.Linear,
+            'radial-gradient':      Style.GradientType.Radial,
+            'angular':              Style.GradientType.Angular
+        }
+        const gradientTypeSrc = colorsRaw.substring(0,colorsRaw.indexOf("(") )
+        if(""==gradientTypeSrc){
+            return this.logError("Wrong gradient format: "+colorsRaw+". Can't find gradient type")
+        }
+
         if(!(gradientTypeSrc in gradientTypes)){
             return this.logError('Uknown gradient type: '+gradientTypeSrc)
         }

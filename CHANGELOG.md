@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 3.1.0 (18 Sep 2019)
+- Reworked fill color gradient format
+
 ##  Version 3.0.2 (16 Sep 2019)
 - Improved error handling 
 
