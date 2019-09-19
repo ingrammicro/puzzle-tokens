@@ -14,10 +14,11 @@ if(undefined == pathToJSON){
     pathToLess2 = undefined
 }
 
-console.log("pathToLess1:" +pathToLess1)
+/*console.log("Path to source LESS:" +pathToLess1)
 if(pathToLess2!=undefined)
     console.log("pathToLess2:" +pathToLess2)
-console.log("pathToJSON:" +pathToJSON)
+console.log("Path to destination JSON:" +pathToJSON)
+console.log("")*/
 
 console.log("Started")
 
@@ -46,31 +47,37 @@ function loadLessVars(fileName1,fileName2){
         fileAsync: false
     }
 
-    less.parse(data, options1, function (err, root, imports, options) {
-        //console.log(imports)
-        if(undefined!=err) console.log(err)
-        
-        var evalEnv = new less.contexts.Eval(options);
-        var evaldRoot = root.eval(evalEnv);
-        var ruleset = evaldRoot.rules;
+    try {
+        less.parse(data, options1, function (err, root, imports, options) {
+            //console.log(imports)
+            if(undefined!=err) console.log(err)
+            
+            var evalEnv = new less.contexts.Eval(options);
+            var evaldRoot = root.eval(evalEnv);
+            var ruleset = evaldRoot.rules;
 
-        ruleset.forEach(function (rule) {            
-            if (rule.variable === true) {                
-                var name;
-                name = rule.name.substr(1);					
+            ruleset.forEach(function (rule) {            
+                if (rule.variable === true) {                
+                    var name;
+                    name = rule.name.substr(1);					
 
-                var value = rule.value;
-                lessVars[name] = value.toCSS(options);				
+                    var value = rule.value;
+                    lessVars[name] = value.toCSS(options);				
 
-                console.log(name+" : "+value.toCSS(options))
+                    console.log(name+" : "+value.toCSS(options))
 
-            }
+                }
+            });
+            
+            // completed
+            saveData(lessVars,pathToJSON)
+            console.log("Completed")
         });
-        
-        // completed
-        saveData(lessVars,pathToJSON)
-        console.log("Completed")
-	});
+    } catch ( e ) {
+        console.log("Failed to parse LESS with error message:\n")
+        console.log(e.message)
+        process.exit(-1)
+    }
     
     console.log("Read LESS: done")
     return lessVars

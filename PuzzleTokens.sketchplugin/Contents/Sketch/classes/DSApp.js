@@ -266,7 +266,7 @@ class DSApp {
         const runResult = Utils.runCommand("/usr/local/bin/node",args)
 
         if(!runResult.result){
-            this.UI.alert('Can not transform LESS file to JSON', runResult.output)
+            this.logError(runResult.output)
             return false
         }    
         

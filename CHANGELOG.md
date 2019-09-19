@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 3.1.1 (19 Sep 2019)
+- Diagnostic of LESS errors has been improved
+
 ##  Version 3.1.0 (18 Sep 2019)
 - Reworked fill color gradient format
 
