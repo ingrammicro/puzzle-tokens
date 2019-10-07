@@ -4,6 +4,7 @@ const args = process.argv.slice(2)
 var pathToLess1 = args[0]
 var pathToLess2 = args[1]
 var pathToJSON = args[2]
+var lessVars = {}
 
 if(undefined==pathToLess1 || undefined==pathToLess2 ){
     console.log("nsconvert.js PATH_TO_LESS_FILE1 PATH_TO_LESS_FILE2(OPT) PATH_TO_JSON_FILE")
@@ -29,7 +30,6 @@ function loadLessVars(fileName1,fileName2){
     console.log("Read LESS: running...")
     
     var less = require("/usr/local/lib/node_modules/less")   
-    var lessVars = {}
 
     var data = ''
     const data1 = fs.readFileSync(fileName1, 'utf8');
@@ -56,8 +56,10 @@ function loadLessVars(fileName1,fileName2){
             var evaldRoot = root.eval(evalEnv);
             var ruleset = evaldRoot.rules;
 
-            ruleset.forEach(function (rule) {            
-                if (rule.variable === true) {                
+            ruleset.forEach(function (rule) {                            
+                if(rule.isLineComment){
+                    return
+                }else if (rule.variable === true) {                
                     var name;
                     name = rule.name.substr(1);					
 
@@ -65,9 +67,12 @@ function loadLessVars(fileName1,fileName2){
                     lessVars[name] = value.toCSS(options);				
 
                     console.log(name+" : "+value.toCSS(options))
-
+                }else{                                 
+                    parseSketchRule(rule,null,[])                                      
                 }
             });
+            console.log("----------------------------------------")
+            console.log(lessVars)
             
             // completed
             saveData(lessVars,pathToJSON)
@@ -82,6 +87,41 @@ function loadLessVars(fileName1,fileName2){
     console.log("Read LESS: done")
     return lessVars
 }
+
+
+function parseSketchRule(rule,elements,path){
+    //console.log("----------------- parseSketchRule -----------------------")
+    //console.log(rule)
+
+    if(null!=elements){
+        elements.forEach(function (el) { 
+            path = path.concat([el.value])
+        })
+    }else{
+        if(rule.selectors!=null && rule.selectors.length>0){
+            rule.selectors.forEach(function (sel) {
+                parseSketchRule(rule,sel.elements,path)
+            })
+        }
+    }
+
+    if( rule.rules ){
+        rule.rules.forEach(function (oneRule) { 
+            parseSketchRule(oneRule,null,path)
+        })
+    }else{
+        parseSketchLastRule(rule,path)    
+    }
+}
+
+
+
+function parseSketchLastRule(lastRule,path){
+    //console.log("----------------- parseSketchLastRule -----------------------")    
+    console.log(path.join("/")+" "+lastRule.name)
+
+}
+
 
 function saveData(data,pathToJSON){   
     var json = JSON.stringify(data,null,'    ')
