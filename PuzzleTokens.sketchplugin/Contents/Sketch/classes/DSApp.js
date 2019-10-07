@@ -170,6 +170,9 @@ class DSApp {
 
             // work with token
             var token = tokens[tokenName]
+            
+            // skip non-struct definitions
+            if(!(token instanceof Object)) continue
 
             // skip token without sketch path
             if(!('sketch' in  token)) continue          
