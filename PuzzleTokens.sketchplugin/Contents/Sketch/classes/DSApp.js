@@ -154,7 +154,15 @@ class DSApp {
             this.logError("Can not find .json file by path: "+this.pathToSketchStylesJSON)
             return false
         }
-        var tokens = JSON.parse(tokensStr)
+        var tokens = null
+        
+        try {
+            tokens = JSON.parse(tokensStr)
+        } catch (e) {
+            this.logError(e)
+            return false
+        }
+      
 
         for(var tokenName of Object.keys(tokens)){
             // skip comments

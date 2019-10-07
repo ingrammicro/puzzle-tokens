@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 3.1.2 (7 Oct 2019)
+- Diagnostic of JSON errors has been improved
+
 ##  Version 3.1.1 (19 Sep 2019)
 - Diagnostic of LESS errors has been improved
 
