@@ -99,6 +99,8 @@ class Utils {
 
         let sep = rgba.indexOf(",") > -1 ? "," : " ";
         rgba = rgba.substr(5).split(")")[0].split(sep);
+        log("RGBAToHexA ")
+        log(rgba )
 
         // Strip the slash if using space-separated syntax
         if (rgba.indexOf("/") > -1)

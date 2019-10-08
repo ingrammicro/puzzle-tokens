@@ -148,6 +148,7 @@ class DSApp {
 
     _applyLess() {
 
+        
         for(const rule of this.less){
             const sketchPath = rule.path
 
@@ -568,11 +569,13 @@ class DSApp {
             }else if(backColor!=""){
                 if('transparent'==backColor){
                     var opacity = "0%"
-                    color =  "#FFFFFF" + Utils.opacityToHex(opacity)
-                }else{
+                    backColor =  "#FFFFFF" + Utils.opacityToHex(opacity)
+                }if(backColor.startsWith("#")){
                     var opacity = token['opacity']
-                    if(undefined!=opacity) backColor = backColor + Utils.opacityToHex(opacity)                
+                    if(undefined!=opacity) backColor = backColor + Utils.opacityToHex(opacity)                                
                 }
+
+                //log('_applyPropsToShape color='+backColor+" src="+token['background-color'])
 
                 var fill = {
                     color: backColor,
