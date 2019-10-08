@@ -26,7 +26,6 @@ console.log("Started")
 
 loadLessVars(pathToLess1,pathToLess2)    
 
-
 function loadLessVars(fileName1,fileName2){
     console.log("Read LESS: running...")
     
@@ -40,7 +39,7 @@ function loadLessVars(fileName1,fileName2){
     }
     data = data + data1;
     if(fileName2!=undefined){
-        data = data + fs.readFileSync(fileName2, 'utf8');
+        data = data + "\n"+fs.readFileSync(fileName2, 'utf8');
     }
 
     options1 = { 
@@ -121,19 +120,28 @@ function saveSketchRule(rule,path){
     var sketchPath = path.join("/")
     //console.log(sketchPath)
     sketchPath = sketchPath.replace(/(\.)/g, '').replace(/^\./,'')
-    console.log(sketchPath)
     const sketchRule = {
         path: sketchPath,
-        props: {}
+        props: {
+            __lessTokens:{}
+        }
     }
     rule.rules.forEach(function (oneRule) { 
         if(oneRule.isLineComment) return
-        var value = oneRule.value.value
-        sketchRule.props[oneRule.name] ={
-             value: value,
-             token: "token"
+        var value = String(oneRule.value.value)
+        if('box-shadow'==oneRule.name){
+            const shadowValues = oneRule.value.value.map(function(v){        
+                if(v.unit && v.unit.numerator){
+                    return String(v.value) + String((v.unit && v.unit.numerator &&  v.unit.numerator.length>0)? v.unit.numerator[0]:"")
+                }else if (v.rgb){
+                    return String(v.value)
+                }                
+            })
+            value = shadowValues.join(" ")
         }
-        //console.log(oneRule)
+
+        sketchRule.props[String(oneRule.name)] = value
+        sketchRule.props.__lessTokens["token"] = true
     })
     sketchRules.push(sketchRule)
 }
@@ -142,8 +150,6 @@ function saveSketchRule(rule,path){
 
 function saveData(data,pathToJSON){   
     var json = JSON.stringify(data,null,'    ')
-    console.log(json)
-
     fs.writeFileSync(pathToJSON, json, 'utf8');
 
     return true

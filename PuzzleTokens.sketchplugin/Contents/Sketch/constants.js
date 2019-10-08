@@ -10,6 +10,7 @@ var Constants = {
 
 var SettingKeys = {
     PLUGIN_PATH_TO_TOKENS_LESS:         "pluginPathToTokensLess", 
+    PLUGIN_PATH_TO_TOKENS_LESS2:         "pluginPathToTokensLess2", 
     PLUGIN_PATH_TO_SKETCHSTYLES_LESS:   "pluginPathToSketchStylesJSON",
     PLUGIN_GENERATE_SYMBOLTOKENS:       "pluginGenSymbTokens"
 };

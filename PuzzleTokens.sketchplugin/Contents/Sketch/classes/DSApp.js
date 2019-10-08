@@ -10,7 +10,6 @@ var Style = require('sketch/dom').Style
 var Image = require('sketch/dom').Image
 const path = require('path');
 
-
 class DSApp {
     constructor(context) {
         this.nDoc = context.document
@@ -33,6 +32,8 @@ class DSApp {
         // load settings       
         this.pathToTokensLess = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS)
         if(undefined==this.pathToTokensLess) this.pathToTokensLess = ''        
+        this.pathToTokensLess2 = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS2)
+        if(undefined==this.pathToTokensLess2) this.pathToTokensLess2 = ''        
         this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS)==1        
 
         
@@ -74,6 +75,7 @@ class DSApp {
     run() {
         if(!this._showDialog()) return false
         this.pathToTokens = this.pathToTokensLess.substring(0, this.pathToTokensLess.lastIndexOf("/"));
+        this.pathToTokens2 = this.pathToTokensLess2.substring(0, this.pathToTokensLess2.lastIndexOf("/"));
 
         while(true){
             this._initPages()
@@ -111,8 +113,13 @@ class DSApp {
         const dialog = new UIDialog("Apply UI Tokens to Sketch styles",NSMakeRect(0, 0, 600, 180),"Apply")
 
         dialog.addPathInput({
-            id:"pathToTokensLess",label:"Path to Design Tokens (LESS file)",labelSelect:"Select",
+            id:"pathToTokensLess",label:"Path to Design Tokens LESS file",labelSelect:"Select",
             textValue:this.pathToTokensLess,inlineHint:'e.g. /Work/ui-tokens.less',
+            width:550,askFilePath:true
+        })  
+        dialog.addPathInput({
+            id:"pathToTokensLess2",label:"Path to Design Tokens LESS file #2 (Optional)",labelSelect:"Select",
+            textValue:this.pathToTokensLess2,inlineHint:'e.g. /Work/ui-tokens-custom.less',
             width:550,askFilePath:true
         })  
         dialog.addCheckbox("genSymbTokens","Generate symbols & styles description file",this.genSymbTokens)
@@ -124,6 +131,7 @@ class DSApp {
     
             this.pathToTokensLess = dialog.views['pathToTokensLess'].stringValue()+""
             if(""==this.pathToTokensLess) continue
+            this.pathToTokensLess2 = dialog.views['pathToTokensLess2'].stringValue()+""
             this.genSymbTokens = dialog.views['genSymbTokens'].state() == 1
 
             break
@@ -132,135 +140,61 @@ class DSApp {
         dialog.finish()
 
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToTokensLess)
+        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS2, this.pathToTokensLess2)
         Settings.setSettingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS, this.genSymbTokens)
     
 
         return true
     }
 
-    _applyLess1() {
+    _applyLess() {
+
         for(const rule of this.less){
             const sketchPath = rule.path
             if(sketchPath.indexOf("__")==0) continue //Path to Sketch object undefined
 
-            for(const tokenName of rule.props){                
-                ///
-                var sketchObj = this._getObjByPath(sketchPath)
-                if(undefined==sketchObj){
-                    this.logError("Can not find Sketch layer by path: "+sketchPath)
-                    continue
-                }                
-                const token = rule.props[tokenName]
-
-                // Apply Styles
-                if(
-                    ('font-size' in token) || ('text-color' in token)
-                    || ('font-weight' in token) || ('text-transform' in token) || ('font-face' in token)
-                )
-                    this._applyTextStyle(token,tokenName,sketchObj)               
-                if('fill-color' in token)
-                    this._applyFillColor(token,tokenName,sketchObj,token['fill-color'])
-                if('shadow' in token)
-                   this._applyShadow(token,tokenName,sketchObj, false, token['shadow'])
-                if('inner-shadow' in token)
-                   this._applyShadow(token,tokenName,sketchObj, true, token['inner-shadow'])
-                if(('border-color' in token) || ('border-width' in token) || ('border-position' in token))
-                    this._applyBorderStyle(token,tokenName,sketchObj)                        
-                if('shape-radius' in token)
-                    this._applyShapeRadius(token,tokenName,sketchObj)
-                if('image' in token)
-            }
-        }
-    }
-
-    _applyLess1() {
-      
-        for(var tokenName of Object.keys(tokens)){
-            // skip comments
-            if(tokenName.indexOf("__")==0) continue          
-
-            // work with token
-            var token = tokens[tokenName]
+            // find Skech Object
+            var sketchObj = this._getObjByPath(sketchPath)
+            if(undefined==sketchObj){
+                this.logError("Can not find Sketch layer by path: "+sketchPath)
+                return
+            }      
             
-            // skip non-struct definitions
-            if(!(token instanceof Object)) continue
+            // Drop commented property
+            const validProps =  Object.keys(rule.props).filter(n => n.indexOf("__")<0)
 
-            // skip token without sketch path
-            if(!('sketch' in  token)) continue          
-
-            // fill token attribute values from LESS file
-            token.__lessTokens = {}
-            var ok = true
-            for(var attrName of Object.keys(token)){
-                if(attrName.indexOf("__")==0) continue
-
-                var attrValue= token[attrName]
-                if(''==attrValue || attrValue.indexOf("__")==0) continue
-
-                if(attrValue.indexOf(";")>=0){
-                    // transform "@radius;@radius;0;0"
-                    var lessValue = []
-                    for(var elem of attrValue.split(';')){
-                        if(elem.indexOf("@")==0){
-                            token.__lessTokens[elem] = true
-                            elem = this._getLessVar(elem)                            
-                            if(undefined==elem){
-                                ok = false
-                                continue
-                            }                                                 
-                        }                        
-                        lessValue.push(elem)
-                    }
-                    if(!ok) continue
-                    token[attrName] = lessValue
-                }else if(attrValue.indexOf("@")==0){
-                    token.__lessTokens[attrValue] = true
-                    var lessValue = this._getLessVar(attrValue)                            
-                    if(undefined==lessValue){
-                        ok = false
-                        continue
-                    }
-                    token[attrName] = lessValue
-                }
+            log(sketchObj)
+            log(sketchObj.slayer.type)
+            if("Text"==sketchObj.slayer.type){
+                this._applyPropsToText(rule.props,sketchObj)
             }
-            if(!ok) continue
 
-            var sketchPaths = token['sketch']
-            if(!Array.isArray(sketchPaths))
-                sketchPaths = [sketchPaths]
-
-            for(var sketchPath of sketchPaths){
-                if(sketchPath.indexOf("__")==0) continue //Path to Sketch object undefined
-                var sketchObj = this._getObjByPath(sketchPath)
-                if(undefined==sketchObj){
-                    this.logError("Can not find Sketch layer by path: "+sketchPath)
-                    continue
-                }
-
+            /*for(const tokenName of Object.keys(rule.props)){
+            
                 // Apply Styles
+                
                 if(
-                    ('font-size' in token) || ('text-color' in token)
+                    ('font-size' in token) || ('color' in token)
                     || ('font-weight' in token) || ('text-transform' in token) || ('font-face' in token)
                 )
                     this._applyTextStyle(token,tokenName,sketchObj)               
-                if('fill-color' in token)
-                    this._applyFillColor(token,tokenName,sketchObj,token['fill-color'])
+                if('background-color' in token)
+                    this._applyFillColor(token,tokenName,sketchObj,token['background-color'])
                 if('shadow' in token)
                    this._applyShadow(token,tokenName,sketchObj, false, token['shadow'])
                 if('inner-shadow' in token)
                    this._applyShadow(token,tokenName,sketchObj, true, token['inner-shadow'])
                 if(('border-color' in token) || ('border-width' in token) || ('border-position' in token))
                     this._applyBorderStyle(token,tokenName,sketchObj)                        
-                if('shape-radius' in token)
+                if('border-radius' in token)
                     this._applyShapeRadius(token,tokenName,sketchObj)
                 if('image' in token)
-                    this._applyImage(token,tokenName,sketchObj)
+                    this._applyImage(token,tokenName,sketchObj)              
             }
-
+            */
         }
-        
-        return true
     }
+
 
     loadLess() {
         const tempFolder = Utils.getPathToTempFolder()
@@ -270,8 +204,9 @@ class DSApp {
             this.logError("Can not find .less file by path: "+this.pathToTokensLess)
             return false
         }
-        if(!Utils.fileExistsAtPath(this.pathToSketchStylesJSON)){
-            this.logError("Can not find .json file by path: "+this.pathToSketchStylesJSON)
+        // check files
+        if(this.pathToTokensLess2!="" && !Utils.fileExistsAtPath(this.pathToTokensLess2)){
+            this.logError("Can not find .less file by path: "+this.pathToTokensLess2)
             return false
         }
 
@@ -283,9 +218,12 @@ class DSApp {
         const pathToLessJSON = tempFolder + "/nsdata.less.json"
         var args = [scriptPath]
         args.push(this.pathToTokensLess)
+        if(this.pathToTokensLess2!="") args.push(this.pathToTokensLess2)
         args.push(pathToLessJSON)
 
         const runResult = Utils.runCommand("/usr/local/bin/node",args)
+
+        log(runResult.output)
 
         if(!runResult.result){
             this.logError(runResult.output)
@@ -294,8 +232,7 @@ class DSApp {
         
         // load json file
         var error = null
-        var lessJSONStr = NSString.stringWithContentsOfURL_encoding_error(NSURL.fileURLWithPath_isDirectory(pathToLessJSON, false), NSUTF8StringEncoding, error);
-
+        var lessJSONStr =  Utils.readFile(pathToLessJSON)
         try {
             this.less = JSON.parse(lessJSONStr)
         } catch (e) {
@@ -353,12 +290,12 @@ class DSApp {
         return obj
     }
 
-    _syncSharedStyle(token,tokenName,obj){
+    _syncSharedStyle(token,obj){
         if(!obj.slayer.sharedStyle){
             //return this.logError('No shared style for some of "'+tokenName+'" styles')
             var SharedStyle = require('sketch/dom').SharedStyle
             obj.slayer.sharedStyle = SharedStyle.fromStyle({
-                name:       tokenName,
+                name:       obj.slayer.name,
                 style:      obj.slayer.style,
                 document:   this.ocDoc
               })
@@ -373,6 +310,8 @@ class DSApp {
 
         return true
     }
+
+
 
     _addStyleTokenToSymbol(token,styleSLayer){
         const sharedStyle = styleSLayer.sharedStyle
@@ -440,20 +379,6 @@ class DSApp {
         return true
     }
     
-    
-    _getLessVar(lessName){
-        // cut first @
-        if(lessName.indexOf("@")==0) 
-            lessName = lessName.substring(1,lessName.length)
-
-        var lessVar = this.less[lessName]
-        if (undefined == lessVar) {
-            this.logError("Can not find less variable for '" + lessName + "'")
-            return undefined
-        }
-        return lessVar
-    }    
- 
     _applyFillColor(token, tokenName, obj, color) {
         
         if(color.indexOf("gradient")>0){
@@ -463,7 +388,7 @@ class DSApp {
                 var opacity = "0%"
                 color =  "#FFFFFF" + Utils.opacityToHex(opacity)
             }else{
-                var opacity = token['fill-color-opacity']
+                var opacity = token['opacity']
                 if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)                
             }
 
@@ -477,7 +402,7 @@ class DSApp {
             obj.slayer.style.fills = []
         }
 
-        return this._syncSharedStyle(token,tokenName,obj)        
+        return this._syncSharedStyle(token,obj)        
     }
 
 
@@ -524,7 +449,7 @@ class DSApp {
         }
         obj.slayer.style.fills = [fill]
 
-        return this._syncSharedStyle(token,tokenName,obj)        
+        return this._syncSharedStyle(token,obj)        
     }
  
     _applyFillGradientProcessColor(token,colorType){
@@ -557,12 +482,12 @@ class DSApp {
         else   
             obj.slayer.style.shadows = shadows
 
-        return this._syncSharedStyle(token,tokenName,obj)        
+        return this._syncSharedStyle(token,obj)        
     }
 
     _applyShapeRadius(token, tokenName, styleObj) {
 
-        var radius = token['shape-radius']
+        var radius = token['border-radius']
         const layers = styleObj.slayer.sharedStyle.getAllInstancesLayers()
 
         for(var l of layers){
@@ -661,7 +586,7 @@ class DSApp {
 
             // process width
             if('border-width' in token){
-                border.thickness = token['border-width']
+                border.thickness = token['border-width'].replace("px","")
             }
 
             // process position
@@ -684,7 +609,7 @@ class DSApp {
         obj.slayer.style.borders = border?[border]:[]
 
 
-        return this._syncSharedStyle(token,tokenName,obj)
+        return this._syncSharedStyle(token,obj)
     }
 
     _getObjTextData(obj){
@@ -713,108 +638,108 @@ class DSApp {
     }
 
 
-    _applyTextStyle(token,tokenName, obj){
-        // read token attribues
-        var fontSize = token['font-size']
-        var fontFace = token['font-face']
-        var color = token['text-color']
-        var fontWeight = token['font-weight']
-        var transform = token['text-transform']
-        var lineHeight = token['line-height']
-        
-        //// SET FONT SIZE
-        if(undefined!=fontSize){                      
-            obj.slayer.style.fontSize = parseFloat(fontSize.replace("px",""))
-        }        
-        //// SET FONT SIZE
-        if(undefined!=fontFace){  
-            let firstFont = fontFace.split(',')[0]
-            firstFont = firstFont.replace(/[""]/gi,'')
-            obj.slayer.style.fontFamily = firstFont
-            log('firstFont:'+firstFont)
-        }           
-        //// SET LINE HEIGHT
-        if(undefined!=lineHeight){                      
-            obj.slayer.style.lineHeight = Math.round(parseFloat(lineHeight) * obj.slayer.style.fontSize)
-        }else{
-            //obj.slayer.style.lineHeight = null
-        }
-        //// SET FONT WEIGHT
-        if(undefined!=fontWeight){
-            var weightKey = "label"
-            const weights = [
-                {
-                    label:  'extra-light',
-                    sketch: 3,
-                    css:    200
-                },
-                {
-                    label: 'light',
-                    sketch: 4,
-                    css:    300
-                },                
-                {
-                    label:  'regular',
-                    sketch: 5,
-                    css:    400
-                },
-                {
-                    label:  'medium',   
-                    sketch: 6,
-                    css:    500
-                },
-                {
-                    label:  'semi-bold',
-                    sketch: 8,
-                    css:    600
-                },
-                {
-                    label:  'semibold',
-                    sketch: 8,
-                    css:    600
-                },
-                {   
-                    label:  'bold',
-                    sketch: 9,
-                    css:    700
-                }
-            ]
-
-            // for numeric weight we support it uses css format
-            if(!isNaN(fontWeight)){
-                weightKey = 'css'
-                fontWeight = fontWeight * 1
-            }
-
-            var finalWeight = undefined
-            for(var w of weights){
-                if(w[weightKey] == fontWeight){
-                    finalWeight = w.sketch
-                    break
-                }
-            }
-            if(undefined==finalWeight){
-                log("weightKey="+weightKey+"  fontWeight="+fontWeight)
-                return this.logError('Wrong font weight for token: '+tokenName)
-            }
-            
-            obj.slayer.style.fontWeight = finalWeight
-        }
-
-         // SET TEXT COLOR
-         if(undefined!=color){
-            let opacity = token['text-color-opacity']
-            let opacityHEX = undefined!=opacity?Utils.opacityToHex(opacity):''
-
-            obj.slayer.style.textColor = color + opacityHEX
-        }
-        // SET TEXT TRANSFORM
-        if(undefined!=transform){
-            obj.slayer.style.textTransform = transform
-        }
-    
-        return this._syncSharedStyle(token,tokenName,obj)
-
+    _applyPropsToText(token,obj){
+         // read token attribues
+         var fontSize = token['font-size']
+         var fontFace = token['font-face']
+         var color = token['color']
+         var fontWeight = token['font-weight']
+         var transform = token['text-transform']
+         var lineHeight = token['line-height']
+         
+         //// SET FONT SIZE
+         if(undefined!=fontSize){                      
+             obj.slayer.style.fontSize = parseFloat(fontSize.replace("px",""))
+         }        
+         //// SET FONT SIZE
+         if(undefined!=fontFace){  
+             let firstFont = fontFace.split(',')[0]
+             firstFont = firstFont.replace(/[""]/gi,'')
+             obj.slayer.style.fontFamily = firstFont
+             log('firstFont:'+firstFont)
+         }           
+         //// SET LINE HEIGHT
+         if(undefined!=lineHeight){                      
+             obj.slayer.style.lineHeight = Math.round(parseFloat(lineHeight) * obj.slayer.style.fontSize)
+         }else{
+             //obj.slayer.style.lineHeight = null
+         }
+         //// SET FONT WEIGHT
+         if(undefined!=fontWeight){
+             var weightKey = "label"
+             const weights = [
+                 {
+                     label:  'extra-light',
+                     sketch: 3,
+                     css:    200
+                 },
+                 {
+                     label: 'light',
+                     sketch: 4,
+                     css:    300
+                 },                
+                 {
+                     label:  'regular',
+                     sketch: 5,
+                     css:    400
+                 },
+                 {
+                     label:  'medium',   
+                     sketch: 6,
+                     css:    500
+                 },
+                 {
+                     label:  'semi-bold',
+                     sketch: 8,
+                     css:    600
+                 },
+                 {
+                     label:  'semibold',
+                     sketch: 8,
+                     css:    600
+                 },
+                 {   
+                     label:  'bold',
+                     sketch: 9,
+                     css:    700
+                 }
+             ]
+ 
+             // for numeric weight we support it uses css format
+             if(!isNaN(fontWeight)){
+                 weightKey = 'css'
+                 fontWeight = fontWeight * 1
+             }
+ 
+             var finalWeight = undefined
+             for(var w of weights){
+                 if(w[weightKey] == fontWeight){
+                     finalWeight = w.sketch
+                     break
+                 }
+             }
+             if(undefined==finalWeight){
+                 log("weightKey="+weightKey+"  fontWeight="+fontWeight)
+                 return this.logError('Wrong font weigh')
+             }
+             
+             obj.slayer.style.fontWeight = finalWeight
+         }
+ 
+          // SET TEXT COLOR
+          if(undefined!=color){
+             let opacity = token['opacity']
+             let opacityHEX = undefined!=opacity?Utils.opacityToHex(opacity):''
+ 
+             obj.slayer.style.textColor = color + opacityHEX
+             log("color="+color)
+         }
+         // SET TEXT TRANSFORM
+         if(undefined!=transform){
+             obj.slayer.style.textTransform = transform
+         }
+     
+         return this._syncSharedStyle(token,obj)
     }
 
 }
