@@ -10,68 +10,53 @@ function _clearName(name){
 class DSLayerCollector {
 
     constructor() { 
+        this.layers = {}
     }
 
-    collectPages(){
-        let pages = {}
-
+    collectLayers(){
         app.nDoc.pages().forEach(function (nPage) {
-            log("collectPages name="+nPage.name())
-            const page = {
+            const name = nPage.name() 
+            this.layers[name] = {
                 name: nPage.name(),
-                //nlayer: nPage,
-                childs: this.collectPageArtboards(nPage)
-            }
-            pages[page.name] = page
+                isPage: true,
+                nlayer: nPage
+            }        
+            this._collectLayersFromGroup(nPage.artboards(),name)
         },this)
 
-        log(pages)
-        return pages
+        return this.layers
     }
 
-    collectPageArtboards(nPage){
-        const artboards = {}      
-
-        nPage.artboards().forEach(function(nArtboard){            
-            log("collectPageArtboards name="+nArtboard.name())
-            const artboard = {
-                name: nArtboard.name(),
-                nlayer: nArtboard,
-                childs: this.collectLayers(nArtboard.layers())                
-            }
-            artboards[_clearName(artboard.name)] = artboard
-        },this)
-
-        return artboards
-    }
-
-    collectLayers(nLayers){
-        const layers = {}
+    _collectLayersFromGroup(nLayers,path,insideMaster=false){
 
         nLayers.forEach(function(nLayer){            
             let childs = {}
-            
-            if(this.isLayerGroup(nLayer)){
-                childs = this.collectLayers(nLayer.layers())
-            }
-       
+                    
+            const name = nLayer.name()
+            const newPath = _clearName(path + "/" + name)
 
-            const layer = {
-                name: nLayer.name(),
-                //nlayer: nLayer,
-                //slayer: Sketch.fromNative(nLayer),
-                childs: childs
+            const mLayer = {
+                name: name,
+                insideMaster: insideMaster,
+                nlayer: nLayer,
+                slayer: Sketch.fromNative(nLayer),
             }
-            layers[_clearName(layer.name)] = layer
+            this.layers[newPath] = mLayer
+
+
+            if(this.isLayerGroup(nLayer)){
+                insideMaster = insideMaster || nLayer.isKindOfClass(MSSymbolMaster)
+                this._collectLayersFromGroup(nLayer.layers(),newPath,insideMaster)            
+            }
+
         },this)
 
-        return layers
     }
 
 
-    isLayerGroup(nlayer){
-        if(nlayer.isKindOfClass(MSLayerGroup)) return true
-        if(nlayer.isKindOfClass(MSSymbolMaster)) return true
+    isLayerGroup(nLayer){
+        if(nLayer.isKindOfClass(MSLayerGroup)) return true
+        if(nLayer.isKindOfClass(MSSymbolMaster)) return true
         return false
     }
 

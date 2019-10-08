@@ -17,7 +17,7 @@ class DSApp {
         this.context = context
         this.UI = require('sketch/ui')
         
-        this.pages = {}
+        this.layers = {}
         this.elements = {
             styles:     {}
         }
@@ -64,9 +64,9 @@ class DSApp {
     }
 
   
-    _initPages() {
+    _initLayers() {
         const layerCollector  = new DSLayerCollector() 
-        this.pages = layerCollector.collectPages()
+        this.layers = layerCollector.collectLayers()
     }
 
 
@@ -78,7 +78,7 @@ class DSApp {
         this.pathToTokens2 = this.pathToTokensLess2.substring(0, this.pathToTokensLess2.lastIndexOf("/"));
 
         while(true){
-            this._initPages()
+            this._initLayers()
 
             if( !this.loadLess()) break
             if( !this._applyLess() ) break
@@ -154,7 +154,7 @@ class DSApp {
             // find Skech Object
             var sketchObj = this._getObjByPath(sketchPath)
             if(undefined==sketchObj){
-                this.logError("Can not find Sketch layer by path: "+sketchPath)
+                this.logError("Can not find Sketch layer by path: "+sketchPath.join())
                 return
             }      
             
@@ -254,28 +254,21 @@ class DSApp {
             objects = symbolObj.childs
             objPath = layerPath
         }else{            
-            objects = this.pages
+            objects = this.layers
         }
 
-        log(objPath)
-        var obj = undefined
-        for(var objName of objPath){
-            objName = decodeURIComponent(objName.replace(/^\./,''))
-            log("_getObjByPath")
-            log(objName)
-            obj = objects[objName]
-            if(undefined==obj) break
-            objects = obj.childs
-        }
+        // clear obj path
+        objPath = objPath.map(n=>n.replace(/^\./,''))
+        var objPathStr = objPath.join("/")
 
-        if (undefined == obj) {
-            return undefined
-        }
-
+        // search obj
+        var obj = this.layers[objPathStr]               
         return obj
     }
 
     _syncSharedStyle(token,obj){
+        if(obj.insideMaster) return
+
         if(!obj.slayer.sharedStyle){
             //return this.logError('No shared style for some of "'+tokenName+'" styles')
             var SharedStyle = require('sketch/dom').SharedStyle
