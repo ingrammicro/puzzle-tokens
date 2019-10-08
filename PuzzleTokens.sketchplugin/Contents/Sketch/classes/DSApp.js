@@ -167,29 +167,15 @@ class DSApp {
             log(sketchObj.slayer.type)
             if("Text"==sketchObj.slayer.type){
                 this._applyPropsToText(rule.props,sketchObj)
+            }else if("ShapePath"==sketchObj.slayer.type){
+                this._applyPropsToShape(rule.props,sketchObj)
+            }else if("Image"==sketchObj.slayer.type){
+                this._applyPropsToImage(rule.props,sketchObj)
             }
 
-            /*for(const tokenName of Object.keys(rule.props)){
-            
-                // Apply Styles
-                
-                if(
-                    ('font-size' in token) || ('color' in token)
-                    || ('font-weight' in token) || ('text-transform' in token) || ('font-face' in token)
-                )
-                    this._applyTextStyle(token,tokenName,sketchObj)               
-                if('background-color' in token)
-                    this._applyFillColor(token,tokenName,sketchObj,token['background-color'])
-                if('shadow' in token)
-                   this._applyShadow(token,tokenName,sketchObj, false, token['shadow'])
+            /*for(const tokenName of Object.keys(rule.props)){                                                         
                 if('inner-shadow' in token)
-                   this._applyShadow(token,tokenName,sketchObj, true, token['inner-shadow'])
-                if(('border-color' in token) || ('border-width' in token) || ('border-position' in token))
-                    this._applyBorderStyle(token,tokenName,sketchObj)                        
-                if('border-radius' in token)
-                    this._applyShapeRadius(token,tokenName,sketchObj)
-                if('image' in token)
-                    this._applyImage(token,tokenName,sketchObj)              
+                   this._applyShadow(token,tokenName,sketchObj, true, token['inner-shadow'])              
             }
             */
         }
@@ -378,35 +364,10 @@ class DSApp {
 
         return true
     }
-    
-    _applyFillColor(token, tokenName, obj, color) {
-        
-        if(color.indexOf("gradient")>0){
-            return this._applyFillGradient(token, tokenName, obj, color)
-        }else if(color!=""){
-            if('transparent'==color){
-                var opacity = "0%"
-                color =  "#FFFFFF" + Utils.opacityToHex(opacity)
-            }else{
-                var opacity = token['opacity']
-                if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)                
-            }
-
-            var fill = {
-                color: color,
-                fill: Style.FillType.Color
-            }
-            obj.slayer.style.fills = [fill]
-            
-        }else{
-            obj.slayer.style.fills = []
-        }
-
-        return this._syncSharedStyle(token,obj)        
-    }
 
 
-    _applyFillGradient(token, tokenName, obj,colorsRaw) {
+
+    _applyFillGradient(token, obj,colorsRaw) {
         // parse string in format: linear-gradient(#00000,#F0000);
         const i1 = colorsRaw.indexOf("(");
         const i2 = colorsRaw.lastIndexOf(")");
@@ -465,7 +426,7 @@ class DSApp {
         return color
     }
 
-    _applyShadow(token, tokenName, obj, isInner, shadowCSS) {
+    _applyShadow(token, obj, isInner, shadowCSS) {
         
         var shadows = []
         if(shadowCSS!="" && shadowCSS!="none"){
@@ -485,7 +446,7 @@ class DSApp {
         return this._syncSharedStyle(token,obj)        
     }
 
-    _applyShapeRadius(token, tokenName, styleObj) {
+    _applyShapeRadius(token, styleObj) {
 
         var radius = token['border-radius']
         const layers = styleObj.slayer.sharedStyle.getAllInstancesLayers()
@@ -514,60 +475,7 @@ class DSApp {
         return true // we don't need to sync changes with shared style here
     } 
 
-
-    _applyImage(token, tokenName, obj) {        
-        var imageName = token['image']
-
-        if(imageName!=""){          
-            if('transparent'==imageName){                
-                obj.slayer.style.opacity = 0
-            }else{
-                let path = this.pathToTokens + "/" + imageName
-                //'/Users/baza/Ingram/Themes/ingram-micro-brand-aligned/design-tokens/images/panel-logo@2x.png'
-                var fileManager = [NSFileManager defaultManager];
-                if (! [fileManager fileExistsAtPath: path]) {
-                    return this.logError('Image not found on path: '+path)
-                }
-
-                let parent = obj.slayer.parent
-                let frame = new Rectangle(obj.slayer.frame)
-                let oldConstraints =   obj.nlayer.resizingConstraint()
-                obj.slayer.remove()
-
-                let simage =  new Image({
-                    frame:frame,
-                    name:obj.name,
-                    image: path
-                  })
-                parent.layers.push(simage)
-                
-                obj.slayer = simage
-                obj.nlayer = simage.sketchObject
-                
-                obj.slayer.frame.width  = simage.image.nsimage.size().width / 4
-                obj.slayer.frame.height  = simage.image.nsimage.size().height / 4
-
-                obj.nlayer.resizingConstraint = oldConstraints
-
-                /*
-                let image = [[NSImage alloc] initWithContentsOfFile:path];
-                obj.slayer.image = image                
-                obj.slayer.style.opacity = 1
-                if(path.includes('@2x')){
-                    obj.slayer.frame.width  = image.size().width  / 2
-                    obj.slayer.frame.height  = image.size().height / 2  
-                }else{
-                    obj.slayer.frame.width  = image.size().width
-                    obj.slayer.frame.height  = image.size().height    
-                }*/
-            }            
-        }
-
-        //return this._syncSharedStyle(tokenName,obj)        
-        return true // we don't need to sync changes with shared style here
-    } 
-
-    _applyBorderStyle(token,tokenName, obj){
+    _applyBorderStyle(token, obj){
         
         var border = {
         }
@@ -597,7 +505,7 @@ class DSApp {
                     'outside':    Style.BorderPosition.Outside
                 }
                 if( !(token['border-position'] in conversion) ){
-                    return this.logError('Wrong border-position for token: '+tokenName)
+                    return this.logError('Wrong border-position')
                 }
 
                 border.position = conversion[ token['border-position'] ]
@@ -608,8 +516,6 @@ class DSApp {
         // save new border in style
         obj.slayer.style.borders = border?[border]:[]
 
-
-        return this._syncSharedStyle(token,obj)
     }
 
     _getObjTextData(obj){
@@ -636,6 +542,74 @@ class DSApp {
             'orgTextStyle':orgTextStyle
         }
     }
+
+
+
+    _applyShadow(token, obj, isInner, shadowCSS) {
+        
+        var shadows = []
+        if(shadowCSS!="" && shadowCSS!="none"){
+            var shadow = Utils.splitCSSShadow(shadowCSS)    
+            shadow.enabled = true
+            shadow.type = 'Shadow'
+            shadows = [shadow]
+        }else{
+           //obj.slayer.style.shadows = []
+        }
+
+        if(isInner)
+            obj.slayer.style.innerShadows = shadows
+        else   
+            obj.slayer.style.shadows = shadows
+
+        return this._syncSharedStyle(token,obj)        
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////
+        
+    _applyPropsToShape(token, obj) {        
+        // SET COLOR
+        var backColor = token['background-color']
+        if(backColor!=null){
+            if(backColor.indexOf("gradient")>0){
+                return this._applyFillGradient(token, obj, color)
+            }else if(backColor!=""){
+                if('transparent'==backColor){
+                    var opacity = "0%"
+                    color =  "#FFFFFF" + Utils.opacityToHex(opacity)
+                }else{
+                    var opacity = token['opacity']
+                    if(undefined!=opacity) backColor = backColor + Utils.opacityToHex(opacity)                
+                }
+
+                var fill = {
+                    color: backColor,
+                    fill: Style.FillType.Color
+                }
+                obj.slayer.style.fills = [fill]            
+            }else{
+                obj.slayer.style.fills = []
+            }
+        }
+
+        // SET SHADOW
+        var boxShadow = token['box-shadow']
+        if(boxShadow!=null){
+            this._applyShadow(token,obj,false,boxShadow)
+        }
+
+        // SET BORDER
+        if(('border-color' in token) || ('border-width' in token) || ('border-position' in token))
+            this._applyBorderStyle(token,obj)        
+
+
+        // SET BORDER RADIUS
+        if('border-radius' in token)
+            this._applyShapeRadius(token,obj)
+
+        return this._syncSharedStyle(token,obj)        
+    }
+    
 
 
     _applyPropsToText(token,obj){
@@ -738,8 +712,69 @@ class DSApp {
          if(undefined!=transform){
              obj.slayer.style.textTransform = transform
          }
+
+
+         var textShadow = token['text-shadow']
+         if(textShadow!=null){
+            this._applyShadow(token,obj,false,textShadow)
+        }
+
      
          return this._syncSharedStyle(token,obj)
     }
+
+
+    _applyPropsToImage(token, obj) {        
+        var imageName = token['image']
+
+        if(imageName!=""){          
+            if('transparent'==imageName){                
+                obj.slayer.style.opacity = 0
+            }else{
+                let path = this.pathToTokens + "/" + imageName
+                //'/Users/baza/Ingram/Themes/ingram-micro-brand-aligned/design-tokens/images/panel-logo@2x.png'
+                var fileManager = [NSFileManager defaultManager];
+                if (! [fileManager fileExistsAtPath: path]) {
+                    return this.logError('Image not found on path: '+path)
+                }
+
+                let parent = obj.slayer.parent
+                let frame = new Rectangle(obj.slayer.frame)
+                let oldConstraints =   obj.nlayer.resizingConstraint()
+                obj.slayer.remove()
+
+                let simage =  new Image({
+                    frame:frame,
+                    name:obj.name,
+                    image: path
+                  })
+                parent.layers.push(simage)
+                
+                obj.slayer = simage
+                obj.nlayer = simage.obj
+                
+                obj.slayer.frame.width  = simage.image.nsimage.size().width / 4
+                obj.slayer.frame.height  = simage.image.nsimage.size().height / 4
+
+                obj.nlayer.resizingConstraint = oldConstraints
+
+                /*
+                let image = [[NSImage alloc] initWithContentsOfFile:path];
+                obj.slayer.image = image                
+                obj.slayer.style.opacity = 1
+                if(path.includes('@2x')){
+                    obj.slayer.frame.width  = image.size().width  / 2
+                    obj.slayer.frame.height  = image.size().height / 2  
+                }else{
+                    obj.slayer.frame.width  = image.size().width
+                    obj.slayer.frame.height  = image.size().height    
+                }*/
+            }            
+        }
+
+        //return this._syncSharedStyle(tokenName,obj)        
+        return true // we don't need to sync changes with shared style here
+    } 
+
 
 }
