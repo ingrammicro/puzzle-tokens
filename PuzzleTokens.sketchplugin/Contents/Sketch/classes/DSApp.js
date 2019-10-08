@@ -33,8 +33,6 @@ class DSApp {
         // load settings       
         this.pathToTokensLess = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS)
         if(undefined==this.pathToTokensLess) this.pathToTokensLess = ''        
-        this.pathToSketchStylesJSON = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_SKETCHSTYLES_LESS)
-        if(undefined==this.pathToSketchStylesJSON) this.pathToSketchStylesJSON = ''
         this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS)==1        
 
         
@@ -117,11 +115,6 @@ class DSApp {
             textValue:this.pathToTokensLess,inlineHint:'e.g. /Work/ui-tokens.less',
             width:550,askFilePath:true
         })  
-        dialog.addPathInput({
-            id:"pathToSketchStylesJSON",label:"Path to Sketch Styles (JSON file)",labelSelect:"Select",
-            textValue:this.pathToSketchStylesJSON,inlineHint:'e.g. ~/Work/sketch-styles.json',
-            width:550,askFilePath:true
-        })
         dialog.addCheckbox("genSymbTokens","Generate symbols & styles description file",this.genSymbTokens)
 
 
@@ -131,8 +124,6 @@ class DSApp {
     
             this.pathToTokensLess = dialog.views['pathToTokensLess'].stringValue()+""
             if(""==this.pathToTokensLess) continue
-            this.pathToSketchStylesJSON = dialog.views['pathToSketchStylesJSON'].stringValue()+""
-            if(""==this.pathToSketchStylesJSON) continue
             this.genSymbTokens = dialog.views['genSymbTokens'].state() == 1
 
             break
@@ -141,29 +132,49 @@ class DSApp {
         dialog.finish()
 
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToTokensLess)
-        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_SKETCHSTYLES_LESS, this.pathToSketchStylesJSON)
         Settings.setSettingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS, this.genSymbTokens)
     
 
         return true
     }
 
-    _applyLess() {
-        var tokensStr = Utils.readFile(this.pathToSketchStylesJSON)
-        if(null==tokensStr){
-            this.logError("Can not find .json file by path: "+this.pathToSketchStylesJSON)
-            return false
-        }
-        var tokens = null
-        
-        try {
-            tokens = JSON.parse(tokensStr)
-        } catch (e) {
-            this.logError(e)
-            return false
-        }
-      
+    _applyLess1() {
+        for(const rule of this.less){
+            const sketchPath = rule.path
+            if(sketchPath.indexOf("__")==0) continue //Path to Sketch object undefined
 
+            for(const tokenName of rule.props){                
+                ///
+                var sketchObj = this._getObjByPath(sketchPath)
+                if(undefined==sketchObj){
+                    this.logError("Can not find Sketch layer by path: "+sketchPath)
+                    continue
+                }                
+                const token = rule.props[tokenName]
+
+                // Apply Styles
+                if(
+                    ('font-size' in token) || ('text-color' in token)
+                    || ('font-weight' in token) || ('text-transform' in token) || ('font-face' in token)
+                )
+                    this._applyTextStyle(token,tokenName,sketchObj)               
+                if('fill-color' in token)
+                    this._applyFillColor(token,tokenName,sketchObj,token['fill-color'])
+                if('shadow' in token)
+                   this._applyShadow(token,tokenName,sketchObj, false, token['shadow'])
+                if('inner-shadow' in token)
+                   this._applyShadow(token,tokenName,sketchObj, true, token['inner-shadow'])
+                if(('border-color' in token) || ('border-width' in token) || ('border-position' in token))
+                    this._applyBorderStyle(token,tokenName,sketchObj)                        
+                if('shape-radius' in token)
+                    this._applyShapeRadius(token,tokenName,sketchObj)
+                if('image' in token)
+            }
+        }
+    }
+
+    _applyLess1() {
+      
         for(var tokenName of Object.keys(tokens)){
             // skip comments
             if(tokenName.indexOf("__")==0) continue          
@@ -285,7 +296,13 @@ class DSApp {
         var error = null
         var lessJSONStr = NSString.stringWithContentsOfURL_encoding_error(NSURL.fileURLWithPath_isDirectory(pathToLessJSON, false), NSUTF8StringEncoding, error);
 
-        this.less = JSON.parse(lessJSONStr)
+        try {
+            this.less = JSON.parse(lessJSONStr)
+        } catch (e) {
+            this.logError(e)
+            return false
+        }
+
         return true
     }
 

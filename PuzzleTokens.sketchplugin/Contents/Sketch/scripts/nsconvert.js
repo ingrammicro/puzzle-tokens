@@ -5,7 +5,7 @@ var pathToLess1 = args[0]
 var pathToLess2 = args[1]
 var pathToJSON = args[2]
 var lessVars = {}
-var sketchVars = {}
+var sketchRules = []
 
 if(undefined==pathToLess1 || undefined==pathToLess2 ){
     console.log("nsconvert.js PATH_TO_LESS_FILE1 PATH_TO_LESS_FILE2(OPT) PATH_TO_JSON_FILE")
@@ -76,7 +76,8 @@ function loadLessVars(fileName1,fileName2){
             //console.log(lessVars)
             
             // completed
-            saveData(lessVars,pathToJSON)
+            //saveData(lessVars,pathToJSON)
+            saveData(sketchRules,pathToJSON)
             console.log("Completed")
         });
     } catch ( e ) {
@@ -108,12 +109,7 @@ function parseSketchRule(rule,elements,path){
     }
     ///
     if( rule.rules && !(rule.rules[0].rules)){
-        console.log(path.join("/"))
-        
-        rule.rules.forEach(function (oneRule) { 
-            if(oneRule.isLineComment) return
-            console.log(oneRule.name)            
-        })
+        saveSketchRule(rule,path)
     }else if( rule.rules ){
         rule.rules.forEach(function (oneRule) { 
             parseSketchRule(oneRule,null,path)
@@ -121,10 +117,32 @@ function parseSketchRule(rule,elements,path){
     }
 }
 
+function saveSketchRule(rule,path){
+    var sketchPath = path.join("/")
+    //console.log(sketchPath)
+    sketchPath = sketchPath.replace(/(\.)/g, '').replace(/^\./,'')
+    console.log(sketchPath)
+    const sketchRule = {
+        path: sketchPath,
+        props: {}
+    }
+    rule.rules.forEach(function (oneRule) { 
+        if(oneRule.isLineComment) return
+        var value = oneRule.value.value
+        sketchRule.props[oneRule.name] ={
+             value: value,
+             token: "token"
+        }
+        //console.log(oneRule)
+    })
+    sketchRules.push(sketchRule)
+}
+
 
 
 function saveData(data,pathToJSON){   
     var json = JSON.stringify(data,null,'    ')
+    console.log(json)
 
     fs.writeFileSync(pathToJSON, json, 'utf8');
 
