@@ -103,7 +103,6 @@ class DSApp {
     _saveElements(){
         const pathDetails = path.parse(this.jDoc.path)
         const pathToRules = pathDetails.dir + "/" + pathDetails.name + Constants.SYMBOLTOKENFILE_POSTFIX
-        log(pathToRules)
         const json = JSON.stringify(this.elements,null,null)
         Utils.writeToFile(json, pathToRules)
     }
@@ -151,7 +150,6 @@ class DSApp {
 
         for(const rule of this.less){
             const sketchPath = rule.path
-            if(sketchPath.indexOf("__")==0) continue //Path to Sketch object undefined
 
             // find Skech Object
             var sketchObj = this._getObjByPath(sketchPath)
@@ -163,8 +161,6 @@ class DSApp {
             // Drop commented property
             const validProps =  Object.keys(rule.props).filter(n => n.indexOf("__")<0)
 
-            log(sketchObj)
-            log(sketchObj.slayer.type)
             if("Text"==sketchObj.slayer.type){
                 this._applyPropsToText(rule.props,sketchObj)
             }else if("ShapePath"==sketchObj.slayer.type){
@@ -229,11 +225,12 @@ class DSApp {
         return true
     }
 
+    // objPath: [page,artboard,layer,...,layer]
     _getObjByPath(objPath){
         var objects = undefined        
 
         const symbSeparator = '///'
-        if(objPath.indexOf(symbSeparator)>0){
+        if(objPath[0].indexOf(symbSeparator)>0){
             // search in Page //// Symbol //// Layer / Layer
             const top = objPath.split(symbSeparator)
             if(top.length!=3){
@@ -261,9 +258,11 @@ class DSApp {
         }
 
         log(objPath)
-        var names = objPath.split('/') 
         var obj = undefined
-        for(var objName of names){
+        for(var objName of objPath){
+            objName = decodeURIComponent(objName.replace(/^\./,''))
+            log("_getObjByPath")
+            log(objName)
             obj = objects[objName]
             if(undefined==obj) break
             objects = obj.childs

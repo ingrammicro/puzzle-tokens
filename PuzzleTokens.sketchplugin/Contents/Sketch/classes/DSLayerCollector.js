@@ -2,6 +2,11 @@
 
 Sketch = require('sketch/dom')
 
+
+function _clearName(name){
+    return name.replace(/(\ )/g,'').replace("/(\/)/g",'\\')
+}
+
 class DSLayerCollector {
 
     constructor() { 
@@ -11,27 +16,30 @@ class DSLayerCollector {
         let pages = {}
 
         app.nDoc.pages().forEach(function (nPage) {
+            log("collectPages name="+nPage.name())
             const page = {
                 name: nPage.name(),
-                nlayer: nPage,
+                //nlayer: nPage,
                 childs: this.collectPageArtboards(nPage)
             }
             pages[page.name] = page
         },this)
 
+        log(pages)
         return pages
     }
 
     collectPageArtboards(nPage){
-        const artboards = {}
+        const artboards = {}      
 
         nPage.artboards().forEach(function(nArtboard){            
+            log("collectPageArtboards name="+nArtboard.name())
             const artboard = {
                 name: nArtboard.name(),
                 nlayer: nArtboard,
                 childs: this.collectLayers(nArtboard.layers())                
             }
-            artboards[artboard.name] = artboard
+            artboards[_clearName(artboard.name)] = artboard
         },this)
 
         return artboards
@@ -46,14 +54,15 @@ class DSLayerCollector {
             if(this.isLayerGroup(nLayer)){
                 childs = this.collectLayers(nLayer.layers())
             }
+       
 
             const layer = {
                 name: nLayer.name(),
-                nlayer: nLayer,
-                slayer: Sketch.fromNative(nLayer),
+                //nlayer: nLayer,
+                //slayer: Sketch.fromNative(nLayer),
                 childs: childs
             }
-            layers[layer.name] = layer
+            layers[_clearName(layer.name)] = layer
         },this)
 
         return layers

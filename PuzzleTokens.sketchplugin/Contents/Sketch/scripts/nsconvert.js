@@ -117,11 +117,12 @@ function parseSketchRule(rule,elements,path){
 }
 
 function saveSketchRule(rule,path){
-    var sketchPath = path.join("/")
+    //var sketchPath = path.join("/")
     //console.log(sketchPath)
-    sketchPath = sketchPath.replace(/(\.)/g, '').replace(/^\./,'')
+    //sketchPath = sketchPath.replace(/(\.)/g, '').replace(/^\./,'')
+    
     const sketchRule = {
-        path: sketchPath,
+        path: path,
         props: {
             __lessTokens:{}
         }
