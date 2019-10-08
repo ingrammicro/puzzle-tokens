@@ -109,10 +109,10 @@ function parseSketchRule(rule,elements,path){
     ///
     if( rule.rules && !(rule.rules[0].rules)){
         console.log(path.join("/"))
+        
         rule.rules.forEach(function (oneRule) { 
             if(oneRule.isLineComment) return
-            console.log(oneRule.name)
-            console.log(oneRule.value.parent)
+            console.log(oneRule.name)            
         })
     }else if( rule.rules ){
         rule.rules.forEach(function (oneRule) { 
