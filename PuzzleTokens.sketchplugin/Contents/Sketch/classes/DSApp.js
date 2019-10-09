@@ -83,6 +83,7 @@ class DSApp {
             if( !this.loadLess()) break
             if( !this._applyLess() ) break
             if(this.genSymbTokens) this._saveElements()
+            log("ssssssssss")
 
             break
         }
@@ -104,6 +105,7 @@ class DSApp {
         const pathDetails = path.parse(this.jDoc.path)
         const pathToRules = pathDetails.dir + "/" + pathDetails.name + Constants.SYMBOLTOKENFILE_POSTFIX
         const json = JSON.stringify(this.elements,null,null)
+        log("Save elements info into: "+pathToRules)
         Utils.writeToFile(json, pathToRules)
     }
 
@@ -146,9 +148,7 @@ class DSApp {
         return true
     }
 
-    _applyLess() {
-
-        
+    _applyLess() {    
         for(const rule of this.less){
             const sketchPath = rule.path
 
@@ -156,7 +156,7 @@ class DSApp {
             var sketchObj = this._getObjByPath(sketchPath)
             if(undefined==sketchObj){
                 this.logError("Can not find Sketch layer by path: "+sketchPath.join())
-                return
+                return false
             }      
             
             // Drop commented property
@@ -176,6 +176,7 @@ class DSApp {
             }
             */
         }
+        return true
     }
 
 
@@ -205,9 +206,6 @@ class DSApp {
         args.push(pathToLessJSON)
 
         const runResult = Utils.runCommand("/usr/local/bin/node",args)
-
-        log(runResult.output)
-
         if(!runResult.result){
             this.logError(runResult.output)
             return false
@@ -624,8 +622,7 @@ class DSApp {
          if(undefined!=fontFace){  
              let firstFont = fontFace.split(',')[0]
              firstFont = firstFont.replace(/[""]/gi,'')
-             obj.slayer.style.fontFamily = firstFont
-             log('firstFont:'+firstFont)
+             obj.slayer.style.fontFamily = firstFont             
          }           
          //// SET LINE HEIGHT
          if(undefined!=lineHeight){                      
@@ -688,7 +685,6 @@ class DSApp {
                  }
              }
              if(undefined==finalWeight){
-                 log("weightKey="+weightKey+"  fontWeight="+fontWeight)
                  return this.logError('Wrong font weigh')
              }
              
@@ -701,7 +697,6 @@ class DSApp {
              let opacityHEX = undefined!=opacity?Utils.opacityToHex(opacity):''
  
              obj.slayer.style.textColor = color + opacityHEX
-             log("color="+color)
          }
          // SET TEXT TRANSFORM
          if(undefined!=transform){

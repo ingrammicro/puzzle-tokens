@@ -9,42 +9,79 @@ var sketchRules = []
 var parseOptions = null
 var _lookups = {}
 
-if(undefined==pathToLess1 || undefined==pathToLess2 ){
-    console.log("nsconvert.js PATH_TO_LESS_FILE1 PATH_TO_LESS_FILE2(OPT) PATH_TO_JSON_FILE")
-    return false
-}
-if(undefined == pathToJSON){
-    pathToJSON = pathToLess2
-    pathToLess2 = undefined
-}
-
-/*console.log("Path to source LESS:" +pathToLess1)
-if(pathToLess2!=undefined)
-    console.log("pathToLess2:" +pathToLess2)
-console.log("Path to destination JSON:" +pathToJSON)
-console.log("")*/
-
+/////////////////////////////////////////////
 console.log("Started")
 
-loadLessVars(pathToLess1,pathToLess2)    
+if(!initPaths()) process.exit(0)
 
-function loadLessVars(fileName1,fileName2){
+var strSrcLess = loadLessFromFiles(pathToLess1,pathToLess2)
+if(null==strSrcLess) process.exit(-1)
+
+var strLess = injectTokensIntoLess(strSrcLess)
+
+loadLessVars(strLess)    
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+function initPaths(){
+    if(undefined==pathToLess1 || undefined==pathToLess2 ){
+        console.log("nsconvert.js PATH_TO_LESS_FILE1 PATH_TO_LESS_FILE2(OPT) PATH_TO_JSON_FILE")
+        return false
+    }
+    if(undefined == pathToJSON){
+        pathToJSON = pathToLess2
+        pathToLess2 = undefined
+    }
+
+    return true   
+}
+
+function injectTokensIntoLess(srcData){
+    var lessLines = srcData.split("\n")
+    var newData = ""
+
+    lessLines.forEach(function(line){
+        var found = line.match(/@{1}([\w-]*)\w{0,};/)
+        if(null!=found && found.length>=1){
+            var token = found[1]
+            var commentPos = line.indexOf("//")
+            if(commentPos>0){
+                line = line.substring(0,commentPos)
+            }
+            line += " //!"+token+"!"
+        }
+        newData += line + "\n"
+    })
+
+    console.log(newData)
+
+    return newData
+}
+
+function loadLessFromFiles(fileName1,fileName2){
     console.log("Read LESS: running...")
     
-    var less = require("/usr/local/lib/node_modules/less")   
-
     var data = ''
     const data1 = fs.readFileSync(fileName1, 'utf8');
     if(null==data1){
         console.log("Can't open file by path:"+fileName1)
-        return lessVars
+        return null
     }
     data = data + data1;
     if(fileName2!=undefined){
         data = data + "\n"+fs.readFileSync(fileName2, 'utf8');
     }
 
-    options1 = { 
+    return data
+}
+
+function loadLessVars(data){
+  
+    var less = require("/usr/local/lib/node_modules/less")   
+
+
+    var options1 = { 
         async: false,
         fileAsync: false
     }
@@ -89,7 +126,6 @@ function loadLessVars(fileName1,fileName2){
     }
     
     console.log("Read LESS: done")
-    return lessVars
 }
 
 
@@ -145,7 +181,7 @@ function saveSketchRule(rule,path){
             __lessTokens:{}
         }
     }
-    rule.rules.forEach(function (oneRule) { 
+    rule.rules.forEach(function (oneRule,index) { 
         if(oneRule.isLineComment) return
         var value = oneRule.value.toCSS(parseOptions);	
         if('box-shadow'==oneRule.name){
@@ -161,8 +197,19 @@ function saveSketchRule(rule,path){
            // console.log(oneRule)
         }
 
+        // get token from rule comment
+        var token = "-"
+        var nextRule = rule.rules[index+1]
+        if(nextRule!=null && nextRule.isLineComment){
+            var res = nextRule.value.match(/!{1}([\w-]*)!{1}/)
+            if(null!=res && null!=res[1]){
+                token = '@'+res[1]
+            }
+        }
+
+
         sketchRule.props[String(oneRule.name)] = value
-        sketchRule.props.__lessTokens["token"] = true
+        sketchRule.props.__lessTokens[token] = true
     })
     sketchRules.push(sketchRule)
 }
@@ -175,7 +222,3 @@ function saveData(data,pathToJSON){
 
     return true
 }
-
-
-
-
