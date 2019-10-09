@@ -190,19 +190,7 @@ function saveSketchRule(rule,path){
     rule.rules.forEach(function (oneRule,index) { 
         if(oneRule.isLineComment) return
         var value = oneRule.value.toCSS(parseOptions);	
-        if('box-shadow'==oneRule.name){
-            const shadowValues = oneRule.value.value.map(function(v){                        
-                if(v.unit && v.unit.numerator){
-                    return String(v.value) + String((v.unit && v.unit.numerator &&  v.unit.numerator.length>0)? v.unit.numerator[0]:"")
-                }else if (v.rgb){
-                    return String(v.value)
-                }                
-            })
-            value = shadowValues.join(" ")       
-        }else{
-           // console.log(oneRule)
-        }
-
+        
         // get token from rule comment
         var token = "-"
         var nextRule = rule.rules[index+1]
