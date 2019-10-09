@@ -89,7 +89,7 @@ class DSApp {
 
         // show final message
         if(this.errors.length>0){
-            this.UI.alert('Found errors',this.errors.join("\n\n"))
+            this._showErrors()
         }else{
             this.UI.message('Tokens applied')
         }
@@ -100,9 +100,17 @@ class DSApp {
     // Internal
 
     _showDebug(lessJSONStr){        
-        const dialog = new UIDialog("Debug Infomrations",NSMakeRect(0, 0, 600, 600),"Ok")
-
+        const dialog = new UIDialog("Debug Infomration",NSMakeRect(0, 0, 600, 600),"Ok")
         dialog.addTextViewBox("debug","Intermediate JSON",lessJSONStr,600)
+        const result = dialog.run()
+        dialog.finish()
+    }
+
+    _showErrors(){
+        var errorsText = this.errors.join("\n\n")
+
+        const dialog = new UIDialog("Found errors",NSMakeRect(0, 0, 600, 600),"Too bad")
+        dialog.addTextViewBox("debug","",errorsText,600)
         const result = dialog.run()
         dialog.finish()
     }

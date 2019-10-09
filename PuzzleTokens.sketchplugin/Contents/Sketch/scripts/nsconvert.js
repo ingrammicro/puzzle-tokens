@@ -42,6 +42,11 @@ function injectTokensIntoLess(srcData){
     var newData = ""
 
     lessLines.forEach(function(line){
+        
+        // drop comment lines
+        line = line.trim()
+        if(line.startsWith("//")) return
+
         var found = line.match(/@{1}([\w-]*)\w{0,};/)
         if(null!=found && found.length>=1){
             var token = found[1]
