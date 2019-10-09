@@ -7,6 +7,7 @@ var pathToJSON = args[2]
 var lessVars = {}
 var sketchRules = []
 var parseOptions = null
+var _lookups = {}
 
 if(undefined==pathToLess1 || undefined==pathToLess2 ){
     console.log("nsconvert.js PATH_TO_LESS_FILE1 PATH_TO_LESS_FILE2(OPT) PATH_TO_JSON_FILE")
@@ -51,7 +52,7 @@ function loadLessVars(fileName1,fileName2){
     try {
         less.parse(data, options1, function (err, root, imports, options) {
             parseOptions = options
-            //console.log(imports)
+            //console.log(options.pluginManagermixin)
             if(undefined!=err) console.log(err)
             
             var evalEnv = new less.contexts.Eval(options);
@@ -94,12 +95,27 @@ function loadLessVars(fileName1,fileName2){
 
 function parseSketchRule(rule,elements,path){
     //console.log("----------------- parseSketchRule -----------------------")
-    //console.log(rule)
 
-    if(null!=elements){
+    // save info about enabled mixins to ignore them
+    if(rule._lookups && Object.keys(rule._lookups).length>0){
+        Object.keys(rule._lookups).forEach(function(s){
+            _lookups[s.trim()] = true
+        })
+       console.log("SAVED MIXINS")
+       console.log(_lookups)
+    }
+
+    if(null!=elements){ 
+        var foundMixin = false       
         elements.forEach(function (el) { 
             path = path.concat([el.value])
+            if(el.value in _lookups){
+                foundMixin = true
+                console.log("FOUND MIXIN!")  
+                return
+            }
         })
+        if(foundMixin) return
     }else{
         if(rule.selectors!=null && rule.selectors.length>0){
             rule.selectors.forEach(function (sel) {
