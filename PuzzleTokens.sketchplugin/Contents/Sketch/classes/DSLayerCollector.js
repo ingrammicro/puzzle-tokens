@@ -37,6 +37,7 @@ class DSLayerCollector {
 
             const mLayer = {
                 name: name,
+                path: newPath,
                 insideMaster: insideMaster,
                 nlayer: nLayer,
                 slayer: Sketch.fromNative(nLayer),

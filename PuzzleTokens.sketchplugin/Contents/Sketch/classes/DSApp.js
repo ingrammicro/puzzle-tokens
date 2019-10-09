@@ -290,12 +290,11 @@ class DSApp {
         if(obj.insideMaster) return
 
         if(!obj.slayer.sharedStyle){
-            //return this.logError('No shared style for some of "'+tokenName+'" styles')
             var SharedStyle = require('sketch/dom').SharedStyle
             obj.slayer.sharedStyle = SharedStyle.fromStyle({
-                name:       obj.slayer.name,
+                name:       obj.path,
                 style:      obj.slayer.style,
-                document:   this.ocDoc
+                document:   this.nDoc
               })
         }else{
             obj.slayer.sharedStyle.style = obj.slayer.style
