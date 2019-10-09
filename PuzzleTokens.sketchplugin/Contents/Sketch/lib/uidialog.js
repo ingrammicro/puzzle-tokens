@@ -90,6 +90,28 @@ class UIAbstractWindow {
         return textBox
     }
 
+    addTextViewBox(id, label, textValue, height = 120) {
+        if (label != '') this.addLabel(id + "Label", label, 17)
+
+        const frame = this.getNewFrame(height)
+        const scrollView = NSScrollView.alloc().initWithFrame(frame)
+        scrollView.setHasVerticalScroller(true)
+        scrollView.setHasHorizontalScroller(true)
+
+        const textView = NSTextView.alloc().initWithFrame(frame)
+        textView.setEditable(false)
+        textView.setString(textValue)
+
+        scrollView.addSubview(textView)
+        scrollView.setDocumentView(textView)
+        this.container.addSubview(scrollView)
+
+    
+        this.views[id] = textView
+
+        return textView
+    }
+
     addTextInput(id, label, textValue, inlineHint = "", width = 220, frame = undefined) {
         if (label != '') this.addLabel(id + "Label", label, 17)
 

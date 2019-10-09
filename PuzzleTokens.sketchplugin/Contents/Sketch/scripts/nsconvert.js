@@ -54,8 +54,6 @@ function injectTokensIntoLess(srcData){
         newData += line + "\n"
     })
 
-    console.log(newData)
-
     return newData
 }
 
@@ -124,6 +122,9 @@ function loadLessVars(data){
         console.log(e.message)
         process.exit(-1)
     }
+
+    console.log(sketchRules)
+
     
     console.log("Read LESS: done")
 }

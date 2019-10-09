@@ -35,7 +35,7 @@ class DSApp {
         this.pathToTokensLess2 = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS2)
         if(undefined==this.pathToTokensLess2) this.pathToTokensLess2 = ''        
         this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS)==1        
-
+        this.showDebug = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DEBUG)==1        
         
     }
 
@@ -83,7 +83,6 @@ class DSApp {
             if( !this.loadLess()) break
             if( !this._applyLess() ) break
             if(this.genSymbTokens) this._saveElements()
-            log("ssssssssss")
 
             break
         }
@@ -100,6 +99,13 @@ class DSApp {
 
     // Internal
 
+    _showDebug(lessJSONStr){        
+        const dialog = new UIDialog("Debug Infomrations",NSMakeRect(0, 0, 600, 600),"Ok")
+
+        dialog.addTextViewBox("debug","Intermediate JSON",lessJSONStr,600)
+        const result = dialog.run()
+        dialog.finish()
+    }
 
     _saveElements(){
         const pathDetails = path.parse(this.jDoc.path)
@@ -124,6 +130,7 @@ class DSApp {
             width:550,askFilePath:true
         })  
         dialog.addCheckbox("genSymbTokens","Generate symbols & styles description file",this.genSymbTokens)
+        dialog.addCheckbox("showDebug","Show debug information",this.showDebug)
 
 
         while(true){
@@ -134,6 +141,7 @@ class DSApp {
             if(""==this.pathToTokensLess) continue
             this.pathToTokensLess2 = dialog.views['pathToTokensLess2'].stringValue()+""
             this.genSymbTokens = dialog.views['genSymbTokens'].state() == 1
+            this.showDebug = dialog.views['showDebug'].state() == 1
 
             break
         }
@@ -143,6 +151,7 @@ class DSApp {
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToTokensLess)
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS2, this.pathToTokensLess2)
         Settings.setSettingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS, this.genSymbTokens)
+        Settings.setSettingForKey(SettingKeys.PLUGIN_SHOW_DEBUG, this.showDebug)
     
 
         return true
@@ -219,6 +228,10 @@ class DSApp {
         } catch (e) {
             this.logError(e)
             return false
+        }
+
+        if(this.showDebug){
+            this._showDebug(lessJSONStr)
         }
 
         return true
