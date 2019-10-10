@@ -9,6 +9,14 @@ var Settings = require('sketch/settings')
 var Style = require('sketch/dom').Style
 var Image = require('sketch/dom').Image
 const path = require('path');
+const Text = require('sketch/dom').Text
+
+const alignMap = {
+    left :      Text.Alignment.left,
+    center :    Text.Alignment.center,
+    right :     Text.Alignment.right,
+    justify :   Text.Alignment.justify
+}
 
 class DSApp {
     constructor(context) {
@@ -115,7 +123,7 @@ class DSApp {
     _showErrors(){
         var errorsText = this.errors.join("\n\n")
 
-        const dialog = new UIDialog("Found errors",NSMakeRect(0, 0, 600, 600),"Too bad")
+        const dialog = new UIDialog("Found errors",NSMakeRect(0, 0, 600, 600),"Who cares!")
         dialog.addTextViewBox("debug","",errorsText,600)
         const result = dialog.run()
         dialog.finish()
@@ -224,7 +232,7 @@ class DSApp {
 
     _getRulePropsType(props) {          
         if(null!=props['color'] || null!=props['font-family'] || null!=props['font-size']
-            || null!=props['font-weight']
+            || null!=props['font-weight']  ||  null!=props['text-transform'] || null!=props['text-align']
         )
             return "text"
         else if(null!=props['image'])
@@ -631,11 +639,12 @@ class DSApp {
 
          // read token attribues
          var fontSize = token['font-size']
-         var fontFace = token['font-face']
+         var fontFace = token['font-family']
          var color = token['color']
          var fontWeight = token['font-weight']
          var transform = token['text-transform']
          var lineHeight = token['line-height']
+         var align = token['text-align']
          
          //// SET FONT SIZE
          if(undefined!=fontSize){                      
@@ -647,6 +656,14 @@ class DSApp {
             firstFont = firstFont.replace(/[""]/gi,'')
             sStyle.fontFamily = firstFont             
          }           
+         if(undefined!=align){                                  
+            if(!(align in alignMap)){
+                return this.logError("Wrong align '"+align+"' for rule "+rule.name)
+            }
+            sStyle.alignment = alignMap[align]
+
+         }
+
          //// SET LINE HEIGHT
          if(undefined!=lineHeight){           
              if(null==sStyle.fontSize){
@@ -716,7 +733,7 @@ class DSApp {
                 obj.slayer.style.opacity = 0
             }else{
                 let path = this.pathToTokens + "/" + imageName
-                //'/Users/baza/Ingram/Themes/ingram-micro-brand-aligned/design-tokens/images/panel-logo@2x.png'
+
                 var fileManager = [NSFileManager defaultManager];
                 if (! [fileManager fileExistsAtPath: path]) {
                     return this.logError('Image not found on path: '+path)
