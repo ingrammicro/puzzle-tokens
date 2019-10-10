@@ -192,7 +192,7 @@ function saveSketchRule(rule,path){
         var value = oneRule.value.toCSS(parseOptions);	
         
         // get token from rule comment
-        var token = "-"
+        var token = ''
         var nextRule = rule.rules[index+1]
         if(nextRule!=null && nextRule.isLineComment){
             var res = nextRule.value.match(/!{1}([\w-]*)!{1}/)
@@ -203,7 +203,7 @@ function saveSketchRule(rule,path){
 
 
         sketchRule.props[String(oneRule.name)] = value
-        sketchRule.props.__lessTokens[token] = true
+        if(token!='') sketchRule.props.__lessTokens[token] = true
     })
     sketchRules.push(sketchRule)
 }

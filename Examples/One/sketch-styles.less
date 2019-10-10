@@ -1,10 +1,24 @@
-.Styles .Controls .Buttons .Submit {
+.Controls .Buttons .Submit {
   .Ok {
     Text {
-      color: @color-white;
+        color: @color-white;
+        font-size: @font-size-normal;
     }  
     Back{
-      box-shadow: @shadow-large;
+        background-color: @color-primary;
+        border-color:      @color-secondary;
+        border-radius:     10px;
     }
+  }
+  .Cancel{
+    Text {
+        color: @color-white;
+        font-size: @font-size-normal;
+      }  
+      Back{
+        background-color: @color-secondary;
+        border-color:      @color-secondary;
+        border-radius:     2px;
+      }
   }
 }

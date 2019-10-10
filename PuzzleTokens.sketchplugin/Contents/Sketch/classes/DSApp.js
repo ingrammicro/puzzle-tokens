@@ -13,14 +13,15 @@ const path = require('path');
 class DSApp {
     constructor(context) {
         this.nDoc = context.document
-        this.jDoc = Sketch.fromNative(context.document)
+        this.sDoc = Sketch.fromNative(context.document)
         this.context = context
         this.UI = require('sketch/ui')
         
-        this.layers = {}
         this.elements = {
             styles:     {}
         }
+        this.sTextStyles = {}
+        this.sLayerStyles = {}
 
         this.less = undefined
     
@@ -37,6 +38,8 @@ class DSApp {
         this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS)==1        
         this.showDebug = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DEBUG)==1        
         
+
+        this._initStyles()
     }
 
     // Tools
@@ -63,13 +66,6 @@ class DSApp {
         exit = true
     }
 
-  
-    _initLayers() {
-        const layerCollector  = new DSLayerCollector() 
-        this.layers = layerCollector.collectLayers()
-    }
-
-
     // Public methods
 
     run() {
@@ -78,7 +74,6 @@ class DSApp {
         this.pathToTokens2 = this.pathToTokensLess2.substring(0, this.pathToTokensLess2.lastIndexOf("/"));
 
         while(true){
-            this._initLayers()
 
             if( !this.loadLess()) break
             if( !this._applyLess() ) break
@@ -99,8 +94,19 @@ class DSApp {
 
     // Internal
 
+    _initStyles(){
+        this.sTextStyles = {}
+        this.sDoc.sharedTextStyles.forEach(function(sStyle){
+            this.sTextStyles[sStyle.name] = sStyle
+        },this)
+        this.sLayerStyles = {}
+        this.sDoc.sharedLayerStyles.forEach(function(sStyle){
+            this.sLayerStyles[sStyle.name] = sStyle
+        },this)
+    }
+
     _showDebug(lessJSONStr){        
-        const dialog = new UIDialog("Debug Infomration",NSMakeRect(0, 0, 600, 600),"Ok")
+        const dialog = new UIDialog("Debug Information",NSMakeRect(0, 0, 600, 600),"Ok")
         dialog.addTextViewBox("debug","Intermediate JSON",lessJSONStr,600)
         const result = dialog.run()
         dialog.finish()
@@ -116,7 +122,7 @@ class DSApp {
     }
 
     _saveElements(){
-        const pathDetails = path.parse(this.jDoc.path)
+        const pathDetails = path.parse(this.sDoc.path)
         const pathToRules = pathDetails.dir + "/" + pathDetails.name + Constants.SYMBOLTOKENFILE_POSTFIX
         const json = JSON.stringify(this.elements,null,null)
         log("Save elements info into: "+pathToRules)
@@ -165,37 +171,68 @@ class DSApp {
         return true
     }
 
+    ////////////////////////////////////////////////////////////////
+
     _applyLess() {    
         for(const rule of this.less){
-            const sketchPath = rule.path
-
-            // find Skech Object
-            var sketchObj = this._getObjByPath(sketchPath)
-            if(undefined==sketchObj){
-                this.logError("Can not find Sketch layer by path: "+sketchPath.join())
-                return false
-            }      
+            const ruleType = this._getRulePropsType(rule.props)
+            const sStyleName = this._pathToStr(rule.path)      
+            rule.name = sStyleName
             
-            // Drop commented property
-            const validProps =  Object.keys(rule.props).filter(n => n.indexOf("__")<0)
-
-            if("Text"==sketchObj.slayer.type){
-                this._applyPropsToText(rule.props,sketchObj)
-            }else if("ShapePath"==sketchObj.slayer.type){
-                this._applyPropsToShape(rule.props,sketchObj)
-            }else if("Image"==sketchObj.slayer.type){
+            if('image'==ruleType){
+                this.logError("TODO - apply images")
+                return
                 this._applyPropsToImage(rule.props,sketchObj)
             }
+            const isText = "text"==ruleType
+            
+            // Find or create new style
+            var sSharedStyle = isText?this.sTextStyles[sStyleName]:this.sLayerStyles[sStyleName]
+            var sStyle = sSharedStyle!=null?sSharedStyle.style:{}
 
-            /*for(const tokenName of Object.keys(rule.props)){                                                         
-                if('inner-shadow' in token)
-                   this._applyShadow(token,tokenName,sketchObj, true, token['inner-shadow'])              
-            }
-            */
+            // Apply rule properties
+            // drop commented property
+            const validProps =  Object.keys(rule.props).filter(n => n.indexOf("__")<0)
+
+
+            if("text"==ruleType)
+                this._applyRuleToTextStyle(rule,sSharedStyle,sStyle)
+            else
+                this._applyRuleToLayerStyle(rule,sSharedStyle,sStyle)
+                       
+             
+            // Create new shared style
+           if(!sSharedStyle){
+                var SharedStyle = require('sketch/dom').SharedStyle
+                sSharedStyle = SharedStyle.fromStyle({
+                    name:       sStyleName,
+                    style:      sStyle,
+                    document:   this.nDoc
+                  })
+                  if(isText)
+                    this.sTextStyles[sStyleName] = sSharedStyle
+                  else
+                    this.sLayerStyles[sStyleName] = sSharedStyle
+            }else{
+                sSharedStyle.sketchObject.resetReferencingInstances()
+            }            
+
+            this._saveTokensForStyleAndSymbols(rule.props,sSharedStyle)
         }
         return true
     }
 
+    _getRulePropsType(props) {          
+        if(null!=props['color'] || null!=props['font-family'] || null!=props['font-size']
+            || null!=props['font-weight']
+        )
+            return "text"
+        else if(null!=props['image'])
+            return "image"
+        else
+            return "layer"
+
+    }  
 
     loadLess() {
         const tempFolder = Utils.getPathToTempFolder()
@@ -246,44 +283,11 @@ class DSApp {
     }
 
     // objPath: [page,artboard,layer,...,layer]
-    _getObjByPath(objPath){
-        var objects = undefined        
-
-        const symbSeparator = '///'
-        if(objPath[0].indexOf(symbSeparator)>0){
-            // search in Page //// Symbol //// Layer / Layer
-            const top = objPath.split(symbSeparator)
-            if(top.length!=3){
-                this.logError("Wrong format of sketch symbol path. Should be Page///Symbol///Layer/Layer")
-                return undefined
-            }
-            const pageName = top[0]
-            const symbolName = top[1]
-            const layerPath = top[2]
-
-            if(!(pageName in this.pages)){
-                this.logError("Failed to find page with name '"+pageName+"'")
-                return undefined
-            }
-            const page = this.pages[pageName]        
-            if(!(symbolName in page.childs)){
-                this.logError("Failed to find symbol with name '"+symbolName+"' in page '"+pageName+"'")
-                return undefined
-            }    
-            const symbolObj = page.childs[symbolName]            
-            objects = symbolObj.childs
-            objPath = layerPath
-        }else{            
-            objects = this.layers
-        }
-
+    _pathToStr(objPath){
         // clear obj path
         objPath = objPath.map(n=>n.replace(/^\./,''))
         var objPathStr = objPath.join("/")
-
-        // search obj
-        var obj = this.layers[objPathStr]               
-        return obj
+        return objPathStr
     }
 
     _syncSharedStyle(token,obj){
@@ -310,19 +314,17 @@ class DSApp {
 
 
 
-    _addStyleTokenToSymbol(token,styleSLayer){
-        const sharedStyle = styleSLayer.sharedStyle
+    _saveTokensForStyleAndSymbols(token,sharedStyle){
         // process all layers which are using this shared style
         for(var layer of sharedStyle.getAllInstancesLayers()){
             this._addTokenToSymbol(token,layer)
         }
         // save shared style
-        this._addTokenToStyle(token,styleSLayer)
+        this._addTokenToStyle(token,sharedStyle)
     }  
 
 
-    _addTokenToStyle(token,styleSLayer){
-        const sharedStyle = styleSLayer.sharedStyle
+    _addTokenToStyle(token,sharedStyle){
         
         var styleInfo = null
         if (sharedStyle.name in this.elements.styles){        
@@ -437,7 +439,7 @@ class DSApp {
         return color
     }
 
-    _applyShadow(token, obj, isInner, shadowCSS) {
+    _applyShadow(rule,sStyle, isInner, shadowCSS) {
         
         var shadows = []
         if(shadowCSS!="" && shadowCSS!="none"){
@@ -450,20 +452,21 @@ class DSApp {
         }
 
         if(isInner)
-            obj.slayer.style.innerShadows = shadows
+            sStyle.innerShadows = shadows
         else   
-            obj.slayer.style.shadows = shadows
+            sStyle.shadows = shadows
 
-        return this._syncSharedStyle(token,obj)        
     }
 
-    _applyShapeRadius(token, styleObj) {
+    _applyShapeRadius(rule, sSharedStyle, sStyle) {
+        const token = rule.props
+
+        if(null==sSharedStyle) return true
 
         var radius = token['border-radius']
-        const layers = styleObj.slayer.sharedStyle.getAllInstancesLayers()
+        const layers = sSharedStyle.getAllInstancesLayers()
 
         for(var l of layers){
-            this.log(' _applyShapeRadius() process layer: '+l.name + (l.parent?(" parent: "+l.parent.name):""))
 
             if(radius!=""){               
                 const points =  l.points    
@@ -477,16 +480,14 @@ class DSApp {
                     }
                 }
             }    
-            this._addTokenToSymbol(token,l)
+            //this._addTokenToSymbol(token,l)
         }
 
-        
-        //this._addTokenToSymbol(token,obj.slayer)
-        //return this._syncSharedStyle(tokenName,obj)        
-        return true // we don't need to sync changes with shared style here
+        return true 
     } 
 
-    _applyBorderStyle(token, obj){
+    _applyBorderStyle(rule, sStyle){
+        const token = rule.props
         
         var border = {
         }
@@ -525,7 +526,7 @@ class DSApp {
        
        
         // save new border in style
-        obj.slayer.style.borders = border?[border]:[]
+       sStyle.borders = border?[border]:[]
 
     }
 
@@ -578,12 +579,13 @@ class DSApp {
     
     ////////////////////////////////////////////////////////////////////////////
         
-    _applyPropsToShape(token, obj) {        
+    _applyRuleToLayerStyle(rule, sSharedStyle,sStyle) {        
+        const token = rule.props
         // SET COLOR
         var backColor = token['background-color']
         if(backColor!=null){
             if(backColor.indexOf("gradient")>0){
-                return this._applyFillGradient(token, obj, color)
+                return this._applyFillGradient(rule, sStyle, color)
             }else if(backColor!=""){
                 if('transparent'==backColor){
                     var opacity = "0%"
@@ -599,33 +601,34 @@ class DSApp {
                     color: backColor,
                     fill: Style.FillType.Color
                 }
-                obj.slayer.style.fills = [fill]            
+                sStyle.fills = [fill]            
             }else{
-                obj.slayer.style.fills = []
+                sStyle.fills = []
             }
         }
 
         // SET SHADOW
         var boxShadow = token['box-shadow']
         if(boxShadow!=null){
-            this._applyShadow(token,obj,false,boxShadow)
+            this._applyShadow(rule,sStyle,false,boxShadow)
         }
 
         // SET BORDER
         if(('border-color' in token) || ('border-width' in token) || ('border-position' in token))
-            this._applyBorderStyle(token,obj)        
+            this._applyBorderStyle(rule,sStyle)        
 
 
         // SET BORDER RADIUS
         if('border-radius' in token)
-            this._applyShapeRadius(token,obj)
+            this._applyShapeRadius(rule,sSharedStyle,sStyle)
 
-        return this._syncSharedStyle(token,obj)        
     }
     
 
 
-    _applyPropsToText(token,obj){
+    _applyRuleToTextStyle(rule,sSharedStyle,sStyle){
+        const token = rule.props
+
          // read token attribues
          var fontSize = token['font-size']
          var fontFace = token['font-face']
@@ -636,17 +639,20 @@ class DSApp {
          
          //// SET FONT SIZE
          if(undefined!=fontSize){                      
-             obj.slayer.style.fontSize = parseFloat(fontSize.replace("px",""))
-         }        
+            sStyle.fontSize = parseFloat(fontSize.replace("px",""))
+         }
          //// SET FONT SIZE
          if(undefined!=fontFace){  
-             let firstFont = fontFace.split(',')[0]
-             firstFont = firstFont.replace(/[""]/gi,'')
-             obj.slayer.style.fontFamily = firstFont             
+            let firstFont = fontFace.split(',')[0]
+            firstFont = firstFont.replace(/[""]/gi,'')
+            sStyle.fontFamily = firstFont             
          }           
          //// SET LINE HEIGHT
-         if(undefined!=lineHeight){                      
-             obj.slayer.style.lineHeight = Math.round(parseFloat(lineHeight) * obj.slayer.style.fontSize)
+         if(undefined!=lineHeight){           
+             if(null==sStyle.fontSize){
+                 return this.logError("Can not apply line-height without font-size for rule "+rule.name)
+             }
+            sStyle.lineHeight = Math.round(parseFloat(lineHeight) * sStyle.fontSize)
          }else{
              //obj.slayer.style.lineHeight = null
          }
@@ -654,41 +660,13 @@ class DSApp {
          if(undefined!=fontWeight){
              var weightKey = "label"
              const weights = [
-                 {
-                     label:  'extra-light',
-                     sketch: 3,
-                     css:    200
-                 },
-                 {
-                     label: 'light',
-                     sketch: 4,
-                     css:    300
-                 },                
-                 {
-                     label:  'regular',
-                     sketch: 5,
-                     css:    400
-                 },
-                 {
-                     label:  'medium',   
-                     sketch: 6,
-                     css:    500
-                 },
-                 {
-                     label:  'semi-bold',
-                     sketch: 8,
-                     css:    600
-                 },
-                 {
-                     label:  'semibold',
-                     sketch: 8,
-                     css:    600
-                 },
-                 {   
-                     label:  'bold',
-                     sketch: 9,
-                     css:    700
-                 }
+                 {label:  'extra-light',sketch: 3,css:    200},
+                 {label: 'light',sketch: 4,css:    300},                
+                 {label:  'regular',sketch: 5,css:    400},
+                 {label:  'medium',sketch: 6,css:    500},
+                 {label:  'semi-bold',sketch: 8,css:    600},
+                 {label:  'semibold',sketch: 8,css:    600},
+                 {label:  'bold',sketch: 9,css:    700}
              ]
  
              // for numeric weight we support it uses css format
@@ -705,10 +683,10 @@ class DSApp {
                  }
              }
              if(undefined==finalWeight){
-                 return this.logError('Wrong font weigh')
+                 return this.logError('Wrong font weigh for rule '+rule.name)
              }
              
-             obj.slayer.style.fontWeight = finalWeight
+             sStyle.fontWeight = finalWeight
          }
  
           // SET TEXT COLOR
@@ -716,21 +694,17 @@ class DSApp {
              let opacity = token['opacity']
              let opacityHEX = undefined!=opacity?Utils.opacityToHex(opacity):''
  
-             obj.slayer.style.textColor = color + opacityHEX
+             sStyle.textColor = color + opacityHEX
          }
          // SET TEXT TRANSFORM
          if(undefined!=transform){
-             obj.slayer.style.textTransform = transform
+            sStyle.textTransform = transform
          }
-
 
          var textShadow = token['text-shadow']
          if(textShadow!=null){
-            this._applyShadow(token,obj,false,textShadow)
+            this._applyShadow(rule,sStyle,false,textShadow)
         }
-
-     
-         return this._syncSharedStyle(token,obj)
     }
 
 
