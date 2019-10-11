@@ -202,11 +202,19 @@ class DSApp {
             const ruleType = this._getRulePropsType(rule.props)
             const sStyleName = this._pathToStr(rule.path)      
             rule.name = sStyleName
+            log("Process rule "+sStyleName)
             
+            // Check rule
             if(ruleType.indexOf("text")>=0 && ruleType.indexOf("layer")>=0){
                 this.logError("Rule \""+sStyleName +"\" has properties for both Text and Layer styles.")
                 return
             }
+            if(""==ruleType){
+                this.logError("Rule \""+sStyleName +"\" has no valid properties")
+                return
+            }
+
+            //
 
             if('image'==ruleType){
                 this.logError("TODO - apply images")
@@ -219,8 +227,8 @@ class DSApp {
             var sSharedStyle = null
             var sStyle = null
 
-            var sSharedStyle = isText?this.sTextStyles[sStyleName]:this.sLayerStyles[sStyleName]
-            var sStyle = sSharedStyle!=null?sSharedStyle.style:{}
+            SharedStyle = isText?this.sTextStyles[sStyleName]:this.sLayerStyles[sStyleName]
+            sStyle = sSharedStyle!=null?sSharedStyle.style:{}
 
             // Apply rule properties
             // drop commented property
@@ -566,28 +574,6 @@ class DSApp {
         }
     }
 
-
-
-    _applyShadow(token, obj, isInner, shadowCSS) {
-        
-        var shadows = []
-        if(shadowCSS!="" && shadowCSS!="none"){
-            var shadow = Utils.splitCSSShadow(shadowCSS)    
-            shadow.enabled = true
-            shadow.type = 'Shadow'
-            shadows = [shadow]
-        }else{
-           //obj.slayer.style.shadows = []
-        }
-
-        if(isInner)
-            obj.slayer.style.innerShadows = shadows
-        else   
-            obj.slayer.style.shadows = shadows
-
-        
-    }
-    
     ////////////////////////////////////////////////////////////////////////////
         
     _applyRuleToLayerStyle(rule, sSharedStyle,sStyle) {        
