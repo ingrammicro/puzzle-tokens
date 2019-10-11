@@ -248,7 +248,7 @@ class UIDialog extends UIAbstractWindow {
         UIDialog_iconImage = NSImage.alloc().initByReferencingFile(context.plugin.urlForResourceNamed("icon.png").path())
     }
 
-    constructor(title, rect, okButtonTitle, description = '') {
+    constructor(title, rect, okButtonTitle, description = '',cancelButtonTitle="Cancel") {
         var window = NSAlert.alloc().init()
         window.setIcon(UIDialog_iconImage)
         window.setMessageText(title)
@@ -258,7 +258,8 @@ class UIDialog extends UIAbstractWindow {
         if (undefined != okButtonTitle) {
             window.addButtonWithTitle(okButtonTitle)
         }
-        window.addButtonWithTitle("Cancel")
+        if(cancelButtonTitle!="")
+            window.addButtonWithTitle(cancelButtonTitle)
 
         super(window, rect)
 

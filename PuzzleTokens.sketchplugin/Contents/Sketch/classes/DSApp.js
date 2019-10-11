@@ -33,6 +33,8 @@ class DSApp {
 
         this.less = undefined
     
+        this.messages = ""
+
         this.errors = []
 
         // init global variable
@@ -53,8 +55,8 @@ class DSApp {
     // Tools
 
     log(msg) {
-        if (!Constants.LOGGING) return
         log(msg)
+        this.messages += msg + "\n"
     }
 
     logLayer(msg) {
@@ -64,7 +66,7 @@ class DSApp {
 
 
     logError(error) {
-        log("[ ERROR ] " + error)
+        this.log("[ ERROR ] " + error)
         this.errors.push(error)
     }
 
@@ -77,6 +79,7 @@ class DSApp {
     // Public methods
 
     run() {
+        this.log("Started")
         if(!this._showDialog()) return false
         this.pathToTokens = this.pathToTokensLess.substring(0, this.pathToTokensLess.lastIndexOf("/"));
         this.pathToTokens2 = this.pathToTokensLess2.substring(0, this.pathToTokensLess2.lastIndexOf("/"));
@@ -90,12 +93,16 @@ class DSApp {
             break
         }
 
+        this.log("Finished")
+
         // show final message
         if(this.errors.length>0){
             this._showErrors()
         }else{
+            this._showMessages()
             this.UI.message('Tokens applied')
         }
+
     
         return true
     }
@@ -105,16 +112,25 @@ class DSApp {
     _initStyles(){
         this.sTextStyles = {}
         this.sDoc.sharedTextStyles.forEach(function(sStyle){
+            sStyle.name = sStyle.name.replace(" ",'')
             this.sTextStyles[sStyle.name] = sStyle
         },this)
         this.sLayerStyles = {}
         this.sDoc.sharedLayerStyles.forEach(function(sStyle){
+            sStyle.name = sStyle.name.replace(" ",'')
             this.sLayerStyles[sStyle.name] = sStyle
         },this)
     }
 
+    _showMessages(){        
+        const dialog = new UIDialog("Completed",NSMakeRect(0, 0, 400, 400),"Ok","","")
+        dialog.addTextViewBox("messages","Log messages",this.messages,400)
+        const result = dialog.run()
+        dialog.finish()
+    }
+
     _showDebug(lessJSONStr){        
-        const dialog = new UIDialog("Debug Information",NSMakeRect(0, 0, 600, 600),"Ok")
+        const dialog = new UIDialog("Debug Information",NSMakeRect(0, 0, 600, 600),"Ok","","")
         dialog.addTextViewBox("debug","Intermediate JSON",lessJSONStr,600)
         const result = dialog.run()
         dialog.finish()
@@ -123,7 +139,7 @@ class DSApp {
     _showErrors(){
         var errorsText = this.errors.join("\n\n")
 
-        const dialog = new UIDialog("Found errors",NSMakeRect(0, 0, 600, 600),"Who cares!")
+        const dialog = new UIDialog("Found errors",NSMakeRect(0, 0, 600, 600),"Who cares!","","")
         dialog.addTextViewBox("debug","",errorsText,600)
         const result = dialog.run()
         dialog.finish()
@@ -133,7 +149,7 @@ class DSApp {
         const pathDetails = path.parse(this.sDoc.path)
         const pathToRules = pathDetails.dir + "/" + pathDetails.name + Constants.SYMBOLTOKENFILE_POSTFIX
         const json = JSON.stringify(this.elements,null,null)
-        log("Save elements info into: "+pathToRules)
+        this.log("Save elements info into: "+pathToRules)
         Utils.writeToFile(json, pathToRules)
     }
 
@@ -187,12 +203,17 @@ class DSApp {
             const sStyleName = this._pathToStr(rule.path)      
             rule.name = sStyleName
             
+            if(ruleType.indexOf("text")>=0 && ruleType.indexOf("layer")>=0){
+                this.logError("Rule \""+sStyleName +"\" has properties for both Text and Layer styles.")
+                return
+            }
+
             if('image'==ruleType){
                 this.logError("TODO - apply images")
                 return
                 this._applyPropsToImage(rule.props,sketchObj)
             }
-            const isText = "text"==ruleType
+            const isText = ruleType.indexOf("text")>=0
             
             // Find or create new style
             var sSharedStyle = isText?this.sTextStyles[sStyleName]:this.sLayerStyles[sStyleName]
@@ -202,8 +223,7 @@ class DSApp {
             // drop commented property
             const validProps =  Object.keys(rule.props).filter(n => n.indexOf("__")<0)
 
-
-            if("text"==ruleType)
+            if(isText)
                 this._applyRuleToTextStyle(rule,sSharedStyle,sStyle)
             else
                 this._applyRuleToLayerStyle(rule,sSharedStyle,sStyle)
@@ -211,6 +231,7 @@ class DSApp {
              
             // Create new shared style
            if(!sSharedStyle){
+               this.log("Create new shared style "+sStyleName)
                 var SharedStyle = require('sketch/dom').SharedStyle
                 sSharedStyle = SharedStyle.fromStyle({
                     name:       sStyleName,
@@ -222,6 +243,7 @@ class DSApp {
                   else
                     this.sLayerStyles[sStyleName] = sSharedStyle
             }else{
+                this.log("Update shared style "+sStyleName)
                 sSharedStyle.sketchObject.resetReferencingInstances()
             }            
 
@@ -230,16 +252,19 @@ class DSApp {
         return true
     }
 
-    _getRulePropsType(props) {          
+    _getRulePropsType(props) {
+        var res = ""
         if(null!=props['color'] || null!=props['font-family'] || null!=props['font-size']
             || null!=props['font-weight']  ||  null!=props['text-transform'] || null!=props['text-align']
         )
-            return "text"
-        else if(null!=props['image'])
-            return "image"
-        else
-            return "layer"
+            res +="text"
+        if(null!=props['image'])
+            res +="image"
+        if(null!=props['background-color'] || null!=props[' border-color'] || null!=props['box-shadow']
+            || null!=props['border-radius']
+        )  res +="layer"
 
+        return res
     }  
 
     loadLess() {
@@ -297,30 +322,6 @@ class DSApp {
         var objPathStr = objPath.join("/")
         return objPathStr
     }
-
-    _syncSharedStyle(token,obj){
-        if(obj.insideMaster) return
-
-        if(!obj.slayer.sharedStyle){
-            var SharedStyle = require('sketch/dom').SharedStyle
-            obj.slayer.sharedStyle = SharedStyle.fromStyle({
-                name:       obj.path,
-                style:      obj.slayer.style,
-                document:   this.nDoc
-              })
-        }else{
-            obj.slayer.sharedStyle.style = obj.slayer.style
-        }
-        obj.slayer.sharedStyle.sketchObject.resetReferencingInstances()
-
-
-        this._addStyleTokenToSymbol(token,obj.slayer)
-        
-
-        return true
-    }
-
-
 
     _saveTokensForStyleAndSymbols(token,sharedStyle){
         // process all layers which are using this shared style
@@ -431,7 +432,6 @@ class DSApp {
         }
         obj.slayer.style.fills = [fill]
 
-        return this._syncSharedStyle(token,obj)        
     }
  
     _applyFillGradientProcessColor(token,colorType){
@@ -582,7 +582,7 @@ class DSApp {
         else   
             obj.slayer.style.shadows = shadows
 
-        return this._syncSharedStyle(token,obj)        
+        
     }
     
     ////////////////////////////////////////////////////////////////////////////
@@ -603,7 +603,6 @@ class DSApp {
                     if(undefined!=opacity) backColor = backColor + Utils.opacityToHex(opacity)                                
                 }
 
-                //log('_applyPropsToShape color='+backColor+" src="+token['background-color'])
 
                 var fill = {
                     color: backColor,
@@ -773,7 +772,6 @@ class DSApp {
             }            
         }
 
-        //return this._syncSharedStyle(tokenName,obj)        
         return true // we don't need to sync changes with shared style here
     } 
 
