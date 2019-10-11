@@ -124,7 +124,7 @@ class DSApp {
 
     _showMessages(){        
         const dialog = new UIDialog("Completed",NSMakeRect(0, 0, 400, 400),"Ok","","")
-        dialog.addTextViewBox("messages","Log messages",this.messages,400)
+        dialog.addTextViewBox("messages","Message Log",this.messages,400)
         const result = dialog.run()
         dialog.finish()
     }
@@ -216,6 +216,9 @@ class DSApp {
             const isText = ruleType.indexOf("text")>=0
             
             // Find or create new style
+            var sSharedStyle = null
+            var sStyle = null
+
             var sSharedStyle = isText?this.sTextStyles[sStyleName]:this.sLayerStyles[sStyleName]
             var sStyle = sSharedStyle!=null?sSharedStyle.style:{}
 
