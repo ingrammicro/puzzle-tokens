@@ -229,6 +229,7 @@ class DSApp {
             }
             if(""==ruleType){
                 this.logError("Rule \""+sStyleName +"\" has no valid properties")
+                this.logError(JSON.stringify(rule,null,"\n"))
                 return
             }
             //     
@@ -247,7 +248,6 @@ class DSApp {
                 this.messages += "Will create new shared "+ strType + " style "+sStyleName +  "\n"
             }else{
                 this.messages += "Will update shared "+ strType + " style "+sStyleName + "\n"
-                sSharedStyle.sketchObject.resetReferencingInstances()
             }            
         }
         return true
@@ -313,13 +313,11 @@ class DSApp {
     }
 
     _tuneNewStyle(sStyle,isText){
-        if(!isText){
-            if(null==sStyle.borders){
-                sStyle.borders = []
-            }
-            if(null==sStyle.fills){
-                sStyle.fills = []
-            }
+        if(null==sStyle.borders){
+            sStyle.borders = []
+        }
+       if(null==sStyle.fills){
+            sStyle.fills = []
         }
 
     }
@@ -332,7 +330,7 @@ class DSApp {
             res +="text"
         if(null!=props['image'])
             res +="image"
-        if(null!=props['background-color'] || null!=props[' border-color'] || null!=props['box-shadow']
+        if(null!=props['background-color'] || null!=props['border-color'] || null!=props['box-shadow']
             || null!=props['border-radius']
         )  res +="layer"
 
@@ -461,7 +459,8 @@ class DSApp {
 
 
 
-    _applyFillGradient(token, obj,colorsRaw) {
+    _applyFillGradient(rule,sStyle,colorsRaw) {
+        const token = rule.props
         // parse string in format: linear-gradient(#00000,#F0000);
         const i1 = colorsRaw.indexOf("(");
         const i2 = colorsRaw.lastIndexOf(")");
@@ -502,11 +501,12 @@ class DSApp {
                 ]
             }
         }
-        obj.slayer.style.fills = [fill]
+        sStyle.fills = [fill]
 
     }
  
-    _applyFillGradientProcessColor(token,colorType){
+    _applyFillGradientProcessColor(rule,sStyle,colorType){
+        const token = rule.props
         var color = token['fill-'+colorType+'-color']
         var opacity = token['fill-'+colorType+'-color-opacity']
 
@@ -568,11 +568,13 @@ class DSApp {
 
     _applyBorderStyle(rule, sStyle){
         const token = rule.props
+        const borderWidth = token['border-width']
+        const borderColor = token['border-color']
         
         var border = {
         }
         
-        if(('border-color' in token) && ''==token['border-color']){
+        if('none'==borderWidth  || 'none'==borderColor){
             border = undefined
         }else{
 
@@ -582,12 +584,7 @@ class DSApp {
                 var opacity = token['border-color-opacity']
                 if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)
                 border.color = color        
-            }
-
-            // process width
-            if('border-width' in token){
-                border.thickness = token['border-width'].replace("px","")
-            }
+            }          
 
             // process position
             if('border-position' in token){
@@ -601,6 +598,10 @@ class DSApp {
                 }
 
                 border.position = conversion[ token['border-position'] ]
+            }
+              // process width
+              if(null!=borderWidth){
+               border.thickness = borderWidth.replace("px","")               
             }
         }
        
@@ -644,7 +645,7 @@ class DSApp {
         if(backColor!=null){
             if(backColor.indexOf("gradient")>0){
                 return this._applyFillGradient(rule, sStyle, color)
-            }else if(backColor!=""){
+            }else if(backColor!="" && backColor!="none" ){
                 if('transparent'==backColor){
                     var opacity = "0%"
                     backColor =  "#FFFFFF" + Utils.opacityToHex(opacity)
@@ -652,8 +653,6 @@ class DSApp {
                     var opacity = token['opacity']
                     if(undefined!=opacity) backColor = backColor + Utils.opacityToHex(opacity)                                
                 }
-
-
                 var fill = {
                     color: backColor,
                     fill: Style.FillType.Color
