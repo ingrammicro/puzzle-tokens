@@ -17,6 +17,11 @@ const alignMap = {
     right :     Text.Alignment.right,
     justify :   Text.Alignment.justify
 }
+const vertAlignMap = {
+    "text-top" :       Text.VerticalAlignment.top,
+    "baseline" :       Text.VerticalAlignment.center,
+    "text-bottom" :    Text.VerticalAlignment.bottom
+}
 
 class DSApp {
     constructor(context) {
@@ -282,7 +287,10 @@ class DSApp {
                        
              
             // Create new shared style
-           if(!sSharedStyle){               
+           if(!sSharedStyle){ 
+                // change some wrong default values               
+                this._tuneNewStyle(sStyle,isText)
+                // create
                 var SharedStyle = require('sketch/dom').SharedStyle
                 sSharedStyle = SharedStyle.fromStyle({
                     name:       sStyleName,
@@ -304,10 +312,22 @@ class DSApp {
         return true
     }
 
+    _tuneNewStyle(sStyle,isText){
+        if(!isText){
+            if(null==sStyle.borders){
+                sStyle.borders = []
+            }
+            if(null==sStyle.fills){
+                sStyle.fills = []
+            }
+        }
+
+    }
+
     _getRulePropsType(props) {
         var res = ""
         if(null!=props['color'] || null!=props['font-family'] || null!=props['font-size']
-            || null!=props['font-weight']  ||  null!=props['text-transform'] || null!=props['text-align']
+            || null!=props['font-weight']  ||  null!=props['text-transform'] || null!=props['text-align'] || null!=props['vertical-align']
         )
             res +="text"
         if(null!=props['image'])
@@ -674,6 +694,7 @@ class DSApp {
          var transform = token['text-transform']
          var lineHeight = token['line-height']
          var align = token['text-align']
+         var verticalAlign = token['vertical-align']
          
          //// SET FONT SIZE
          if(undefined!=fontSize){                      
@@ -690,11 +711,16 @@ class DSApp {
                 return this.logError("Wrong align '"+align+"' for rule "+rule.name)
             }
             sStyle.alignment = alignMap[align]
-
+         }
+         if(undefined!=verticalAlign){                                  
+            if(!(verticalAlign in vertAlignMap)){
+                return this.logError("Wrong vertical-align' '"+verticalAlign+"' for rule "+rule.name)
+            }
+            sStyle.verticalAlignment = vertAlignMap[verticalAlign]
          }
 
          //// SET LINE HEIGHT
-         if(undefined!=lineHeight){           
+         if(undefined!=lineHeight){
              if(null==sStyle.fontSize){
                  return this.logError("Can not apply line-height without font-size for rule "+rule.name)
              }
