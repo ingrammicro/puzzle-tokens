@@ -18,9 +18,9 @@ const alignMap = {
     justify :   Text.Alignment.justify
 }
 const vertAlignMap = {
-    "text-top" :       Text.VerticalAlignment.top,
-    "baseline" :       Text.VerticalAlignment.center,
-    "text-bottom" :    Text.VerticalAlignment.bottom
+    "top" :       Text.VerticalAlignment.top,
+    "middle" :       Text.VerticalAlignment.center,
+    "bottom" :    Text.VerticalAlignment.bottom
 }
 
 class DSApp {
