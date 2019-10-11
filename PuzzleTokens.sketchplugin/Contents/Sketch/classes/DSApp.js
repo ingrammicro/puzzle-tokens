@@ -55,7 +55,7 @@ class DSApp {
     // Tools
 
     log(msg) {
-        log(msg)
+        //log(msg)
         this.messages += msg + "\n"
     }
 
@@ -78,29 +78,31 @@ class DSApp {
 
     // Public methods
 
-    run() {
-        this.log("Started")
+    run() {        
         if(!this._showDialog()) return false
         this.pathToTokens = this.pathToTokensLess.substring(0, this.pathToTokensLess.lastIndexOf("/"));
         this.pathToTokens2 = this.pathToTokensLess2.substring(0, this.pathToTokensLess2.lastIndexOf("/"));
 
+        var applied = false
         while(true){
-
             if( !this.loadLess()) break
+            if( !this._checkLess()) break
+            if( !this._showCheck()) break
             if( !this._applyLess() ) break
             if(this.genSymbTokens) this._saveElements()
 
+            applied = true        
+            this.log("Finished")
             break
         }
-
-        this.log("Finished")
 
         // show final message
         if(this.errors.length>0){
             this._showErrors()
         }else{
-            this._showMessages()
-            this.UI.message('Tokens applied')
+            if(applied){
+                this._showMessages()
+            }
         }
 
     
@@ -120,6 +122,17 @@ class DSApp {
             sStyle.name = sStyle.name.replace(" ",'')
             this.sLayerStyles[sStyle.name] = sStyle
         },this)
+    }
+
+    _showCheck(){        
+        const dialog = new UIDialog("Review check result",NSMakeRect(0, 0, 400, 400),"Apply","")
+        dialog.addTextViewBox("messages","Check results",this.messages,400)
+        
+        const result = dialog.run()
+        dialog.finish()
+        this.messages = ""
+
+        return result
     }
 
     _showMessages(){        
@@ -197,12 +210,12 @@ class DSApp {
 
     ////////////////////////////////////////////////////////////////
 
-    _applyLess() {    
+    _checkLess() {    
         for(const rule of this.less){
             const ruleType = this._getRulePropsType(rule.props)
             const sStyleName = this._pathToStr(rule.path)      
             rule.name = sStyleName
-            log("Process rule "+sStyleName)
+            //log("Check rule "+sStyleName)
             
             // Check rule
             if(ruleType.indexOf("text")>=0 && ruleType.indexOf("layer")>=0){
@@ -213,7 +226,35 @@ class DSApp {
                 this.logError("Rule \""+sStyleName +"\" has no valid properties")
                 return
             }
+            //     
+            const isText = ruleType.indexOf("text")>=0
+            
+            // Find or create new style
+            var sSharedStyle = null
+            var sStyle = null
 
+            sSharedStyle = isText?this.sTextStyles[sStyleName]:this.sLayerStyles[sStyleName]
+            sStyle = sSharedStyle!=null?sSharedStyle.style:{}
+             
+            // Create new shared style
+            const strType = isText?"Text":"Layer"
+            if(!sSharedStyle){
+                this.messages += "Will create new shared "+ strType + " style "+sStyleName +  "\n"
+            }else{
+                this.messages += "Will update shared "+ strType + " style "+sStyleName + "\n"
+                sSharedStyle.sketchObject.resetReferencingInstances()
+            }            
+        }
+        return true
+    }
+
+
+    _applyLess(justCheck) {    
+        this.log("Started")
+        for(const rule of this.less){
+            const ruleType = this._getRulePropsType(rule.props)
+            const sStyleName = rule.name // spcified in  _checkLess()
+            log("Process rule "+sStyleName)         
             //
 
             if('image'==ruleType){
@@ -227,7 +268,7 @@ class DSApp {
             var sSharedStyle = null
             var sStyle = null
 
-            SharedStyle = isText?this.sTextStyles[sStyleName]:this.sLayerStyles[sStyleName]
+            sSharedStyle = isText?this.sTextStyles[sStyleName]:this.sLayerStyles[sStyleName]
             sStyle = sSharedStyle!=null?sSharedStyle.style:{}
 
             // Apply rule properties
@@ -241,21 +282,21 @@ class DSApp {
                        
              
             // Create new shared style
-           if(!sSharedStyle){
-               this.log("Create new shared style "+sStyleName)
+           if(!sSharedStyle){               
                 var SharedStyle = require('sketch/dom').SharedStyle
                 sSharedStyle = SharedStyle.fromStyle({
                     name:       sStyleName,
                     style:      sStyle,
                     document:   this.nDoc
                   })
-                  if(isText)
-                    this.sTextStyles[sStyleName] = sSharedStyle
-                  else
-                    this.sLayerStyles[sStyleName] = sSharedStyle
-            }else{
-                this.log("Update shared style "+sStyleName)
+                if(isText)
+                this.sTextStyles[sStyleName] = sSharedStyle
+                 else
+                this.sLayerStyles[sStyleName] = sSharedStyle
+                this.log("[Created] new shared style "+sStyleName)
+            }else{                
                 sSharedStyle.sketchObject.resetReferencingInstances()
+                this.log("[Updated] shared style "+sStyleName)
             }            
 
             this._saveTokensForStyleAndSymbols(rule.props,sSharedStyle)

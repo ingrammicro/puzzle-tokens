@@ -103,13 +103,13 @@ function loadLessVars(data){
                 if(rule.isLineComment){
                     return
                 }else if (rule.variable === true) {                
-                    var name;
-                    name = rule.name.substr(1);					
+                  //  var name;
+                //name = rule.name.substr(1);					
 
-                    var value = rule.value;
-                    lessVars[name] = value.toCSS(options);				
+                  //  var value = rule.value;
+                    //lessVars[name] = value.toCSS(options);				
 
-                    console.log(name+" : "+value.toCSS(options))
+                    //console.log(name+" : "+value.toCSS(options))
                 }else{                                 
                     parseSketchRule(rule,null,[])                                      
                 }
@@ -177,9 +177,9 @@ function parseSketchRule(rule,elements,path){
 }
 
 function saveSketchRule(rule,path){
-    //var sketchPath = path.join("/")
-    //console.log(sketchPath)
-    //sketchPath = sketchPath.replace(/(\.)/g, '').replace(/^\./,'')
+    var sketchPath = path.join("/")
+    console.log(sketchPath)
+    //sketchPath = sketchPath.replace(/(\.)/g, '').replace(/^\./,'')    
     
     const sketchRule = {
         path: path,
@@ -189,6 +189,11 @@ function saveSketchRule(rule,path){
     }
     rule.rules.forEach(function (oneRule,index) { 
         if(oneRule.isLineComment) return
+        if(null!=oneRule.selectors){
+            parseSketchRule(oneRule,null,path)
+            return
+        }
+
         var value = oneRule.value.toCSS(parseOptions);	
         
         // get token from rule comment
