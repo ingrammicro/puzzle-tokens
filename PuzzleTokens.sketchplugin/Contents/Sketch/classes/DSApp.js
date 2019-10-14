@@ -47,9 +47,7 @@ class DSApp {
 
         // load settings       
         this.pathToTokensLess = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS)
-        if(undefined==this.pathToTokensLess) this.pathToTokensLess = ''        
-        this.pathToTokensLess2 = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS2)
-        if(undefined==this.pathToTokensLess2) this.pathToTokensLess2 = ''        
+        if(undefined==this.pathToTokensLess) this.pathToTokensLess = ''                
         this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS)==1        
         this.showDebug = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DEBUG)==1        
         
@@ -86,7 +84,6 @@ class DSApp {
     run() {        
         if(!this._showDialog()) return false
         this.pathToTokens = this.pathToTokensLess.substring(0, this.pathToTokensLess.lastIndexOf("/"));
-        this.pathToTokens2 = this.pathToTokensLess2.substring(0, this.pathToTokensLess2.lastIndexOf("/"));
 
         var applied = false
         while(true){
@@ -178,18 +175,13 @@ class DSApp {
 
 
     _showDialog(){
-        const dialog = new UIDialog("Apply UI Tokens to Sketch styles",NSMakeRect(0, 0, 600, 180),"Apply")
+        const dialog = new UIDialog("Apply UI Tokens to Sketch styles",NSMakeRect(0, 0, 600, 140),"Apply")
 
         dialog.addPathInput({
             id:"pathToTokensLess",label:"Path to Design Tokens LESS file",labelSelect:"Select",
             textValue:this.pathToTokensLess,inlineHint:'e.g. /Work/ui-tokens.less',
             width:550,askFilePath:true
-        })  
-        dialog.addPathInput({
-            id:"pathToTokensLess2",label:"Path to Design Tokens LESS file #2 (Optional)",labelSelect:"Select",
-            textValue:this.pathToTokensLess2,inlineHint:'e.g. /Work/ui-tokens-custom.less',
-            width:550,askFilePath:true
-        })  
+        })   
         dialog.addCheckbox("genSymbTokens","Generate symbols & styles description file",this.genSymbTokens)
         dialog.addCheckbox("showDebug","Show debug information",this.showDebug)
 
@@ -200,7 +192,6 @@ class DSApp {
     
             this.pathToTokensLess = dialog.views['pathToTokensLess'].stringValue()+""
             if(""==this.pathToTokensLess) continue
-            this.pathToTokensLess2 = dialog.views['pathToTokensLess2'].stringValue()+""
             this.genSymbTokens = dialog.views['genSymbTokens'].state() == 1
             this.showDebug = dialog.views['showDebug'].state() == 1
 
@@ -210,7 +201,6 @@ class DSApp {
         dialog.finish()
 
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToTokensLess)
-        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS2, this.pathToTokensLess2)
         Settings.setSettingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS, this.genSymbTokens)
         Settings.setSettingForKey(SettingKeys.PLUGIN_SHOW_DEBUG, this.showDebug)
     
@@ -350,11 +340,6 @@ class DSApp {
             this.logError("Can not find .less file by path: "+this.pathToTokensLess)
             return false
         }
-        // check files
-        if(this.pathToTokensLess2!="" && !Utils.fileExistsAtPath(this.pathToTokensLess2)){
-            this.logError("Can not find .less file by path: "+this.pathToTokensLess2)
-            return false
-        }
 
         // Copy less2json conversion script 
         const scriptPath = Utils.copyScript('nsconvert.js',tempFolder)
@@ -364,7 +349,6 @@ class DSApp {
         const pathToLessJSON = tempFolder + "/nsdata.less.json"
         var args = [scriptPath]
         args.push(this.pathToTokensLess)
-        if(this.pathToTokensLess2!="") args.push(this.pathToTokensLess2)
         args.push(pathToLessJSON)
 
         const runResult = Utils.runCommand("/usr/local/bin/node",args)
@@ -525,19 +509,22 @@ class DSApp {
         return color
     }
 
-    _applyShadow(rule,sStyle, isInner, shadowCSS) {
+    _applyShadow(rule,sStyle, shadowCSS) {
         
         var shadows = []
+        var shadow = null
         if(shadowCSS!="" && shadowCSS!="none"){
-            var shadow = Utils.splitCSSShadow(shadowCSS)    
+            shadow = Utils.splitCSSShadow(shadowCSS)    
             shadow.enabled = true
             shadow.type = 'Shadow'
             shadows = [shadow]
         }else{
            //obj.slayer.style.shadows = []
         }
+        log(shadowCSS)
+        log(shadow)
 
-        if(isInner)
+        if(shadow && shadow.inset)
             sStyle.innerShadows = shadows
         else   
             sStyle.shadows = shadows
@@ -672,7 +659,7 @@ class DSApp {
         // SET SHADOW
         var boxShadow = token['box-shadow']
         if(boxShadow!=null){
-            this._applyShadow(rule,sStyle,false,boxShadow)
+            this._applyShadow(rule,sStyle,boxShadow)
         }
 
         // SET BORDER

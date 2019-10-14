@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 4.0.1 (14 Oct 2019)
+- hotfix for 4.0.0
+
 ##  Version 4.0.0 (14 Oct 2019)
 Totally new version. Critical changes:
 - LESS to Sketch rules now are describing in LESS file too. No more JSON here.

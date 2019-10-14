@@ -139,8 +139,15 @@ class Utils {
 
     // s:  "0 4px 16px 0 #000000"
     //  or 
-    // s:  "0 4px 16px #000000"
+    // s:  "inset 0 4px 16px #000000"
     static splitCSSShadow(src){
+
+        var inset = false
+        if(src.indexOf("inset")>=0){
+            inset = true
+            src = src.replace("inset","")
+        }
+
         var pxFunc = function(s){
             s = s.replace('px','')
             return parseInt(s)
@@ -153,6 +160,7 @@ class Utils {
         var color =  Utils.RGBAToHexA( items[ items.length-1 ])
 
         return {
+            'inset':inset,
             'x': pxFunc(items[0]),
             'y': pxFunc(items[1]),
             'blur': pxFunc(items[2]),

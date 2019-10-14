@@ -2,9 +2,8 @@ var fs = require('fs');
 var nodePath = require('path');
 
 const args = process.argv.slice(2)
-var pathToLess1 = args[0]
-var pathToLess2 = args[1]
-var pathToJSON = args[2]
+var pathToLess = args[0]
+var pathToJSON = args[1]
 var lessPath = ''
 var lessVars = {}
 var sketchRules = []
@@ -14,33 +13,35 @@ var _lookups = {}
 /////////////////////////////////////////////
 console.log("Started")
 
+// INIT DATA
 if(!initPaths()) process.exit(0)
 
-var strSrcLess = loadLessFromFiles(pathToLess1,pathToLess2)
+// LOAD LESS
+var strSrcLess = loadLessFromFiles(pathToLess)
 if(null==strSrcLess) process.exit(-1)
 
+// SAVE TOKENS AS COMMENTS IN LESS
 var strLess = injectTokensIntoLess(strSrcLess)
 
-loadLessVars(strLess)    
+// RENDER LESS TO JSON
+transformLESStoJSON(strLess)    
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 function initPaths(){
-    if(undefined==pathToLess1){
-        console.log("nsconvert.js PATH_TO_LESS_FILE1 PATH_TO_LESS_FILE2(OPT) PATH_TO_JSON_FILE")
+    if(undefined==pathToLess){
+        console.log("nsconvert.js PATH_TO_LESS_FILE1 PATH_TO_JSON_FILE")
         return false
     }
-    if(undefined == pathToJSON){
-        pathToJSON = pathToLess2
-        pathToLess2 = undefined
-    }
 
+    // REMOVE OLD RESULTS
     if (pathToJSON && fs.existsSync(pathToJSON)) {
         fs.unlinkSync(pathToJSON)
     }
 
-    lessPath = nodePath.dirname(pathToLess1)
+    // CHANGE CURRENT PATH TO LESS FOLDER TO ENABLE IMPORTS
+    lessPath = nodePath.dirname(pathToLess)
     process.chdir(lessPath)
 
     return true   
@@ -88,10 +89,11 @@ function loadLessFromFiles(fileName1,fileName2){
     return data
 }
 
-function loadLessVars(data){
+function transformLESStoJSON(data){
   
-    var less = require("/usr/local/lib/node_modules/less")   
-
+    var passToLessModules = _getPathToLessModules()
+    console.log(passToLessModules)
+    var less = require(passToLessModules)   
 
     var options1 = { 
         async: false,
@@ -238,4 +240,11 @@ function saveData(data,pathToJSON){
     }
 
     return true
+}
+
+function _getPathToLessModules(){
+    var result = require('child_process').execSync("/usr/local/bin/node /usr/local/bin/npm -g root")
+    //var path = result
+    var path = result.toString().replace("\n","")
+    return path+"/less"
 }
