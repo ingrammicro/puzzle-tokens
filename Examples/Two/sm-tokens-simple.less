@@ -1,0 +1,177 @@
+
+//// Base colors
+
+@colors: {
+    Brand:               #db0482;
+    Primary:             #8925f5; 
+    Secondary:           #923F7B;
+    Black:               #17062b;
+    White:               white;
+    Danger:              #d83a3a;
+    Warning:             #f7a436;
+    Success:             #0ec988;
+    Highlight:           #fff79c;
+}
+
+// Fonts
+
+@font-size: {
+    h1:        56px;
+    h2:        36px;
+    h3:        24px;
+    h4:        16px;
+    normal:    14px;
+    small:     12px;
+    tiny:      10px;
+}
+
+@text-align: left, right, center;
+
+@module: 4px;
+
+// Shadows
+
+@shadow: {
+    large:      0 @module*2 @module*4 fade(@colors[Black], 32%);
+    medium:     0 @module @module*2 fade(@colors[Black], 10%);
+    small:      0 @module/4 @module/2 fade(@colors[Black], 5%);
+}
+
+//// Less to Sketch Mapping
+
+/*
+.Backgrounds .Brand {
+    background-color: @colors[Brand];
+}
+
+.Backgrounds .Primary {
+    background-color: @colors[Primary];
+}
+
+.Backgrounds .Secondary {
+    background-color: @colors[Secondary];
+}
+
+.Backgrounds .Black {
+    background-color: @colors[Black];
+}
+
+.Backgrounds .White {
+    background-color: @colors[White];
+}
+
+.Backgrounds .Danger {
+    background-color: @colors[Danger];
+}
+
+.Backgrounds .Warning {
+    background-color: @colors[Warning];
+}
+
+.Backgrounds .Success {
+    background-color: @colors[Success];
+}
+
+.Backgrounds .Highlight {
+    background-color: @colors[Highlight];
+}
+
+*/
+
+/*
+.Backgrounds {
+    each(@colors, {
+        .@{key} {
+            background-color: @value;
+        } 
+    });
+}
+*/
+
+.Backgrounds {
+    // base color styles generation
+    each(@colors, {
+        .@{key} {
+            background-color: @value;
+        } 
+    });
+    
+    // shades generation
+    .Neutrals {
+        each(range(7), {
+            .Neutral-@{index} {
+                background-color: tint(@colors[Black], 45% + (@index)*50%/7);
+            } 
+        });
+    }
+
+    // Stage background
+    .Stage {
+        background-color: tint(@colors[Black], 98%);
+    }
+}
+
+
+
+.Backgrounds .Elevated {
+    each(@colors, {
+    .@{key} {
+        background-color: @value, 30%;
+        box-shadow: @shadow[large];
+    } 
+    });
+    // shades generation
+    .Neutrals {
+        each(range(7), {
+            .Neutral-@{index} {
+                background-color: spin(tint(@colors[Black], 45% + (@index)*50%/7), 20%);
+                box-shadow: @shadow[large];
+            } 
+        });
+    }
+}
+
+
+// Texts generation: Size/Alignment/Color
+
+each(@font-size, .(@vs, @ks, @is) {
+    .@{ks}Size {
+        each(@text-align, .(@va, @ka, @ia) {
+            .@{va}Aligned {
+                each(@colors, {
+                    .@{key} {
+                        color: @value;
+                        font-size: @vs;
+                        text-align: @va;
+                        vertical-align: middle;
+                        line-height: 1.25;
+                    }
+                });
+
+                // Contrast text colors subset generation
+                .ContrastTo {
+                    //Base colors
+                    each(@colors, {
+                        .@{key} {
+                            color: contrast(@value); // getting a color contrast to a given color
+                            font-size: @vs;
+                            text-align: @va;
+                            vertical-align: middle;
+                            line-height: 1.25;
+                        }
+                    });   
+                    //Neutral colors 
+                    each(range(7), {
+                        .Neutral-@{index} {
+                            color: contrast(spin(tint(@colors[Black], 45% + (@index)*50%/7), 20%));
+                            font-size: @vs;
+                            text-align: @va;
+                            vertical-align: middle;
+                            line-height: 1.25;
+                        } 
+                    });
+                            }
+            }
+        });
+    }
+});
