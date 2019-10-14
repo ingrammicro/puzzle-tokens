@@ -1,11 +1,11 @@
 var fs = require('fs');
-var nodePath = require('path')
+var nodePath = require('path');
 
-var lessPath = ''
 const args = process.argv.slice(2)
 var pathToLess1 = args[0]
 var pathToLess2 = args[1]
 var pathToJSON = args[2]
+var lessPath = ''
 var lessVars = {}
 var sketchRules = []
 var parseOptions = null
@@ -27,7 +27,7 @@ loadLessVars(strLess)
 
 
 function initPaths(){
-    if(undefined==pathToLess1 || undefined==pathToLess2 ){
+    if(undefined==pathToLess1){
         console.log("nsconvert.js PATH_TO_LESS_FILE1 PATH_TO_LESS_FILE2(OPT) PATH_TO_JSON_FILE")
         return false
     }
@@ -35,10 +35,13 @@ function initPaths(){
         pathToJSON = pathToLess2
         pathToLess2 = undefined
     }
-    
-    lessPath = nodePath.dirname(pathToLess1)
 
-    process.chdir(lessPath);
+    if (pathToJSON && fs.existsSync(pathToJSON)) {
+        fs.unlinkSync(pathToJSON)
+    }
+
+    lessPath = nodePath.dirname(pathToLess1)
+    process.chdir(lessPath)
 
     return true   
 }
@@ -69,7 +72,7 @@ function injectTokensIntoLess(srcData){
 }
 
 function loadLessFromFiles(fileName1,fileName2){
-    console.log("Loading LESS from files...")
+    console.log("Read LESS: running...")
     
     var data = ''
     const data1 = fs.readFileSync(fileName1, 'utf8');
@@ -78,16 +81,15 @@ function loadLessFromFiles(fileName1,fileName2){
         return null
     }
     data = data + data1;
-    if(fileName2!=undefined && fileName2!=''){
+    if(fileName2!=undefined){
         data = data + "\n"+fs.readFileSync(fileName2, 'utf8');
     }
-    console.log("Loaded")
 
     return data
 }
 
 function loadLessVars(data){
-    console.log("Parsing LESS...")
+  
     var less = require("/usr/local/lib/node_modules/less")   
 
 
@@ -96,10 +98,12 @@ function loadLessVars(data){
         fileAsync: false
     }
 
+
     process.on('unhandledRejection', error => {
         // Will print "unhandledRejection err is not defined"
-        console.log('Failed to parse LESS with error message:\n', error.message);
-      });
+        console.log('Failed to parse LESS with error message:', error.message);
+        process.exit(-1)
+    });
       
 
     try {
@@ -108,11 +112,9 @@ function loadLessVars(data){
             //console.log(options.pluginManagermixin)
             if(undefined!=err) console.log(err)
             
-            console.log("Evaluating LESS...")
             var evalEnv = new less.contexts.Eval(options);
             var evaldRoot = root.eval(evalEnv);
             var ruleset = evaldRoot.rules;
-            console.log("Evaluated LESS...")
 
             ruleset.forEach(function (rule) {                            
                 if(rule.isLineComment){
@@ -134,8 +136,9 @@ function loadLessVars(data){
             
             // completed
             //saveData(lessVars,pathToJSON)
+            console.log("Completed")    
             saveData(sketchRules,pathToJSON)
-            console.log("Parsed")
+            console.log("Saved")    
         });
     } catch ( e ) {
         console.log("Failed to parse LESS with error message:\n")
@@ -143,23 +146,20 @@ function loadLessVars(data){
         process.exit(-1)
     }
 
-    //console.log(sketchRules)
+    console.log(sketchRules)
 
     
-    console.log("Parsed LESS")
+    console.log("Read LESS: done")
 }
 
 
 function parseSketchRule(rule,elements,path){
-    console.log("----------------- parseSketchRule -----------------------")
-
+    
     // save info about enabled mixins to ignore them
     if(rule._lookups && Object.keys(rule._lookups).length>0){
         Object.keys(rule._lookups).forEach(function(s){
             _lookups[s.trim()] = true
         })
-       console.log("SAVED MIXINS")
-       console.log(_lookups)
     }
 
     if(null!=elements){ 
@@ -168,7 +168,6 @@ function parseSketchRule(rule,elements,path){
             path = path.concat([el.value])
             if(el.value in _lookups){
                 foundMixin = true
-                console.log("FOUND MIXIN!")  
                 return
             }
         })
@@ -193,7 +192,6 @@ function parseSketchRule(rule,elements,path){
 
 function saveSketchRule(rule,path){
     var sketchPath = path.join("/")
-    console.log(sketchPath)
     //sketchPath = sketchPath.replace(/(\.)/g, '').replace(/^\./,'')    
     
     const sketchRule = {
@@ -232,7 +230,12 @@ function saveSketchRule(rule,path){
 
 function saveData(data,pathToJSON){   
     var json = JSON.stringify(data,null,'    ')
-    fs.writeFileSync(pathToJSON, json, 'utf8');
+
+    if(pathToJSON && pathToJSON!=''){
+        fs.writeFileSync(pathToJSON, json, 'utf8');
+    }else{
+        console.log(json)
+    }
 
     return true
 }

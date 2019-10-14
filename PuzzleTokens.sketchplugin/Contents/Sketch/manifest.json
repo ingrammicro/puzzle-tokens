@@ -7,7 +7,7 @@
   "appcast": "https://raw.githubusercontent.com/ingrammicro/puzzle-tokens/master/appcast.xml",
   "compatibleVersion": 3,
   "bundleVersion": 1,
-  "version" : "4.0.0.beta14",
+  "version" : "4.0.0.beta15",
   "icon": "icon.png",
   "commands" : [   
     {

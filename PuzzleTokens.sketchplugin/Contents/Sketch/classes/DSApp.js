@@ -149,7 +149,12 @@ class DSApp {
 
     _showDebug(lessJSONStr){        
         const dialog = new UIDialog("Debug Information",NSMakeRect(0, 0, 600, 600),"Ok","","")
-        dialog.addTextViewBox("debug","Intermediate JSON",lessJSONStr,600)
+
+        dialog.addTextViewBox("debug","Convertor output",this.convertorOuput,lessJSONStr!=null?250:600)
+        
+        if(lessJSONStr!=null){
+            dialog.addTextViewBox("debug","Intermediate JSON",lessJSONStr,250)
+        }
         const result = dialog.run()
         dialog.finish()
     }
@@ -367,6 +372,7 @@ class DSApp {
             this.logError(runResult.output)
             return false
         }    
+        this.convertorOuput = runResult.output
         
         // load json file
         var error = null
@@ -644,7 +650,7 @@ class DSApp {
         var backColor = token['background-color']
         if(backColor!=null){
             if(backColor.indexOf("gradient")>0){
-                return this._applyFillGradient(rule, sStyle, color)
+                return this._applyFillGradient(rule, sStyle, backColor)
             }else if(backColor!="" && backColor!="none" ){
                 if('transparent'==backColor){
                     var opacity = "0%"
