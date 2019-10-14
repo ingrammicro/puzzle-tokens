@@ -1,5 +1,7 @@
 var fs = require('fs');
+var nodePath = require('path')
 
+var lessPath = ''
 const args = process.argv.slice(2)
 var pathToLess1 = args[0]
 var pathToLess2 = args[1]
@@ -33,6 +35,10 @@ function initPaths(){
         pathToJSON = pathToLess2
         pathToLess2 = undefined
     }
+    
+    lessPath = nodePath.dirname(pathToLess1)
+
+    process.chdir(lessPath);
 
     return true   
 }
@@ -63,7 +69,7 @@ function injectTokensIntoLess(srcData){
 }
 
 function loadLessFromFiles(fileName1,fileName2){
-    console.log("Read LESS: running...")
+    console.log("Loading LESS from files...")
     
     var data = ''
     const data1 = fs.readFileSync(fileName1, 'utf8');
@@ -72,15 +78,16 @@ function loadLessFromFiles(fileName1,fileName2){
         return null
     }
     data = data + data1;
-    if(fileName2!=undefined){
+    if(fileName2!=undefined && fileName2!=''){
         data = data + "\n"+fs.readFileSync(fileName2, 'utf8');
     }
+    console.log("Loaded")
 
     return data
 }
 
 function loadLessVars(data){
-  
+    console.log("Parsing LESS...")
     var less = require("/usr/local/lib/node_modules/less")   
 
 
@@ -89,15 +96,23 @@ function loadLessVars(data){
         fileAsync: false
     }
 
+    process.on('unhandledRejection', error => {
+        // Will print "unhandledRejection err is not defined"
+        console.log('Failed to parse LESS with error message:\n', error.message);
+      });
+      
+
     try {
         less.parse(data, options1, function (err, root, imports, options) {
             parseOptions = options
             //console.log(options.pluginManagermixin)
             if(undefined!=err) console.log(err)
             
+            console.log("Evaluating LESS...")
             var evalEnv = new less.contexts.Eval(options);
             var evaldRoot = root.eval(evalEnv);
             var ruleset = evaldRoot.rules;
+            console.log("Evaluated LESS...")
 
             ruleset.forEach(function (rule) {                            
                 if(rule.isLineComment){
@@ -120,7 +135,7 @@ function loadLessVars(data){
             // completed
             //saveData(lessVars,pathToJSON)
             saveData(sketchRules,pathToJSON)
-            console.log("Completed")
+            console.log("Parsed")
         });
     } catch ( e ) {
         console.log("Failed to parse LESS with error message:\n")
@@ -128,15 +143,15 @@ function loadLessVars(data){
         process.exit(-1)
     }
 
-    console.log(sketchRules)
+    //console.log(sketchRules)
 
     
-    console.log("Read LESS: done")
+    console.log("Parsed LESS")
 }
 
 
 function parseSketchRule(rule,elements,path){
-    //console.log("----------------- parseSketchRule -----------------------")
+    console.log("----------------- parseSketchRule -----------------------")
 
     // save info about enabled mixins to ignore them
     if(rule._lookups && Object.keys(rule._lookups).length>0){
