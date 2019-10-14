@@ -28,26 +28,27 @@ The following styles are supporting.
 Text Layers:
 -----------------------------------------
 "font-size":             "12.0",   
-"font-face":             "Open Sans" // or "Open Sans","Times New Roman"
+"font-family":           "Open Sans" // or "Open Sans","Times New Roman"
 "font-weight":           "bold", // "extra-light", "light", "regular", "medium", "semibold", "bold"
 "line-height":           "1.0", // or 1.2 or 1.5 or any other mulitplier for font-size
-"text-color":            "#FFFFFF"
-"text-color-opacity":    "63%", // "63%" or "0.42"
+"color":                 "#FFFFFF"
+"opacity":               "63%", // "63%" or "0.42"
 "text-transform":        "uppercase",  // "uppercase", "lowercase", and "none"
+"text-align":            "left",  // "left", center", "right", "justify"
+"vertical-align":        "top",   // "top", "middle", "bottom"
 
 Shape Layers:
 -----------------------------------------
-"fill-color":            "#B0AFB1", // or "linear-gradient(#B0AFB1,#B0AFB4)" or "linear-radial(#B0AFB1,#B0AFB4)"
-"fill-color-opacity":    "63%", // "63%" or "0.42"
+"background-color":      "#B0AFB1", // or "linear-gradient(#B0AFB1,#B0AFB4)" or "linear-radial(#B0AFB1,#B0AFB4)"
+"opacity":               "63%", // "63%" or "0.42"
 
 "border-color":          "#000000",
 "border-width":          "2", //px
 "border-position":       "center", // center or inside or outside
-"shape-radius":          "5", //px !!ATTENTION!! Shared styles don't include Radius, 
+"border-radius":          "5", //px !!ATTENTION!! Shared styles don't include Radius, 
                               // so you need to apply it on layers or symbols directly
-"shape-radius":          "5;5;0;0",
-"shadow":                "0 10px 20px 2 rgba(0,0,0,0.1)",
-"inner-shadow":                "0 10px 20px 2 rgba(0,0,0,0.1)",
+"border-radius":          "5;5;0;0",
+"box-shadow":             "0 10px 20px 2 rgba(0,0,0,0.1)"  // or "inset 0 10px 20px 2 rgba(0,0,0,0.1)"
 ```
 
 ## Requirements
