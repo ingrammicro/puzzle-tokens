@@ -15,7 +15,7 @@ npm i less -g
 1. Download [example](https://github.com/ingrammicro/puzzle-tokens/raw/master/Examples/One.zip) and unarchive it into some local folder.
 2. Open Widget Library.sketch file in Sketch.app
 3. Run Plugins > Puzzle Tokens > Apply Design Tokens menu command
-4. Specify LESS and JSON  files according to screenshot
+4. Specify LESS file according to screenshot
 
 <img width="755" height="538" src="https://raw.githubusercontent.com/ingrammicro/puzzle-tokens/master/Examples/One/Illustration.png"/>
 

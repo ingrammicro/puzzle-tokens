@@ -1,5 +1,12 @@
 # Change Log
 
+##  Version 4.0.0 (14 Oct 2019)
+Totally new version. Critical changes:
+- LESS to Sketch rules now are describing in LESS file too. No more JSON here.
+- Renamed many properties in order to use CSS names as much as possible
+- Added debug window
+- Addded multuply error checks
+
 ##  Version 3.1.3 (7 Oct 2019)
 - Diagnostic of JSON comments has been improved
 
