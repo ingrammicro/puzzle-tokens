@@ -23,6 +23,11 @@ const vertAlignMap = {
     "bottom" :    Text.VerticalAlignment.bottom
 }
 
+function degToRad(deg){
+    return deg * Math.PI/180;
+}
+
+
 class DSApp {
     constructor(context) {
         this.nDoc = context.document
@@ -447,24 +452,11 @@ class DSApp {
         return true
     }
 
-
-
     _applyFillGradient(rule,sStyle,colorsRaw) {
         const token = rule.props
         // parse string in format: linear-gradient(#00000,#F0000);
-        const i1 = colorsRaw.indexOf("(");
-        const i2 = colorsRaw.lastIndexOf(")");
-        if(i1<0 || i2<0){
-            return this.logError("Wrong gradient format: "+colorsRaw+". Can't find ( or )")
-        }
-        const colors = colorsRaw.substring(i1+1,i2).split(",")
-        if(colors.length!=2){
-            return this.logError("Wrong gradient format: "+colorsRaw+". Can't find two colors")
-        }
 
-        var colorFrom = Utils.stripStr(colors[0])
-        var colorTo = Utils.stripStr(colors[1])
-
+        // CHECK GRADIENT TYPE
         const gradientTypes={
             'linear-gradient':      Style.GradientType.Linear,
             'radial-gradient':      Style.GradientType.Radial,
@@ -472,25 +464,79 @@ class DSApp {
         }
         const gradientTypeSrc = colorsRaw.substring(0,colorsRaw.indexOf("(") )
         if(""==gradientTypeSrc){
-            return this.logError("Wrong gradient format: "+colorsRaw+". Can't find gradient type")
+            return this.logError("Wrong gradient format: "+colorsRaw+". Can't find gradient type for rule "+rule.name)
         }
-
         if(!(gradientTypeSrc in gradientTypes)){
             return this.logError('Uknown gradient type: '+gradientTypeSrc)
         }
+
+        // PARSE VALUE
+        // linear-gradient(45deg,#0071ba, black)  => 45deg,#0071ba,black
+        var sValues = colorsRaw.replace(/(^[\w-]*\()/,"").replace(/(\)\w*)/,"").replace(" ","")
+        log("sValues="+sValues)
+        var deg = 180
+        if(sValues.indexOf("deg")>=0){
+            var sDeg = sValues.replace(/(\n*)deg.*/,"")     
+            sValues = sValues.substring(sValues.indexOf(",")+1) 
+
+            if(""==sDeg){
+                return this.logError("Wrong gradient format: "+colorsRaw+". Can't find '[Number]deg' "+rule.name)
+            }
+            deg = parseFloat(sDeg,10)
+        }
+        log("sValues="+sValues)
+
+        var aValues = sValues.split(",").map(s => Utils.stripStr(s))
+
+
+        var count = aValues.length
+        var lenA = 0.5
 
         var fill = {
             fill: Style.FillType.Gradient,
             gradient: {
                 gradientType:  gradientTypes[gradientTypeSrc],
-                from: { x: 0.5, y: 0},
-                to: { x: 0.5, y: 1},
-                stops:[
-                    { color: colorFrom, position: 0},
-                    { color: colorTo, position: 1}
-                ]
+                stops:[]
             }
         }
+
+        var delta = 1/(count-1)
+
+        if(180==deg){
+            fill.gradient.from = {x:0.5,y:0}
+            fill.gradient.to = {x:0.5,y:1}
+        }else if(0==deg || 360==deg){
+            fill.gradient.from = {x:0.5,y:1}
+            fill.gradient.to = {x:0.5,y:0}
+        }else if(90==deg){
+            fill.gradient.from = {x:0,y:0.5}
+            fill.gradient.to = {x:1,y:0.5}
+        }else if(270==deg){
+            fill.gradient.from = {x:1,y:0.5}
+            fill.gradient.to = {x:0,y:0.5}
+        }else if(deg>0 && deg<=45){
+            
+            var lenB = Math.tan(degToRad(deg)) * lenA
+            lenB = Math.round(lenB*100)/100
+            var lenC = lenA / Math.cos(degToRad(deg))           
+            lenC = Math.round(lenC*100)/100
+
+            fill.gradient.from = {x:0.5-lenB,y:1}
+            fill.gradient.to = {x:0.5+lenB,y:0}
+
+            log("lenB = "+lenB)
+            log("lenC = "+lenC)
+            log("delta = "+delta)
+        }
+
+        aValues.forEach(function(sColor,index){
+            fill.gradient.stops.push({
+                color:      sColor, 
+                position:   index*delta
+            })
+        })
+
+        log( fill.gradient)
         sStyle.fills = [fill]
 
     }
@@ -692,7 +738,11 @@ class DSApp {
          if(undefined!=fontSize){                      
             sStyle.fontSize = parseFloat(fontSize.replace("px",""))
          }
-         //// SET FONT SIZE
+        if(sStyle.fontStyle!="") sStyle.fontStyle = ""
+        if(sStyle.fontVariant!="") sStyle.fontVariant = ""
+        if(sStyle.fontStretch!="") sStyle.fontStretch = ""
+
+         //// SET FONT FACE
          if(undefined!=fontFace){  
             let firstFont = fontFace.split(',')[0]
             firstFont = firstFont.replace(/[""]/gi,'')
@@ -765,6 +815,7 @@ class DSApp {
             sStyle.textTransform = transform
          }
 
+         // SET TEXT SHADOW
          var textShadow = token['text-shadow']
          if(textShadow!=null){
             this._applyShadow(rule,sStyle,false,textShadow)
