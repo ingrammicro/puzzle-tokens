@@ -10,9 +10,10 @@ Sketch.app plugin to apply design tokens (specified in LESS format) to Sketch la
 sudo -s  
 npm i less -g 
 ```
+5. Now you're good to go!
 
 ## Usage
-1. Download [example](https://github.com/ingrammicro/puzzle-tokens/raw/master/Examples/One.zip) and unarchive it into some local folder.
+1. Download [Example 1](https://github.com/ingrammicro/puzzle-tokens/raw/master/Examples/One.zip) and unarchive it into some local folder.
 2. Open Widget Library.sketch file in Sketch.app
 3. Run Plugins > Puzzle Tokens > Apply Design Tokens menu command
 4. Specify LESS file according to screenshot
@@ -25,31 +26,36 @@ npm i less -g
 ## Features
 The following styles are supporting.
 ```
-Text Layers:
------------------------------------------
-"font-size":             "12.0",   
-"font-family":           "Open Sans" // or "Open Sans","Times New Roman"
-"font-weight":           "bold", // "extra-light", "light", "regular", "medium", "semibold", "bold"
-"line-height":           "1.0", // or 1.2 or 1.5 or any other mulitplier for font-size
-"color":                 "#FFFFFF"
-"opacity":               "63%", // "63%" or "0.42"
-"text-transform":        "uppercase",  // "uppercase", "lowercase", and "none"
-"text-align":            "left",  // "left", center", "right", "justify"
-"vertical-align":        "top",   // "top", "middle", "bottom"
+// Text Layers:
+// -----------------------------------------
+.TextStyle {
+    font-size:             12px;   
+    font-family:           Open Sans; // or "Open Sans","Times New Roman"
+    font-weight:           bold; // or "extra-light", "light", "regular", "medium", "semibold", "bold"
+    line-height:           1.0; // or 1.2 or 1.5 or any other mulitplier for font-size
+    color:                 #FFFFFF;
+    opacity:               63%; // supported "63%" or "0.42"
+    text-transform:        uppercase;  // "uppercase", "lowercase", and "none"
+    text-align:            left;  // "left", center", "right", "justify"
+    vertical-align:        top;   // "top", "middle", "bottom"
+}
 
-Shape Layers:
------------------------------------------
-"background-color":      "#B0AFB1", // or "linear-gradient(#B0AFB1,#B0AFB4)" or "linear-radial(#B0AFB1,#B0AFB4)"
-"opacity":               "63%", // "63%" or "0.42"
+// Shape layers
+// -----------------------------------------
 
-"border-color":          "#000000",
-"border-width":          "2", //px
-"border-position":       "center", // center or inside or outside
-"border-radius":          "5", //px !!ATTENTION!! Shared styles don't include Radius, 
-                              // so you need to apply it on layers or symbols directly
-"border-radius":          "5;5;0;0",
-"box-shadow":             "0 10px 20px 2 rgba(0,0,0,0.1)"  // or "inset 0 10px 20px 2 rgba(0,0,0,0.1)"
-```
+ShapeStyle {
+    background-color:      #B0AFB1; // or "linear-gradient(#B0AFB1,#B0AFB4)" or "linear-radial(#B0AFB1,#B0AFB4)"
+    opacity:               63%; // "63%" or "0.42"
+    border-color:          #000000;
+    border-width:          2px;
+    border-position:       center; // center or inside or outside
+    border-radius:         5px;
+    // !!ATTENTION!! Shared styles don't include Radius, but can be set at style level and will be applied once the tokens are applied. You can also apply it on layers or symbols directly
+    border-radius:          5px; // or 5px 5px 0 0
+    box-shadow:             0 10px 20px 2 rgba(0,0,0,0.1);  // or "inset 0 10px 20px 2 rgba(0,0,0,0.1)"
+}```
 
-## Requirements
-Some styles, such as text font/transformation/etc require the latest Sketch 53
+You can [look into more examples](https://github.com/ingrammicro/puzzle-tokens/tree/master/Examples) to get familiar with the plugin.
+
+## Sketch versions supported
+Some styles, such as text font/transformation/etc require Sketch 53 or later. You're safe using the latest stable Sketch version to get the plugin working.
