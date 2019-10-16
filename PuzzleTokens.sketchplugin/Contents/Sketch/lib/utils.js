@@ -157,9 +157,6 @@ class Utils {
 
         var items = src.split(' ')
 
-        log('splitCSSShadow src='+src)
-        log(items)
-
         var spread = items.length>4?pxFunc(items[3]):0
         var color =  Utils.RGBAToHexA( items[ items.length-1 ])
 
