@@ -1,5 +1,16 @@
 # Change Log
 
+##  Version 4.0.2 (16 Oct 2019)
+- Added support for background-color: linear-gradient(35deg,black,white,red);
+- Added ability to address some layer inside a master symbol (without shared style touching)
+  Format: 
+    #Controls #Buttons .Group .Text{
+        color: white;
+    }
+    "Controls / Buttons" is symbol master name
+        "Group" - layer inside a master
+            "Text" - layer inside a "Group" 
+
 ##  Version 4.0.1 (14 Oct 2019)
 - hotfix for 4.0.0
 

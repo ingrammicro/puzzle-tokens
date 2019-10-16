@@ -62,7 +62,7 @@ class DSApp {
 
     // Tools
 
-    log(msg) {
+    logMsg(msg) {
         //log(msg)
         this.messages += msg + "\n"
     }
@@ -74,7 +74,7 @@ class DSApp {
 
 
     logError(error) {
-        this.log("[ ERROR ] " + error)
+        this.logMsg("[ ERROR ] " + error)
         this.errors.push(error)
     }
 
@@ -99,7 +99,7 @@ class DSApp {
             if(this.genSymbTokens) this._saveElements()
 
             applied = true        
-            this.log("Finished")
+            this.logMsg("Finished")
             break
         }
 
@@ -174,7 +174,7 @@ class DSApp {
         const pathDetails = path.parse(this.sDoc.path)
         const pathToRules = pathDetails.dir + "/" + pathDetails.name + Constants.SYMBOLTOKENFILE_POSTFIX
         const json = JSON.stringify(this.elements,null,null)
-        this.log("Save elements info into: "+pathToRules)
+        this.logMsg("Save elements info into: "+pathToRules)
         Utils.writeToFile(json, pathToRules)
     }
 
@@ -220,6 +220,15 @@ class DSApp {
             const ruleType = this._getRulePropsType(rule.props)
             const sStyleName = this._pathToStr(rule.path)      
             rule.name = sStyleName
+
+            if(rule.path[0].startsWith('#')){
+                rule.isStandalone = true
+                rule.sLayer = this._findSymbolChildByPath(rule.path)
+                if(!rule.sLayer){
+                 
+                    return
+                }
+            }
             //log("Check rule "+sStyleName)
             
             // Check rule
@@ -234,28 +243,32 @@ class DSApp {
             }
             //     
             const isText = ruleType.indexOf("text")>=0
-            
-            // Find or create new style
-            var sSharedStyle = null
-            var sStyle = null
-
-            sSharedStyle = isText?this.sTextStyles[sStyleName]:this.sLayerStyles[sStyleName]
-            sStyle = sSharedStyle!=null?sSharedStyle.style:{}
-             
-            // Create new shared style
             const strType = isText?"Text":"Layer"
-            if(!sSharedStyle){
-                this.messages += "Will create new shared "+ strType + " style "+sStyleName +  "\n"
+            
+            if( rule.isStandalone ){
+                this.messages += "Will update "+ strType + " style of standalone layer "+sStyleName +  "\n"
             }else{
-                this.messages += "Will update shared "+ strType + " style "+sStyleName + "\n"
-            }            
+                // Find or create new style
+                var sSharedStyle = null
+                var sStyle = null
+
+                sSharedStyle = isText?this.sTextStyles[sStyleName]:this.sLayerStyles[sStyleName]
+                sStyle = sSharedStyle!=null?sSharedStyle.style:{}
+                
+                // Create new shared style
+                if(!sSharedStyle){
+                    this.messages += "Will create new shared "+ strType + " style "+sStyleName +  "\n"
+                }else{
+                    this.messages += "Will update shared "+ strType + " style "+sStyleName + "\n"
+                }            
+            }
         }
         return true
     }
 
 
     _applyLess(justCheck) {    
-        this.log("Started")
+        this.logMsg("Started")
         for(const rule of this.less){
             const ruleType = this._getRulePropsType(rule.props)
             const sStyleName = rule.name // spcified in  _checkLess()
@@ -273,8 +286,12 @@ class DSApp {
             var sSharedStyle = null
             var sStyle = null
 
-            sSharedStyle = isText?this.sTextStyles[sStyleName]:this.sLayerStyles[sStyleName]
-            sStyle = sSharedStyle!=null?sSharedStyle.style:{}
+            if(rule.isStandalone){              
+                sStyle = rule.sLayer.style
+            }else{
+                sSharedStyle = isText?this.sTextStyles[sStyleName]:this.sLayerStyles[sStyleName]
+                sStyle = sSharedStyle!=null?sSharedStyle.style:{}
+            }
 
             // Apply rule properties
             // drop commented property
@@ -286,28 +303,31 @@ class DSApp {
                 this._applyRuleToLayerStyle(rule,sSharedStyle,sStyle)
                        
              
-            // Create new shared style
-           if(!sSharedStyle){ 
-                // change some wrong default values               
-                this._tuneNewStyle(sStyle,isText)
-                // create
-                var SharedStyle = require('sketch/dom').SharedStyle
-                sSharedStyle = SharedStyle.fromStyle({
-                    name:       sStyleName,
-                    style:      sStyle,
-                    document:   this.nDoc
-                  })
-                if(isText)
-                this.sTextStyles[sStyleName] = sSharedStyle
-                 else
-                this.sLayerStyles[sStyleName] = sSharedStyle
-                this.log("[Created] new shared style "+sStyleName)
-            }else{                
-                sSharedStyle.sketchObject.resetReferencingInstances()
-                this.log("[Updated] shared style "+sStyleName)
-            }            
-
-            this._saveTokensForStyleAndSymbols(rule.props,sSharedStyle)
+            if(rule.isStandalone){
+                this.logMsg("[Updated] style for standalone layer "+sStyleName)
+            }else{
+                // Create new shared style
+                if(!sSharedStyle){ 
+                    // change some wrong default values               
+                    this._tuneNewStyle(sStyle,isText)
+                    // create
+                    var SharedStyle = require('sketch/dom').SharedStyle
+                    sSharedStyle = SharedStyle.fromStyle({
+                        name:       sStyleName,
+                        style:      sStyle,
+                        document:   this.nDoc
+                    })
+                    if(isText)
+                    this.sTextStyles[sStyleName] = sSharedStyle
+                    else
+                    this.sLayerStyles[sStyleName] = sSharedStyle
+                    this.logMsg("[Created] new shared style "+sStyleName)
+                }else{                
+                    sSharedStyle.sketchObject.resetReferencingInstances()
+                    this.logMsg("[Updated] shared style "+sStyleName)
+                }            
+                this._saveTokensForStyleAndSymbols(rule.props,sSharedStyle)
+            }
         }
         return true
     }
@@ -380,12 +400,49 @@ class DSApp {
         return true
     }
 
-    // objPath: [page,artboard,layer,...,layer]
+    // stylePath: [str,str]
     _pathToStr(objPath){
-        // clear obj path
-        objPath = objPath.map(n=>n.replace(/^\./,''))
+        objPath = objPath.map(n=>n.replace(/^[\.#]/,''))
         var objPathStr = objPath.join("/")
         return objPathStr
+    }
+
+    // objPath: [#Controls,#Buttons,Text]
+    _findSymbolChildByPath(path){
+        // get 'Controls / Buttons' name of symbol master
+        const symbolName = path.filter(s=>s.startsWith('#')).map(n=>n.replace(/^[\.#]/,'')).join(' / ')        
+        const sFoundLayers =  this.sDoc.getLayersNamed(symbolName)
+        log('_findSymbolChildByPath')
+        if(!sFoundLayers.length) {
+            this.logError("Can not find a Symbol Master by name '"+symbolName+"'")
+            return null
+        }
+
+        const layerPath = path.filter(s=>!s.startsWith('#')).map(n=>n.replace(/^[\.#]/,''))   
+        const sLayer = this._findLayerChildByPath(sFoundLayers[0],layerPath)
+        if(!sLayer){
+            this.logError("Can not find a layer '" + layerPath.join(' / ') + "' in symbol master '"+symbolName+"'")
+        }
+        return sLayer
+    }
+
+    _findLayerChildByPath(sLayerParent,path){
+        const pathNode = path[0]
+        for(var sLayer of sLayerParent.layers){
+            if(sLayer.name==pathNode){
+                if(path.length==1){
+                    // found last element                    
+                    return sLayer
+                }
+                if('Group'==sLayer.type){
+                    return this._findLayerChildByPath(sLayer,path.slice(1))
+                }else{
+                    // oops we can't go deeply here
+                    return null                    
+                }
+            }
+        }        
+        return null
     }
 
     _saveTokensForStyleAndSymbols(token,sharedStyle){
@@ -473,7 +530,6 @@ class DSApp {
         // PARSE VALUE
         // linear-gradient(45deg,#0071ba, black)  => 45deg,#0071ba,black
         var sValues = colorsRaw.replace(/(^[\w-]*\()/,"").replace(/(\)\w*)/,"").replace(" ","")
-        log("sValues="+sValues)
         var deg = 180
         if(sValues.indexOf("deg")>=0){
             var sDeg = sValues.replace(/(\n*)deg.*/,"")     
@@ -484,8 +540,7 @@ class DSApp {
             }
             deg = parseFloat(sDeg,10)
         }
-        log("sValues="+sValues)
-
+        
         var aValues = sValues.split(",").map(s => Utils.stripStr(s))
 
 
@@ -501,43 +556,76 @@ class DSApp {
         }
 
         var delta = 1/(count-1)
-        var srcDeg = deg
-        var deg90 = Math.floor(deg / 90)
-        var deg = deg - deg90*90
+  
         var from = {}
         var to = {}
 
         if(0==deg){
             from = {x:0.5,y:1}
             to = {x:0.5,y:0}
+        }else if(90==deg){
+            from = {x:0,y:0.5}
+            to = {x:1,y:0.5}           
+        }else if(180==deg){
+            from = {x:0.5,y:0}
+            to = {x:0.5,y:1}           
+        }else if(270==deg){
+            from = {x:1,y:0.5}
+            to = {x:0,y:0.5}     
         }else{
+            var srcDeg = deg
+            if(deg<=45) deg=deg
+            else if(deg<90) deg = 90-deg
+            else if(deg<=135) deg = deg-90
+            else if(deg<180) deg = deg-135
+            else if(deg<=225) deg = deg-180
+            else if(deg<270) deg = 270-deg
+            else if(deg<=315) deg = 315-deg
+            else if(deg<360) deg = 360-deg
+
+
             var lenB = Math.tan(degToRad(deg)) * lenA
             lenB = Math.round(lenB*100)/100
             var lenC = lenA / Math.cos(degToRad(deg))           
-            lenC = Math.round(lenC*100)/100
-
-            log("deg= "+deg)
-            log("deg90= "+deg90)
-            log("lenB = "+lenB)
-            log("lenC = "+lenC)
-            log("delta = "+delta)
-        }
-
-
-        if((srcDeg>=0 && srcDeg<=45)||(srcDeg>270 && secDeg<=360)){
-            from.y = 1
-            to.y = 1
-        }
-        if((srcDeg>45 && srcDeg<135)){
-            from.x = 0
-            to.x = 1
-        }else if((srcDeg>45 && srcDeg<135)){
-            from.x = 0
-            to.x = 1
-        }
-        if(srcDeg>45 && srcDeg<=135){
-            from.x = 0
-            to.x = 1
+            lenC = Math.round(lenC*100)/100        
+            
+            // fixed X
+            if((srcDeg>45 && srcDeg<=135)){
+                from.x = 0
+                to.x = 1
+            }
+            if((srcDeg>225 && srcDeg<315)){
+                from.x = 1
+                to.x = 0
+            }
+            // fixed y
+            if((srcDeg>0 && srcDeg<=45)||(srcDeg>270 && srcDeg<=360)){
+                from.y = 1
+                to.y = 0
+            }   
+            if(srcDeg>135 && srcDeg<=225){
+                from.y = 0
+                to.y = 1
+            }    
+            // float x
+            if((srcDeg>0 && srcDeg<=45)){
+                from.x = lenA - lenB
+                to.x = lenA + lenB
+            }else if(srcDeg>135 && srcDeg<180){
+                from.x = lenB
+                to.x = lenA*2 - lenB
+            }else if((srcDeg>180 && srcDeg<=225) || (srcDeg>315 && srcDeg<360)){
+                from.x = lenA + lenB
+                to.x = lenA - lenB
+            }
+            // float y
+            if((srcDeg>45 && srcDeg<=90) || (srcDeg>270 && srcDeg<=315)){
+                from.y = lenA*2 - lenB
+                to.y = lenB
+            }else if((srcDeg>90 && srcDeg<=135) || srcDeg>225 && srcDeg<270){
+                from.y = lenA - lenB
+                to.y = lenA + lenB
+            }
         }
 
         fill.gradient.to = to
@@ -550,7 +638,6 @@ class DSApp {
             })
         })
 
-        log( fill.gradient)
         sStyle.fills = [fill]
 
     }
@@ -581,8 +668,6 @@ class DSApp {
         }else{
            //obj.slayer.style.shadows = []
         }
-        log(shadowCSS)
-        log(shadow)
 
         if(shadow && shadow.inset)
             sStyle.innerShadows = shadows
