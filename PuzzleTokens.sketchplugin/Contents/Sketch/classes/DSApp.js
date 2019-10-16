@@ -501,33 +501,47 @@ class DSApp {
         }
 
         var delta = 1/(count-1)
+        var srcDeg = deg
+        var deg90 = Math.floor(deg / 90)
+        var deg = deg - deg90*90
+        var from = {}
+        var to = {}
 
-        if(180==deg){
-            fill.gradient.from = {x:0.5,y:0}
-            fill.gradient.to = {x:0.5,y:1}
-        }else if(0==deg || 360==deg){
-            fill.gradient.from = {x:0.5,y:1}
-            fill.gradient.to = {x:0.5,y:0}
-        }else if(90==deg){
-            fill.gradient.from = {x:0,y:0.5}
-            fill.gradient.to = {x:1,y:0.5}
-        }else if(270==deg){
-            fill.gradient.from = {x:1,y:0.5}
-            fill.gradient.to = {x:0,y:0.5}
-        }else if(deg>0 && deg<=45){
-            
+        if(0==deg){
+            from = {x:0.5,y:1}
+            to = {x:0.5,y:0}
+        }else{
             var lenB = Math.tan(degToRad(deg)) * lenA
             lenB = Math.round(lenB*100)/100
             var lenC = lenA / Math.cos(degToRad(deg))           
             lenC = Math.round(lenC*100)/100
 
-            fill.gradient.from = {x:0.5-lenB,y:1}
-            fill.gradient.to = {x:0.5+lenB,y:0}
-
+            log("deg= "+deg)
+            log("deg90= "+deg90)
             log("lenB = "+lenB)
             log("lenC = "+lenC)
             log("delta = "+delta)
         }
+
+
+        if((srcDeg>=0 && srcDeg<=45)||(srcDeg>270 && secDeg<=360)){
+            from.y = 1
+            to.y = 1
+        }
+        if((srcDeg>45 && srcDeg<135)){
+            from.x = 0
+            to.x = 1
+        }else if((srcDeg>45 && srcDeg<135)){
+            from.x = 0
+            to.x = 1
+        }
+        if(srcDeg>45 && srcDeg<=135){
+            from.x = 0
+            to.x = 1
+        }
+
+        fill.gradient.to = to
+        fill.gradient.from = from
 
         aValues.forEach(function(sColor,index){
             fill.gradient.stops.push({
