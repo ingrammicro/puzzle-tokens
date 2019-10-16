@@ -121,12 +121,12 @@ class DSApp {
     _initStyles(){
         this.sTextStyles = {}
         this.sDoc.sharedTextStyles.forEach(function(sStyle){
-            sStyle.name = sStyle.name.replace(" ",'')
+            //sStyle.name = sStyle.name.replace(" ",'')
             this.sTextStyles[sStyle.name] = sStyle
         },this)
         this.sLayerStyles = {}
         this.sDoc.sharedLayerStyles.forEach(function(sStyle){
-            sStyle.name = sStyle.name.replace(" ",'')
+            //sStyle.name = sStyle.name.replace(" ",'')
             this.sLayerStyles[sStyle.name] = sStyle
         },this)
     }
@@ -402,7 +402,7 @@ class DSApp {
 
     // stylePath: [str,str]
     _pathToStr(objPath){
-        objPath = objPath.map(n=>n.replace(/^[\.#]/,''))
+        objPath = objPath.map(n=>n.replace(/^[\.#]/,'').replace(/(_{2})/g,' '))
         var objPathStr = objPath.join("/")
         return objPathStr
     }
