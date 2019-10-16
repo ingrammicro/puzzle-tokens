@@ -679,10 +679,10 @@ class DSApp {
     _applyShapeRadius(rule, sSharedStyle, sStyle) {
         const token = rule.props
 
-        if(null==sSharedStyle) return true
+        if(null==sSharedStyle && null==rule.sLayer) return true
 
         var radius = token['border-radius']
-        const layers = sSharedStyle.getAllInstancesLayers()
+        const layers = rule.sLayer?[rule.sLayer]:sSharedStyle.getAllInstancesLayers()
 
         for(var l of layers){
 
