@@ -53,7 +53,9 @@ ShapeStyle {
     // !!ATTENTION!! Shared styles don't include Radius, but can be set at style level and will be applied once the tokens are applied. You can also apply it on layers or symbols directly
     border-radius:          5px; // or 5px 5px 0 0
     box-shadow:             0 10px 20px 2 rgba(0,0,0,0.1);  // or "inset 0 10px 20px 2 rgba(0,0,0,0.1)"
-}```
+}
+```
+
 
 You can [look into more examples](https://github.com/ingrammicro/puzzle-tokens/tree/master/Examples) to get familiar with the plugin.
 
