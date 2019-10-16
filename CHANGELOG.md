@@ -1,5 +1,10 @@
 # Change Log
 
+
+##  Version 4.0.3 (16 Oct 2019)
+- Fixed inner shadows
+- Supported spacec in layers name
+
 ##  Version 4.0.2 (16 Oct 2019)
 - Added support for background-color: linear-gradient(35deg,black,white,red);
 - Added ability to address some layer inside a master symbol (without shared style touching)

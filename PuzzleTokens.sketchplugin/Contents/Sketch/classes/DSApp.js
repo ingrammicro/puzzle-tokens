@@ -917,7 +917,7 @@ class DSApp {
          // SET TEXT SHADOW
          var textShadow = token['text-shadow']
          if(textShadow!=null){
-            this._applyShadow(rule,sStyle,false,textShadow)
+            this._applyShadow(rule,sStyle,textShadow)
         }
     }
 

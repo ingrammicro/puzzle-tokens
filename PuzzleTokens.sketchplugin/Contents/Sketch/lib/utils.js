@@ -145,16 +145,20 @@ class Utils {
         var inset = false
         if(src.indexOf("inset")>=0){
             inset = true
-            src = src.replace("inset","")
+            src = src.replace("inset ","")
         }
+    
+        src = src.replace(/(,{1}\s+)/g,',').replace(/(\s+)/g,' ')
 
         var pxFunc = function(s){
             s = s.replace('px','')
             return parseInt(s)
-        }
+        }        
 
-        src = src.replace(/, /gi,',') // clean up rgba(a, b, c, d) 
         var items = src.split(' ')
+
+        log('splitCSSShadow src='+src)
+        log(items)
 
         var spread = items.length>4?pxFunc(items[3]):0
         var color =  Utils.RGBAToHexA( items[ items.length-1 ])
