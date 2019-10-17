@@ -243,7 +243,8 @@ function saveData(data,pathToJSON){
 }
 
 function _getPathToLessModules(){
-    var result = require('child_process').execSync("/usr/local/bin/node /usr/local/bin/npm -g root")
+    var result = require('child_process').execSync("node /usr/local/bin/npm -g root",{env:process.env.PATH})
+    console.log(result.toString())
     //var path = result
     var path = result.toString().replace("\n","")
     return path+"/less"
