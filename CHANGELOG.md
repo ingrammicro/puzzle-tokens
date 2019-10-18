@@ -1,5 +1,7 @@
 # Change Log
 
+##  Version 4.0.4 (18 Oct 2019)
+- Updated labels
 
 ##  Version 4.0.3 (16 Oct 2019)
 - Fixed inner shadows
