@@ -26,33 +26,42 @@ npm i less -g
 ## Features
 The following styles are supporting.
 ```
-// Text Layers:
-// -----------------------------------------
+// Text Layers
+
 .TextStyle {
     font-size:             12px;   
     font-family:           Open Sans; // or "Open Sans","Times New Roman"
-    font-weight:           bold; // or "extra-light", "light", "regular", "medium", "semibold", "bold"
-    line-height:           1.0; // or 1.2 or 1.5 or any other mulitplier for font-size
+    font-weight:           bold;      // or extra-light, light, regular, medium, semibold, bold
+    line-height:           1.0;       // or 1.2 or 1.5 or any other mulitplier for font-size
     color:                 #FFFFFF;
-    opacity:               63%; // supported "63%" or "0.42"
-    text-transform:        uppercase;  // "uppercase", "lowercase", and "none"
-    text-align:            left;  // "left", center", "right", "justify"
-    vertical-align:        top;   // "top", "middle", "bottom"
+    opacity:               63%;       // supported "63%" or "0.42"
+    text-transform:        uppercase; // "uppercase", "lowercase", and "none"
+    text-align:            left;      // "left", center", "right", "justify"
+    vertical-align:        top;       // "top", "middle", "bottom"
 }
 
 // Shape layers
-// -----------------------------------------
 
 ShapeStyle {
-    background-color:      #B0AFB1; // or "linear-gradient(#B0AFB1,#B0AFB4)" or "linear-radial(#B0AFB1,#B0AFB4)"
-    opacity:               63%; // "63%" or "0.42"
+    background-color:      #B0AFB1;
+    background-color:      linear-gradient(45deg, #B0AFB1,#B0AFB4);
+    opacity:               63%;       // "63%" or "0.42"
     border-color:          #000000;
     border-width:          2px;
-    border-position:       center; // center or inside or outside
+    border-position:       center;    // center or inside or outside
+    
+    // !!ATTENTION!!
+    // Shared styles don't include radius property,
+    // still you can set the radius-border for a style.
+    // Border radius will be reapplied to layers
+    // through style assigned to it. You can also
+    // apply it to the layers or symbols directly.
+
     border-radius:         5px;
-    // !!ATTENTION!! Shared styles don't include Radius, but can be set at style level and will be applied once the tokens are applied. You can also apply it on layers or symbols directly
-    border-radius:          5px; // or 5px 5px 0 0
-    box-shadow:             0 10px 20px 2 rgba(0,0,0,0.1);  // or "inset 0 10px 20px 2 rgba(0,0,0,0.1)"
+    border-radius:         5px 5px 0 0;
+
+    box-shadow:            0 10px 20px 2 rgba(0,0,0,0.1);
+    box-shadow:            inset 0 10px 20px 2 rgba(0,0,0,0.1);
 }
 ```
 
