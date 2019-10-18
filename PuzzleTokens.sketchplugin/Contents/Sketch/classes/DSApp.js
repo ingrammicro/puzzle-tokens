@@ -132,8 +132,8 @@ class DSApp {
     }
 
     _showCheck(){        
-        const dialog = new UIDialog("Review check result",NSMakeRect(0, 0, 400, 400),"Apply","")
-        dialog.addTextViewBox("messages","Check results",this.messages,400)
+        const dialog = new UIDialog("Review changes before you apply it",NSMakeRect(0, 0, 400, 400),"Apply","")
+        dialog.addTextViewBox("messages","The following changes will be made in Sketch file:",this.messages,400)
         
         const result = dialog.run()
         dialog.finish()
@@ -143,8 +143,8 @@ class DSApp {
     }
 
     _showMessages(){        
-        const dialog = new UIDialog("Completed",NSMakeRect(0, 0, 400, 400),"Ok","","")
-        dialog.addTextViewBox("messages","Message Log",this.messages,400)
+        const dialog = new UIDialog("Less styles have been successfully applied",NSMakeRect(0, 0, 400, 400),"Dismiss","","")
+        dialog.addTextViewBox("messages","See what has been changed:",this.messages,400)
         const result = dialog.run()
         dialog.finish()
     }
@@ -180,14 +180,14 @@ class DSApp {
 
 
     _showDialog(){
-        const dialog = new UIDialog("Apply UI Tokens to Sketch styles",NSMakeRect(0, 0, 600, 140),"Apply")
+        const dialog = new UIDialog("Apply design tokens to Sketch styles",NSMakeRect(0, 0, 600, 140),"Apply")
 
         dialog.addPathInput({
-            id:"pathToTokensLess",label:"Path to Design Tokens LESS file",labelSelect:"Select",
+            id:"pathToTokensLess",label:"Set path to Design Tokens LESS file",labelSelect:"Select",
             textValue:this.pathToTokensLess,inlineHint:'e.g. /Work/ui-tokens.less',
             width:550,askFilePath:true
         })   
-        dialog.addCheckbox("genSymbTokens","Generate symbols & styles description file",this.genSymbTokens)
+        dialog.addCheckbox("genSymbTokens","Generate symbols & styles description file (used by Puzzle Publisher)",this.genSymbTokens)
         dialog.addCheckbox("showDebug","Show debug information",this.showDebug)
 
 
