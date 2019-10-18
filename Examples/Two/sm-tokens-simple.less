@@ -32,9 +32,10 @@
 // Shadows
 
 @shadow: {
-    large:      0 @module*2 @module*4 fade(@colors[Black], 32%);
+    enormous:   0 @module*8 @module*32 fade(@colors[Black], 30%);
+    large:      0 @module*4 @module*8 fade(@colors[Black], 20%);
     medium:     0 @module @module*2 fade(@colors[Black], 10%);
-    small:      0 @module/4 @module/2 fade(@colors[Black], 5%);
+    small:      0 @module/2 @module/4 fade(@colors[Black], 15%);
 }
 
 //// Less to Sketch Mapping
@@ -111,12 +112,12 @@
     }
 }
 
-
+// Elevated backgrounds w/Shadow
 
 .Backgrounds .Elevated {
     each(@colors, {
     .@{key} {
-        background-color: @value, 30%;
+        background-color: @value;
         box-shadow: @shadow[large];
     } 
     });
@@ -124,7 +125,7 @@
     .Neutrals {
         each(range(7), {
             .Neutral-@{index} {
-                background-color: spin(tint(@colors[Black], 45% + (@index)*50%/7), 20%);
+                background-color: tint(@colors[Black], 45% + (@index)*50%/7);
                 box-shadow: @shadow[large];
             } 
         });
@@ -163,7 +164,7 @@ each(@font-size, .(@vs, @ks, @is) {
                     //Neutral colors 
                     each(range(7), {
                         .Neutral-@{index} {
-                            color: contrast(spin(tint(@colors[Black], 45% + (@index)*50%/7), 20%));
+                            color: contrast(tint(@colors[Black], 45% + (@index)*50%/7));
                             font-size: @vs;
                             text-align: @va;
                             vertical-align: middle;
@@ -175,3 +176,51 @@ each(@font-size, .(@vs, @ks, @is) {
         });
     }
 });
+
+
+// Gradient Backgrounds
+
+.Gradients {
+    .Brand-Primary {
+        background-color: linear-gradient(45deg, @colors[Brand], @colors[Primary]);
+    }
+    .Brand-Secondary {
+        background-color: linear-gradient(45deg, @colors[Brand], @colors[Secondary]);
+    }
+    .Brand-Highlight {
+        background-color: linear-gradient(45deg, @colors[Brand], @colors[Highlight]);
+    }
+}
+
+// Shadows Backgrounds
+
+.Shadows .Primary {
+    each(@shadow, {
+        .@{key}Size {
+            background-color: @colors[White];
+            box-shadow: @value;
+        }
+        .Inner {
+            .@{key}Size {
+                background-color: @colors[White];
+                box-shadow: inset @value;
+            }
+        }
+    });
+    
+}
+
+
+//// Symbols styles
+
+#Buttons {
+    #PrimarySmall .Back {
+        border-radius: @module;
+    }
+    #PrimaryMedium .Back {
+        border-radius: @module*2;
+    }
+    #PrimaryLarge .Back {
+        border-radius: @module*4;
+    }
+}
