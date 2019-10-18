@@ -275,11 +275,12 @@ class DSApp {
             log("Process rule "+sStyleName)         
             //
 
-            if('image'==ruleType){
-                this.logError("TODO - apply images")
-                return
-                this._applyPropsToImage(rule.props,sketchObj)
+
+            if('image'==ruleType){                
+                this._applyPropsToImage(rule)
+                continue
             }
+
             const isText = ruleType.indexOf("text")>=0
             
             // Find or create new style
@@ -666,7 +667,7 @@ class DSApp {
             shadow.type = 'Shadow'
             shadows = [shadow]
         }else{
-           //obj.slayer.style.shadows = []
+           //sLayer.style.shadows = []
         }
 
         if(shadow && shadow.inset)
@@ -750,7 +751,7 @@ class DSApp {
     }
 
     _getObjTextData(obj){
-        var orgTextStyle =   obj.slayer.style.sketchObject.textStyle()        
+        var orgTextStyle =   sLayer.style.sketchObject.textStyle()        
         const textAttribs = orgTextStyle.attributes()
         
         const textTransformAttribute = textAttribs.MSAttributedStringTextTransformAttribute
@@ -867,7 +868,7 @@ class DSApp {
              }
             sStyle.lineHeight = Math.round(parseFloat(lineHeight) * sStyle.fontSize)
          }else{
-             //obj.slayer.style.lineHeight = null
+             //sLayer.style.lineHeight = null
          }
          //// SET FONT WEIGHT
          if(undefined!=fontWeight){
@@ -922,12 +923,14 @@ class DSApp {
     }
 
 
-    _applyPropsToImage(token, obj) {        
-        var imageName = token['image']
+    _applyPropsToImage(rule) {  
+        const token = rule.props      
+        const imageName = token['image']
+        var sLayer = rule.sLayer
 
         if(imageName!=""){          
             if('transparent'==imageName){                
-                obj.slayer.style.opacity = 0
+                sLayer.style.opacity = 0
             }else{
                 let path = this.pathToTokens + "/" + imageName
 
@@ -936,36 +939,52 @@ class DSApp {
                     return this.logError('Image not found on path: '+path)
                 }
 
-                let parent = obj.slayer.parent
-                let frame = new Rectangle(obj.slayer.frame)
-                let oldConstraints =   obj.nlayer.resizingConstraint()
-                obj.slayer.remove()
+                let parent = sLayer.parent
+                let frame = new Rectangle(sLayer.frame)
+                let oldConstraints =  sLayer.sketchObject.resizingConstraint()
 
-                let simage =  new Image({
+                let sNewImage =  new Image({
                     frame:frame,
-                    name:obj.name,
+                    name:sLayer.name,
                     image: path
                   })
-                parent.layers.push(simage)
-                
-                obj.slayer = simage
-                obj.nlayer = simage.obj
-                
-                obj.slayer.frame.width  = simage.image.nsimage.size().width / 4
-                obj.slayer.frame.height  = simage.image.nsimage.size().height / 4
+                sLayer.remove()                
+                sLayer = null
+  
+                parent.layers.push(sNewImage)
+                                
+                if(null!=token.width){
+                    const width =  parseInt(token.width.replace(/([px|\%])/,""),10)
+                    if(token.width.indexOf("px")>0){
+                        sNewImage.frame.width = width
+                    }if(token.width.indexOf("%")>0){  
+                        sNewImage.frame.width = Math.floor(sNewImage.image.nsimage.size().width / 100 * width)
+                    }
+                }
+                if(null!=token.height){
+                    const height =  parseInt(token.height.replace(/([px|\%])/,""),10)
+                    if(token.height.indexOf("px")>0){
+                        sNewImage.frame.height = height
+                    }if(token.width.indexOf("%")>0){  
+                        sNewImage.frame.height = Math.floor(sNewImage.image.nsimage.size().height / 100 * height)
+                    }
+                }
 
-                obj.nlayer.resizingConstraint = oldConstraints
+                //sLayer.frame.width  = simage.image.nsimage.size().width / 4
+                //sLayer.frame.height  = simage.image.nsimage.size().height / 4
+
+                sNewImage.sketchObject.resizingConstraint = oldConstraints
 
                 /*
                 let image = [[NSImage alloc] initWithContentsOfFile:path];
-                obj.slayer.image = image                
-                obj.slayer.style.opacity = 1
+                sLayer.image = image                
+                sLayer.style.opacity = 1
                 if(path.includes('@2x')){
-                    obj.slayer.frame.width  = image.size().width  / 2
-                    obj.slayer.frame.height  = image.size().height / 2  
+                    sLayer.frame.width  = image.size().width  / 2
+                    sLayer.frame.height  = image.size().height / 2  
                 }else{
-                    obj.slayer.frame.width  = image.size().width
-                    obj.slayer.frame.height  = image.size().height    
+                    sLayer.frame.width  = image.size().width
+                    sLayer.frame.height  = image.size().height    
                 }*/
             }            
         }
