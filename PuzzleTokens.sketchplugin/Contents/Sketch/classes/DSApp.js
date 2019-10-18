@@ -180,10 +180,10 @@ class DSApp {
 
 
     _showDialog(){
-        const dialog = new UIDialog("Apply design tokens to Sketch styles",NSMakeRect(0, 0, 600, 140),"Apply")
+        const dialog = new UIDialog("Apply LESS styles to Sketch file",NSMakeRect(0, 0, 600, 140),"Apply")
 
         dialog.addPathInput({
-            id:"pathToTokensLess",label:"Set path to Design Tokens LESS file",labelSelect:"Select",
+            id:"pathToTokensLess",label:"Set path to a LESS styles file",labelSelect:"Select",
             textValue:this.pathToTokensLess,inlineHint:'e.g. /Work/ui-tokens.less',
             width:550,askFilePath:true
         })   
