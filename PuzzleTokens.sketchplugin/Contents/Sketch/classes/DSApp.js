@@ -230,6 +230,10 @@ class DSApp {
                 }
             }
             //log("Check rule "+sStyleName)
+            if(ruleType.indexOf("image")>=0){
+                this.messages += "Will update image "+sStyleName +  "\n"       
+                continue
+            }
             
             // Check rule
             if(ruleType.indexOf("text")>=0 && ruleType.indexOf("layer")>=0){
@@ -276,7 +280,7 @@ class DSApp {
             //
 
 
-            if('image'==ruleType){                
+            if(ruleType.indexOf("image")>=0){                
                 this._applyPropsToImage(rule)
                 continue
             }
@@ -657,11 +661,14 @@ class DSApp {
         return color
     }
 
-    _applyShadow(rule,sStyle, shadowCSS) {
-        
+    _applyShadow(rule,sStyle,shadowPropName) {                
         var shadows = []
         var shadow = null
-        if(shadowCSS!="" && shadowCSS!="none"){
+
+        var shadowCSS = rule.props[shadowPropName]
+
+        log('shadowCSS='+shadowCSS)
+        if(shadowCSS!=null && shadowCSS!="" && shadowCSS!="none"){
             shadow = Utils.splitCSSShadow(shadowCSS)    
             shadow.enabled = true
             shadow.type = 'Shadow'
@@ -802,12 +809,9 @@ class DSApp {
             }
         }
 
-        // SET SHADOW
-        var boxShadow = token['box-shadow']
-        if(boxShadow!=null){
-            this._applyShadow(rule,sStyle,boxShadow)
-        }
-
+        // SET SHADOW 
+        this._applyShadow(rule,sStyle,'box-shadow')
+        
         // SET BORDER
         if(('border-color' in token) || ('border-width' in token) || ('border-position' in token))
             this._applyBorderStyle(rule,sStyle)        
@@ -910,16 +914,13 @@ class DSApp {
  
              sStyle.textColor = color + opacityHEX
          }
-         // SET TEXT TRANSFORM
-         if(undefined!=transform){
-            sStyle.textTransform = transform
-         }
+        // SET TEXT TRANSFORM
+        if(undefined!=transform){
+        sStyle.textTransform = transform
+        }
 
          // SET TEXT SHADOW
-         var textShadow = token['text-shadow']
-         if(textShadow!=null){
-            this._applyShadow(rule,sStyle,textShadow)
-        }
+        this._applyShadow(rule,sStyle,"text-shadow")
     }
 
 
@@ -939,6 +940,7 @@ class DSApp {
                     return this.logError('Image not found on path: '+path)
                 }
 
+                // create new image
                 let parent = sLayer.parent
                 let frame = new Rectangle(sLayer.frame)
                 let oldConstraints =  sLayer.sketchObject.resizingConstraint()
@@ -947,33 +949,54 @@ class DSApp {
                     frame:frame,
                     name:sLayer.name,
                     image: path
-                  })
+                })
+                var sStyle = sNewImage.style
+                // remove old image
                 sLayer.remove()                
-                sLayer = null
-  
+                sLayer = null  
                 parent.layers.push(sNewImage)
                                 
+                // calculage new frame
+                var newWidth=null
+                var newHeight = null
+                var rawImageSize = sNewImage.image.nsimage.size()
+
                 if(null!=token.width){
                     const width =  parseInt(token.width.replace(/([px|\%])/,""),10)
                     if(token.width.indexOf("px")>0){
-                        sNewImage.frame.width = width
+                        newWidth = width
                     }if(token.width.indexOf("%")>0){  
-                        sNewImage.frame.width = Math.floor(sNewImage.image.nsimage.size().width / 100 * width)
+                        newWidth = Math.floor(rawImageSize.width / 100 * width)
+                    }else{                        
                     }
                 }
                 if(null!=token.height){
                     const height =  parseInt(token.height.replace(/([px|\%])/,""),10)
                     if(token.height.indexOf("px")>0){
-                        sNewImage.frame.height = height
-                    }if(token.width.indexOf("%")>0){  
-                        sNewImage.frame.height = Math.floor(sNewImage.image.nsimage.size().height / 100 * height)
+                        newHeight = height
+                    }if(token.height.indexOf("%")>0){  
+                        newHeight = Math.floor(rawImageSize.height / 100 * height)
+                    }else{                        
                     }
                 }
 
-                //sLayer.frame.width  = simage.image.nsimage.size().width / 4
-                //sLayer.frame.height  = simage.image.nsimage.size().height / 4
+                if(null!=newWidth && null!=newHeight){                   
+                }else if(null!=newWidth){
+                    newHeight = rawImageSize.height * (newWidth /rawImageSize.width )                    
+                }else if(null!=newHeight){
+                    newWidth = rawImageSize.width * (newHeight / rawImageSize.height)
+                }else{
+                    newWidth = rawImageSize.width
+                    newHeight = rawImageSize.height 
+                }
+                sNewImage.frame.width = newWidth
+                sNewImage.frame.height = newHeight
 
                 sNewImage.sketchObject.resizingConstraint = oldConstraints
+
+                // apply additional styles
+                this._applyShadow(rule,sStyle,'box-shadow')
+                this._applyBorderStyle(rule,sStyle)
 
                 /*
                 let image = [[NSImage alloc] initWithContentsOfFile:path];
@@ -989,7 +1012,7 @@ class DSApp {
             }            
         }
 
-        return true // we don't need to sync changes with shared style here
+        return true 
     } 
 
 
