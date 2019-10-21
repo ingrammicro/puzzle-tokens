@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 4.1.0 (21 Oct 2019)
+- Resurrected "image" rule
+
 ##  Version 4.0.4 (18 Oct 2019)
 - Updated labels
 
