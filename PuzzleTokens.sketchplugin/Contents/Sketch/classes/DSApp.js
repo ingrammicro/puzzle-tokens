@@ -276,7 +276,7 @@ class DSApp {
         for(const rule of this.less){
             const ruleType = this._getRulePropsType(rule.props)
             const sStyleName = rule.name // spcified in  _checkLess()
-            log("Process rule "+sStyleName)         
+            //log("Process rule "+sStyleName)         
             //
 
 
@@ -417,7 +417,7 @@ class DSApp {
         // get 'Controls / Buttons' name of symbol master
         const symbolName = path.filter(s=>s.startsWith('#')).map(n=>n.replace(/^[\.#]/,'').replace(/(_{2})/g,' ')).join(' / ')        
         const sFoundLayers =  this.sDoc.getLayersNamed(symbolName)
-        log('_findSymbolChildByPath path='+path+" parent name="+symbolName)
+        //log('_findSymbolChildByPath path='+path+" parent name="+symbolName)
         if(!sFoundLayers.length) {
             this.logError("Can not find a Symbol Master or Artboard by name '"+symbolName+"'")
             return null
@@ -667,7 +667,7 @@ class DSApp {
 
         var shadowCSS = rule.props[shadowPropName]
 
-        log('shadowCSS='+shadowCSS)
+        //log('shadowCSS='+shadowCSS)
         if(shadowCSS!=null && shadowCSS!="" && shadowCSS!="none"){
             shadow = Utils.splitCSSShadow(shadowCSS)    
             shadow.enabled = true
@@ -991,6 +991,29 @@ class DSApp {
                 }
                 sNewImage.frame.width = newWidth
                 sNewImage.frame.height = newHeight
+
+                // set new position
+                var newTop = token.top
+                var newLeft = token.left
+                var newRight = token.right
+                var newBottom = token.bottom
+
+                if(null!=newTop && null!=newBottom){
+                    sNewImage.frame.y = parseInt(newTop.replace('px',""))
+                    sNewImage.frame.height = (parent.frame.height - parseInt(newBottom.replace('px',""))) - sNewImage.frame.y
+                }else if(null!=newTop){
+                    sNewImage.frame.y = parseInt(newTop.replace('px',""))
+                }else{
+                    sNewImage.frame.y =  parent.frame.height - parseInt(newBottom.replace('px',"")) - sNewImage.frame.height
+                }
+                if(null!=newLeft && null!=newRight){
+                    sNewImage.frame.x = parseInt(newLeft.replace('px',""))
+                    sNewImage.frame.width = (parent.frame.width - parseInt(newRight.replace('px',""))) - sNewImage.frame.x
+                }else if(null!=newLeft){
+                    sNewImage.frame.x = parseInt(newLeft.replace('px',""))
+                }else{
+                    sNewImage.frame.x =  parent.frame.width - parseInt(newRight.replace('px',"")) - sNewImage.frame.width
+                }
 
                 sNewImage.sketchObject.resizingConstraint = oldConstraints
 
