@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 4.1.1 (23 Oct 2019)
+- Don't reset border position if it was undefined in tokens
+
 ##  Version 4.1.0 (21 Oct 2019)
 - Resurrected "image" rule
 

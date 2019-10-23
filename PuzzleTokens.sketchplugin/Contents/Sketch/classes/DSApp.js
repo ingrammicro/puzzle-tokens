@@ -717,40 +717,34 @@ class DSApp {
         const borderWidth = token['border-width']
         const borderColor = token['border-color']
         
-        var border = {
-        }
+        var border =  sStyle.borders && sStyle.borders.length>0?sStyle.borders[0]:{}
         
-        if('none'==borderWidth  || 'none'==borderColor){
-            border = undefined
-        }else{
+        // process color
+        if(('border-color' in token)){
+            var color = token['border-color']
+            var opacity = token['border-color-opacity']
+            if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)
+            border.color = color        
+        }          
 
-            // process color
-            if(('border-color' in token)){
-                var color = token['border-color']
-                var opacity = token['border-color-opacity']
-                if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)
-                border.color = color        
-            }          
-
-            // process position
-            if('border-position' in token){
-                var conversion = {
-                    'center':     Style.BorderPosition.Center,
-                    'inside':     Style.BorderPosition.Inside,
-                    'outside':    Style.BorderPosition.Outside
-                }
-                if( !(token['border-position'] in conversion) ){
-                    return this.logError('Wrong border-position')
-                }
-
-                border.position = conversion[ token['border-position'] ]
+        // process position
+        if('border-position' in token){
+            var conversion = {
+                'center':     Style.BorderPosition.Center,
+                'inside':     Style.BorderPosition.Inside,
+                'outside':    Style.BorderPosition.Outside
             }
-              // process width
-              if(null!=borderWidth){
-               border.thickness = borderWidth.replace("px","")               
+            if( !(token['border-position'] in conversion) ){
+                return this.logError('Wrong border-position')
             }
+
+            border.position = conversion[ token['border-position'] ]
         }
-       
+
+         // process width
+        if(null!=borderWidth){
+            border.thickness = borderWidth.replace("px","")               
+        }                           
        
         // save new border in style
        sStyle.borders = border?[border]:[]
