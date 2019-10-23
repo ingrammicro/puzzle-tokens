@@ -720,11 +720,11 @@ class DSApp {
         var border =  sStyle.borders && sStyle.borders.length>0?sStyle.borders[0]:{}
         
         // process color
-        if(('border-color' in token)){
-            var color = token['border-color']
+        if(null!=borderColor){
+            var color = borderColor
             var opacity = token['border-color-opacity']
-            if(undefined!=opacity) color = color + Utils.opacityToHex(opacity)
-            border.color = color        
+            if(null!=opacity) color = color + Utils.opacityToHex(opacity)
+            border.color = color 
         }          
 
         // process position
@@ -746,8 +746,9 @@ class DSApp {
             border.thickness = borderWidth.replace("px","")               
         }                           
        
-        // save new border in style
-       sStyle.borders = border?[border]:[]
+        // save new border in style        
+    
+        sStyle.borders = border && (borderColor==null || borderColor!='none') && (borderWidth==null || borderWidth!='0px') ?[border]:[]
 
     }
 
