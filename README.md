@@ -1,6 +1,8 @@
 # puzzle-tokens
 Sketch.app plugin to apply design tokens (specified in LESS format) to Sketch layers (with shared styles)
 
+### [Check this article to get familiar with the approach and working examples|https://medium.com/@akalenyuk/bringing-styles-preprocessing-to-sketch-9cdf0d0c49bd]
+
 ## Installation
 1. Download [Puzzle Tokens plugin](https://github.com/ingrammicro/puzzle-tokens/raw/master/PuzzleTokens.sketchplugin.zip)
 2. Unarchive and install
