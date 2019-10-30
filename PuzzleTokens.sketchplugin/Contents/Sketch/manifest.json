@@ -15,12 +15,20 @@
       "handler" : "onRun",
       "name" : "Apply Design Tokens",
       "identifier" : "cmApplyLess"
-    }
+    },
+    {
+        "script" : "cmd-generate-preview.js",
+        "handler" : "onRun",
+        "name" : "Generate Styles Preview",
+        "identifier" : "cmdGeneratePreview"
+      }
   ],
   "menu": {
     "title": "📦 Puzzle Tokens",
     "items": [
-      "cmApplyLess"
+      "cmApplyLess",
+      "-",
+      "cmdGeneratePreview"
     ]
   }
 }
