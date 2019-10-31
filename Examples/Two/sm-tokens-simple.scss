@@ -2,58 +2,15 @@
 @use "sass:color";
 
 @import "_constants.scss";
-
-//// Functions
-
-@function tint($color, $value) {
-    @return mix(#ffffff, $color, $value);
-}
+@import "functions.scss";
 
 
-/**
- * Calculate the luminance for a color.
- * See https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
- */
- @function luminance($color) {
-    $red: nth($channel-values, red($color) + 1);
-    $green: nth($channel-values, green($color) + 1);
-    $blue: nth($channel-values, blue($color) + 1);
-  
-    @return .2126 * $red + .7152 * $green + .0722 * $blue;
-}
-  
-/**
-* Calculate the contrast ratio between two colors.
-* See https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
-*/
-@function return-contrast-color($back, $front) {
-    $backLum: luminance($back) + .05;
-    $foreLum: luminance($front) + .05;
-
-    @return max($backLum, $foreLum) / min($backLum, $foreLum);
-}
-  
-/**
-* Determine whether to use dark or light text on top of given color.
-* Returns black for dark text and white for light text.
-*/
-@function contrast($color) {
-    $lightContrast: return-contrast-color($color, white);
-    $darkContrast: return-contrast-color($color, black);
-
-    @if ($lightContrast > $darkContrast) {
-        @return white;
-    }
-    @else {
-        @return black;
-    }
-}
 //// Base colors
 
 $colors: (
-    Brand:               #db0482,
-    Primary:             #8925f5, 
-    Secondary:           #923F7B,
+    Brand:               tomato,
+    Primary:             violet, 
+    Secondary:           limegreen,
     Black:               #17062b,
     White:               white,
     Danger:              #d83a3a,
@@ -81,62 +38,14 @@ $module: 4px;
 // Shadows
 
 $shadow: (
-    enormous:   0 $module*8 $module*32 fade-out(map.get($colors, Black), .3),
-    large:      0 $module*4 $module*8 fade-out(map.get($colors, Black), .2),
-    medium:     0 $module $module*2 fade-out(map.get($colors, Black), .1),
-    small:      0 $module/2 $module/4 fade-out(map.get($colors, Black), .15)
+    enormous:   0 $module*8 $module*32 fade-out(map.get($colors, Black), .7),
+    large:      0 $module*4 $module*8 fade-out(map.get($colors, Black), .8),
+    medium:     0 $module $module*2 fade-out(map.get($colors, Black), .9),
+    small:      0 $module/2 $module/4 fade-out(map.get($colors, Black), .95)
 );
 
-//// Less to Sketch Mapping
 
-/*
-.Backgrounds .Brand {
-    background-color: @colors[Brand];
-}
-
-.Backgrounds .Primary {
-    background-color: @colors[Primary];
-}
-
-.Backgrounds .Secondary {
-    background-color: @colors[Secondary];
-}
-
-.Backgrounds .Black {
-    background-color: @colors[Black];
-}
-
-.Backgrounds .White {
-    background-color: @colors[White];
-}
-
-.Backgrounds .Danger {
-    background-color: @colors[Danger];
-}
-
-.Backgrounds .Warning {
-    background-color: @colors[Warning];
-}
-
-.Backgrounds .Success {
-    background-color: @colors[Success];
-}
-
-.Backgrounds .Highlight {
-    background-color: @colors[Highlight];
-}
-
-*/
-
-/*
-.Backgrounds {
-    each(@colors, {
-        .@{key} {
-            background-color: @value;
-        } 
-    });
-}
-*/
+// Backgrounds
 
 .Backgrounds {
     // base color styles generation
