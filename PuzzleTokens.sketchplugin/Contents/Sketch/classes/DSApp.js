@@ -41,7 +41,7 @@ class DSApp {
         this.sTextStyles = {}
         this.sLayerStyles = {}
 
-        this.less = undefined
+        this.rules = undefined
     
         this.messages = ""
 
@@ -51,8 +51,8 @@ class DSApp {
         app = this
 
         // load settings       
-        this.pathToTokensLess = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS)
-        if(undefined==this.pathToTokensLess) this.pathToTokensLess = ''                
+        this.pathToToStyles = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS)
+        if(undefined==this.pathToToStyles) this.pathToToStyles = ''                
         this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS)==1        
         this.showDebug = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DEBUG)==1        
         
@@ -88,14 +88,14 @@ class DSApp {
 
     run() {        
         if(!this._showDialog()) return false
-        this.pathToTokens = this.pathToTokensLess.substring(0, this.pathToTokensLess.lastIndexOf("/"));
+        this.pathToTokens = this.pathToToStyles.substring(0, this.pathToToStyles.lastIndexOf("/"));
 
         var applied = false
         while(true){
-            if( !this.loadLess()) break
-            if( !this._checkLess()) break
+            if( !this.loadRules()) break
+            if( !this._checkRules()) break
             if( !this._showCheck()) break
-            if( !this._applyLess() ) break
+            if( !this._applyRules() ) break
             if(this.genSymbTokens) this._saveElements()
 
             applied = true        
@@ -143,19 +143,19 @@ class DSApp {
     }
 
     _showMessages(){        
-        const dialog = new UIDialog("Less styles have been successfully applied",NSMakeRect(0, 0, 400, 400),"Dismiss","","")
+        const dialog = new UIDialog("Styles have been successfully applied",NSMakeRect(0, 0, 400, 400),"Dismiss","","")
         dialog.addTextViewBox("messages","See what has been changed:",this.messages,400)
         const result = dialog.run()
         dialog.finish()
     }
 
-    _showDebug(lessJSONStr){        
+    _showDebug(rulesJSONStr){        
         const dialog = new UIDialog("Debug Information",NSMakeRect(0, 0, 600, 600),"Ok","","")
 
-        dialog.addTextViewBox("debug","Convertor output",this.convertorOuput,lessJSONStr!=null?250:600)
+        dialog.addTextViewBox("debug","Convertor output",this.convertorOuput,rulesJSONStr!=null?250:600)
         
-        if(lessJSONStr!=null){
-            dialog.addTextViewBox("debug","Intermediate JSON",lessJSONStr,250)
+        if(rulesJSONStr!=null){
+            dialog.addTextViewBox("debug","Intermediate JSON",rulesJSONStr,250)
         }
         const result = dialog.run()
         dialog.finish()
@@ -180,11 +180,11 @@ class DSApp {
 
 
     _showDialog(){
-        const dialog = new UIDialog("Apply LESS styles to Sketch file",NSMakeRect(0, 0, 600, 140),"Apply")
+        const dialog = new UIDialog("Apply LESS or SASS styles to Sketch file",NSMakeRect(0, 0, 600, 140),"Apply")
 
         dialog.addPathInput({
-            id:"pathToTokensLess",label:"Set path to a LESS styles file",labelSelect:"Select",
-            textValue:this.pathToTokensLess,inlineHint:'e.g. /Work/ui-tokens.less',
+            id:"pathToToStyles",label:"Set path to a LESS or SASS styles file",labelSelect:"Select",
+            textValue:this.pathToToStyles,inlineHint:'e.g. /Work/ui-tokens.less',
             width:550,askFilePath:true
         })   
         dialog.addCheckbox("genSymbTokens","Generate symbols & styles description file (used by Puzzle Publisher)",this.genSymbTokens)
@@ -195,8 +195,8 @@ class DSApp {
             const result = dialog.run()        
             if(!result) return false
     
-            this.pathToTokensLess = dialog.views['pathToTokensLess'].stringValue()+""
-            if(""==this.pathToTokensLess) continue
+            this.pathToToStyles = dialog.views['pathToToStyles'].stringValue()+""
+            if(""==this.pathToToStyles) continue
             this.genSymbTokens = dialog.views['genSymbTokens'].state() == 1
             this.showDebug = dialog.views['showDebug'].state() == 1
 
@@ -205,7 +205,7 @@ class DSApp {
     
         dialog.finish()
 
-        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToTokensLess)
+        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToToStyles)
         Settings.setSettingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS, this.genSymbTokens)
         Settings.setSettingForKey(SettingKeys.PLUGIN_SHOW_DEBUG, this.showDebug)
     
@@ -215,8 +215,8 @@ class DSApp {
 
     ////////////////////////////////////////////////////////////////
 
-    _checkLess() {    
-        for(const rule of this.less){
+    _checkRules() {    
+        for(const rule of this.rules){
             const ruleType = this._getRulePropsType(rule.props)
             const sStyleName = this._pathToStr(rule.path)      
             rule.name = sStyleName
@@ -271,11 +271,11 @@ class DSApp {
     }
 
 
-    _applyLess(justCheck) {    
+    _applyRules(justCheck) {    
         this.logMsg("Started")
-        for(const rule of this.less){
+        for(const rule of this.rules){
             const ruleType = this._getRulePropsType(rule.props)
-            const sStyleName = rule.name // spcified in  _checkLess()
+            const sStyleName = rule.name // spcified in  _checkRules()
             //log("Process rule "+sStyleName)         
             //
 
@@ -362,24 +362,26 @@ class DSApp {
         return res
     }  
 
-    loadLess() {
+    loadRules() {
         const tempFolder = Utils.getPathToTempFolder()
 
         // check files
-        if(!Utils.fileExistsAtPath(this.pathToTokensLess)){
-            this.logError("Can not find .less file by path: "+this.pathToTokensLess)
+        if(!Utils.fileExistsAtPath(this.pathToToStyles)){
+            this.logError("Can not find styles file by path: "+this.pathToToStyles)
             return false
         }
 
-        // Copy less2json conversion script 
-        const scriptPath = Utils.copyScript('nsconvert_less.js',tempFolder)
+        const stylesType = this.pathToToStyles.endsWith(".less")?"less":"sass"
+
+        // Copy  conversion script
+        const scriptPath = Utils.copyScript('nsconvert_'+stylesType+'.js',tempFolder)
         if(undefined==scriptPath) return false
 
-        // Run less2json 
-        const pathToLessJSON = tempFolder + "/nsdata.less.json"
+        // Run script 
+        const pathToRulesJSON = tempFolder + "/nsdata.json"
         var args = [scriptPath]
-        args.push(this.pathToTokensLess)
-        args.push(pathToLessJSON)
+        args.push(this.pathToToStyles)
+        args.push(pathToRulesJSON)
 
         const runResult = Utils.runCommand("/usr/local/bin/node",args)
         if(!runResult.result){
@@ -390,16 +392,16 @@ class DSApp {
         
         // load json file
         var error = null
-        var lessJSONStr =  Utils.readFile(pathToLessJSON)
+        var rulesJSONStr =  Utils.readFile(pathToRulesJSON)
         try {
-            this.less = JSON.parse(lessJSONStr)
+            this.rules = JSON.parse(rulesJSONStr)
         } catch (e) {
             this.logError(e)
             return false
         }
 
         if(this.showDebug){
-            this._showDebug(lessJSONStr)
+            this._showDebug(rulesJSONStr)
         }
 
         return true
@@ -472,7 +474,7 @@ class DSApp {
             this.elements.styles[sharedStyle.name] = styleInfo
         }
 
-        for(var tokenName of Object.keys(token.__lessTokens)){
+        for(var tokenName of Object.keys(token.__tokens)){
             styleInfo.tokens[tokenName] = true
         }
 
@@ -498,7 +500,7 @@ class DSApp {
             this.elements[ symbolLayer.name ] = symbolInfo
         }
 
-        for(var tokenName of Object.keys(token.__lessTokens)){
+        for(var tokenName of Object.keys(token.__tokens)){
             var layerInfo = null
             if(slayer.name in symbolInfo.layers){
                 layerInfo =  symbolInfo.layers[slayer.name]                 

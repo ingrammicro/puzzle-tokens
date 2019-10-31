@@ -199,7 +199,7 @@ function saveSketchRule(rule,path){
     const sketchRule = {
         path: path,
         props: {
-            __lessTokens:{}
+            __tokens:{}
         }
     }
     rule.rules.forEach(function (oneRule,index) { 
@@ -223,7 +223,7 @@ function saveSketchRule(rule,path){
 
 
         sketchRule.props[String(oneRule.name)] = value
-        if(token!='') sketchRule.props.__lessTokens[token] = true
+        if(token!='') sketchRule.props.__tokens[token] = true
     })
     sketchRules.push(sketchRule)
 }

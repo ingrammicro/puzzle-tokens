@@ -126,20 +126,28 @@ function transformSASStoJSON(data){
 
 function saveData(strCSS,pathToJSON){   
     var data = []
+    console.log("CSS:")
+    //console.log(strCSS)
+    //console.log("-------------------")
 
     //
     var sassLines = strCSS.split("\n")
     var node = null
+    var inComments = false
     sassLines.forEach(function(line){
-        console.log("0")
-        console.log(line)
-        if(line.endsWith("{")){
+        if(line.startsWith("/*")){
+            inComments = true
+        }else if(line.startsWith("*/")){
+            inComments = false
+        }else if(inComments){
+            // skip comment
+        }else if(line.endsWith("{")){
             // start node declaration
             const paths = line.replace(" {","").split(' ')
             node = {
                 path: paths,
                 props: {
-                    "__lessTokens": {
+                    "__tokens": {
                     }
                 }
             }
@@ -149,14 +157,9 @@ function saveData(strCSS,pathToJSON){
         }else{
             // save css rule
             line = line.replace(/^(\s*)/,"")
-            console.log("1")
-            console.log(line)
-            var ruleValue = line.replace(/[\w^:]*(:+.;+)/,"")
-            console.log("2")
-            console.log(ruleValue)
-            var ruleName = line.replace(/(^\S*):./,"")
-            console.log("3")
-            console.log(ruleName)
+            var ruleName = line.replace(/(:+\s+.+;+)/,"")
+            var ruleValue = line.replace(/(\S+\s+)/,"").replace(/(;+)$/,"")
+            node.props[ruleName] = ruleValue
         }
     })
     //

@@ -1,0 +1,281 @@
+@use "sass:map";
+@use "sass:color";
+
+@import "_constants.scss";
+
+//// Functions
+
+@function tint($color, $value) {
+    @return mix(#ffffff, $color, $value);
+}
+
+
+/**
+ * Calculate the luminance for a color.
+ * See https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
+ */
+ @function luminance($color) {
+    $red: nth($channel-values, red($color) + 1);
+    $green: nth($channel-values, green($color) + 1);
+    $blue: nth($channel-values, blue($color) + 1);
+  
+    @return .2126 * $red + .7152 * $green + .0722 * $blue;
+}
+  
+/**
+* Calculate the contrast ratio between two colors.
+* See https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
+*/
+@function return-contrast-color($back, $front) {
+    $backLum: luminance($back) + .05;
+    $foreLum: luminance($front) + .05;
+
+    @return max($backLum, $foreLum) / min($backLum, $foreLum);
+}
+  
+/**
+* Determine whether to use dark or light text on top of given color.
+* Returns black for dark text and white for light text.
+*/
+@function contrast($color) {
+    $lightContrast: return-contrast-color($color, white);
+    $darkContrast: return-contrast-color($color, black);
+
+    @if ($lightContrast > $darkContrast) {
+        @return white;
+    }
+    @else {
+        @return black;
+    }
+}
+//// Base colors
+
+$colors: (
+    Brand:               #db0482,
+    Primary:             #8925f5, 
+    Secondary:           #923F7B,
+    Black:               #17062b,
+    White:               white,
+    Danger:              #d83a3a,
+    Warning:             #f7a436,
+    Success:             #0ec988,
+    Highlight:           #fff79c
+);
+
+// Fonts
+
+$font-size: (
+    h1:        56px,
+    h2:        36px,
+    h3:        24px,
+    h4:        16px,
+    normal:    14px,
+    small:     12px,
+    tiny:      10px
+);
+
+$text-align: left, right, center;
+
+$module: 4px;
+
+// Shadows
+
+$shadow: (
+    enormous:   0 $module*8 $module*32 fade-out(map.get($colors, Black), .3),
+    large:      0 $module*4 $module*8 fade-out(map.get($colors, Black), .2),
+    medium:     0 $module $module*2 fade-out(map.get($colors, Black), .1),
+    small:      0 $module/2 $module/4 fade-out(map.get($colors, Black), .15)
+);
+
+//// Less to Sketch Mapping
+
+/*
+.Backgrounds .Brand {
+    background-color: @colors[Brand];
+}
+
+.Backgrounds .Primary {
+    background-color: @colors[Primary];
+}
+
+.Backgrounds .Secondary {
+    background-color: @colors[Secondary];
+}
+
+.Backgrounds .Black {
+    background-color: @colors[Black];
+}
+
+.Backgrounds .White {
+    background-color: @colors[White];
+}
+
+.Backgrounds .Danger {
+    background-color: @colors[Danger];
+}
+
+.Backgrounds .Warning {
+    background-color: @colors[Warning];
+}
+
+.Backgrounds .Success {
+    background-color: @colors[Success];
+}
+
+.Backgrounds .Highlight {
+    background-color: @colors[Highlight];
+}
+
+*/
+
+/*
+.Backgrounds {
+    each(@colors, {
+        .@{key} {
+            background-color: @value;
+        } 
+    });
+}
+*/
+
+.Backgrounds {
+    // base color styles generation
+    @each $key, $value in $colors {
+        .#{$key} {
+            background-color: $value;
+        } 
+    }
+    
+    // shades generation
+    .Neutrals {
+        @for $index from 1 through 7 {
+            .Neutral-#{$index} {
+                background-color: tint(map.get($colors, Black), 45% + ($index)*50%/7);
+            } 
+        }
+    }
+
+    // Stage background
+    .Stage {
+        background-color: tint(map.get($colors, Black), 98%);
+    }
+}
+
+// Elevated backgrounds w/Shadow
+
+.Backgrounds .Elevated {
+    @each $key, $value in $colors {
+    .#{$key} {
+        background-color: $value;
+        box-shadow: map.get($shadow, large);
+    } 
+    }
+    // shades generation
+    .Neutrals {
+        @for $index from 1 through 7 {
+            .Neutral-#{$index} {
+                background-color: tint(map.get($colors, Black), 45% + ($index)*50%/7);
+                box-shadow: map.get($shadow, large);
+            } 
+        }
+    }
+}
+
+
+// Texts generation: Size/Alignment/Color
+
+@each $ks,$vs in $font-size {
+    
+    .#{$ks}Size {
+        @each $va in $text-align {
+            $ia: index(($text-align), ($va));
+            .#{$va}Aligned {
+                @each $key, $value in $colors {
+                    .#{$key} {
+                        color: $value;
+                        font-size: $vs;
+                        font-family: "Open Sans";
+                        text-align: $va;
+                        vertical-align: middle;
+                        line-height: 1.25;
+                    }
+                }
+
+                // Contrast text colors subset generation
+                .ContrastTo {
+                    //Base colors
+                    @each $key, $value in $colors {
+                        .#{$key} {
+                            color: contrast($value); // getting a color contrast to a given color
+                            font-size: $vs;
+                            text-align: $va;
+                            vertical-align: middle;
+                            line-height: 1.25;
+                        }
+                    }
+                    //Neutral colors 
+                    @for $index from 1 through 7 {
+                        .Neutral-#{$index} {
+                            color: contrast(tint(map.get($colors, Black), 45% + ($index)*50%/7));
+                            font-size: $vs;
+                            text-align: $va;
+                            vertical-align: middle;
+                            line-height: 1.25;
+                        } 
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+// Gradient Backgrounds
+
+.Gradients {
+    .Brand-Primary {
+        background-color: linear-gradient(45deg, map.get($colors, Brand), map.get($colors, Primary));
+    }
+    .Brand-Secondary {
+        background-color: linear-gradient(45deg, map.get($colors, Brand), map.get($colors, Secondary));
+    }
+    .Brand-Highlight {
+        background-color: linear-gradient(45deg, map.get($colors, Brand), map.get($colors, Highlight));
+    }
+}
+
+// Shadows Backgrounds
+
+.Shadows .Primary {
+    @each $key, $value in $shadow {
+        .#{$key}Size {
+            background-color: map.get($colors, White);
+            box-shadow: $value;
+        }
+        .Inner {
+            .#{$key}Size {
+                background-color: map.get($colors, White);
+                box-shadow: inset $value;
+            }
+        }
+    }
+    
+}
+
+
+//// Symbols styles
+
+#Buttons {
+    #PrimarySmall .Back {
+        border-radius: $module;
+    }
+    #PrimaryMedium .Back {
+        border-radius: $module*2;
+    }
+    #PrimaryLarge .Back {
+        border-radius: $module*4;
+    }
+}
+
+
+
