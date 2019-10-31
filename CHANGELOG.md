@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 5.0.0 (31 Oct 2019)
+- Support for SASS
+
 ##  Version 4.1.2 (23 Oct 2019)
 - Don't reset border position if it was undefined in tokens
 
