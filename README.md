@@ -1,5 +1,5 @@
 # puzzle-tokens
-Sketch.app plugin to apply design tokens (specified in LESS format) to Sketch layers (with shared styles)
+Sketch.app plugin to apply design tokens (specified in LESS OR SASS format) to Sketch layers (with shared styles)
 
 ### [Check this article](https://medium.com/@akalenyuk/bringing-styles-preprocessing-to-sketch-9cdf0d0c49bd) to get a detailed overview with examples and join [Spectrum Chat](https://spectrum.chat/puzzle-tokens?) for live talk
 
@@ -7,10 +7,11 @@ Sketch.app plugin to apply design tokens (specified in LESS format) to Sketch la
 1. Download [Puzzle Tokens plugin](https://github.com/ingrammicro/puzzle-tokens/raw/master/PuzzleTokens.sketchplugin.zip)
 2. Unarchive and install
 3. Download and install [Node.js](https://nodejs.org/en/download/)
-4. Instal _less_ using the following Terminal commands:
+4. Instal _less_ or _sass_ using the following Terminal commands:
 ```
 sudo -s  
 npm i less -g 
+npm i sass -g 
 ```
 5. Now you're good to go!
 
