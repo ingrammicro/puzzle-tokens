@@ -31,7 +31,7 @@ transformLESStoJSON(strLess)
 
 function initPaths(){
     if(undefined==pathToLess){
-        console.log("nsconvert.js PATH_TO_LESS_FILE1 PATH_TO_JSON_FILE")
+        console.log("nsconvert_less.js PATH_TO_LESS_FILE1 PATH_TO_JSON_FILE")
         return false
     }
 

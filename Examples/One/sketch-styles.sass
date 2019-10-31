@@ -1,0 +1,57 @@
+$color-white:                           #FFFFFF;
+$color-primary:                         #0071ba;
+$color-secondary:                       #4A4A4A;
+$color-text-primary:                    #47485a;
+$shadow-large:                          0px 5px 10px rgba(0,0,0,0.5);
+$inner-shadow-1:                        inset -1 0px 0px #DFE4EA;
+
+$radius-medium:                         5px; //Regular tiles, buttons, input fields
+
+$font-size-normal:                      12px;
+
+.Controls .Buttons .Submit {
+  .Ok__Button {
+    Text {
+        color:              $color-white;
+        font-size:          $font-size-normal;
+        font-family:        Verdana;
+        text-align:         center;
+        vertical-align:     bottom;        
+    }  
+    Back{
+        background-color:   $color-primary;
+        border-color:       none;
+        border-radius:      10px;   
+        border-width:       1px;
+        box-shadow:         $shadow-large;
+    }
+  }
+  .Cancel{
+    Text {
+        color:              $color-white;
+        font-size:          $font-size-normal;
+        font-family:        "Verdana";
+        text-align:         center;
+      }  
+      Back{
+        background-color:   $color-secondary;
+        border-color:       $color-secondary;
+        border-radius:      2px;
+        border-width:       4px;
+        border-position:    inside;
+        box-shadow:         $inner-shadow-1;
+      }
+  }
+}
+
+
+#Controls{
+    #Buttons #Submit #Ok .Group1{
+        .Standalone{
+            color: blue;
+        }
+        .Shape{
+            border-radius:      2px;
+        }
+    }
+}

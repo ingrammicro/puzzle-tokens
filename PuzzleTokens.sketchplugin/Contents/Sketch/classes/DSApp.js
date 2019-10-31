@@ -372,7 +372,7 @@ class DSApp {
         }
 
         // Copy less2json conversion script 
-        const scriptPath = Utils.copyScript('nsconvert.js',tempFolder)
+        const scriptPath = Utils.copyScript('nsconvert_less.js',tempFolder)
         if(undefined==scriptPath) return false
 
         // Run less2json 
