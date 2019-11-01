@@ -2,7 +2,7 @@
   "name": "Puzzle Tokens",
   "description": "Apply design tokens to Sketch styles",
   "author" : "Maxim Bazarov",
-  "homepage": "",  
+  "homepage": "https://github.com/ingrammicro/puzzle-tokens",  
   "identifier" : "com.cloudblue.sketch.ds",
   "appcast": "https://raw.githubusercontent.com/ingrammicro/puzzle-tokens/master/appcast.xml",
   "compatibleVersion": 3,
