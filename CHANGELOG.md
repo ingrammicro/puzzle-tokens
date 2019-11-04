@@ -1,5 +1,9 @@
 # Change Log
 
+##  Version 5.1.0 (4 Oct 2019)
+- Added "Quck Apply" command
+- Support for "Node/Node/Node" layer name format additonally to "Node / Node / Node"
+
 ##  Version 5.0.0 (31 Oct 2019)
 - Support for SASS
 

@@ -2,19 +2,27 @@
   "name": "Puzzle Tokens",
   "description": "Apply design tokens to Sketch styles",
   "author" : "Maxim Bazarov",
-  "homepage": "https://github.com/ingrammicro/puzzle-tokens",  
+  "homepage": "",  
   "identifier" : "com.cloudblue.sketch.ds",
   "appcast": "https://raw.githubusercontent.com/ingrammicro/puzzle-tokens/master/appcast.xml",
   "compatibleVersion": 3,
   "bundleVersion": 1,
-  "version" : "5.0.0",
+  "version" : "5.1.0",
   "icon": "icon.png",
   "commands" : [   
     {
       "script" : "cmd-apply-less.js",
-      "handler" : "onRun",
+      "handler" : "onRunDialog",
       "name" : "Apply Design Tokens",
+      "shortcut" : "command alt a", 
       "identifier" : "cmApplyLess"
+    },
+    {
+      "script" : "cmd-apply-less.js",
+      "handler" : "onRunQuick",
+      "name" : "Quick Apply",
+      "shortcut" : "command alt k", 
+      "identifier" : "cmQuickApply"
     },
     {
         "script" : "cmd-generate-preview.js",
@@ -26,7 +34,8 @@
   "menu": {
     "title": "📦 Puzzle Tokens",
     "items": [
-      "cmApplyLess"      
+      "cmApplyLess",
+      "cmQuickApply"
     ]
   }
 }

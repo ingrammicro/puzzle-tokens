@@ -8,6 +8,7 @@ var Sketch = require('sketch/dom')
 var Settings = require('sketch/settings')
 var Style = require('sketch/dom').Style
 var Image = require('sketch/dom').Image
+var UI = require('sketch/ui')
 const path = require('path');
 const Text = require('sketch/dom').Text
 
@@ -83,18 +84,33 @@ class DSApp {
         UI.alert('Error', error)
         exit = true
     }
-
+    
     // Public methods
 
-    run() {        
-        if(!this._showDialog()) return false
+
+    runQuick(){
+        if(''==this.pathToToStyles) return this.runDialog()        
+        if(!this.run(false)) return false
+        UI.message('Successfully applied tokens.')
+        return true
+    }
+
+    runDialog(){
+        if(!this._showDialog()) return false        
+        if(!this.run()) return false
+        
+        this._showMessages()
+        return true        
+    }
+
+    run(showCheck = true) {        
         this.pathToTokens = this.pathToToStyles.substring(0, this.pathToToStyles.lastIndexOf("/"));
 
         var applied = false
         while(true){
             if( !this.loadRules()) break
             if( !this._checkRules()) break
-            if( !this._showCheck()) break
+            if( showCheck && !this._showCheck()) break
             if( !this._applyRules() ) break
             if(this.genSymbTokens) this._saveElements()
 
@@ -106,14 +122,10 @@ class DSApp {
         // show final message
         if(this.errors.length>0){
             this._showErrors()
-        }else{
-            if(applied){
-                this._showMessages()
-            }
+            return false           
         }
-
     
-        return true
+        return applied
     }
 
     // Internal
@@ -417,9 +429,13 @@ class DSApp {
     // objPath: [#Controls,#Buttons,Text]
     _findSymbolChildByPath(path){
         // get 'Controls / Buttons' name of symbol master
-        const symbolName = path.filter(s=>s.startsWith('#')).map(n=>n.replace(/^[\.#]/,'').replace(/(_{2})/g,' ')).join(' / ')        
-        const sFoundLayers =  this.sDoc.getLayersNamed(symbolName)
-        //log('_findSymbolChildByPath path='+path+" parent name="+symbolName)
+        const symbolPaths = path.filter(s=>s.startsWith('#')).map(n=>n.replace(/^[\.#]/,'').replace(/(_{2})/g,' '))
+        let symbolName = symbolPaths.join(' / ')        
+        let sFoundLayers =  this.sDoc.getLayersNamed(symbolName)
+        if(!sFoundLayers.length) {
+            symbolName = symbolPaths.join('/')        
+            sFoundLayers =  this.sDoc.getLayersNamed(symbolName)
+        }
         if(!sFoundLayers.length) {
             this.logError("Can not find a Symbol Master or Artboard by name '"+symbolName+"'")
             return null
@@ -913,7 +929,7 @@ class DSApp {
          }
         // SET TEXT TRANSFORM
         if(undefined!=transform){
-        sStyle.textTransform = transform
+            sStyle.textTransform = transform
         }
 
          // SET TEXT SHADOW

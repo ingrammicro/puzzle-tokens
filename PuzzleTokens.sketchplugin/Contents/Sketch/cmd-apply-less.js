@@ -3,16 +3,16 @@
 @import "classes/DSApp.js";
 @import "constants.js";
 
-var onRun = function(context) {  
-  const sketch = require('sketch')
-  const Settings = require('sketch/settings') 
-  const document = sketch.fromNative(context.document)
-  const UI = require('sketch/ui')
-  
+
+var onRunDialog = function(context) {  
   UIDialog.setUp(context);
-
   var myless = new DSApp(context)
-  myless.run()
-
+  myless.runDialog()
 };
 
+var onRunQuick = function(context) {  
+  UIDialog.setUp(context);
+  var myless = new DSApp(context)
+  myless.runQuick()
+
+};
