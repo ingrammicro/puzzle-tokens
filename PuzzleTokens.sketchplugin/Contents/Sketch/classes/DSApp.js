@@ -711,18 +711,11 @@ class DSApp {
         const layers = rule.sLayer?[rule.sLayer]:sSharedStyle.getAllInstancesLayers()
 
         for(var l of layers){
-
-            if(radius!=""){               
-                const points =  l.points    
-                if(Array.isArray(radius)){                
-                    for (let x=0; x < points.length; ++x ) {
-                        points[x].cornerRadius =  parseFloat(radius[x])
-                    }
-                }else{
-                    for (let x=0; x < points.length; ++x ) {
-                        points[x].cornerRadius =  parseFloat(radius)
-                    }
-                }
+            if(radius!=""){                           
+                const radiusList = radius.split(' ').map(value=>parseFloat(value.replace("px","")))
+                l.points.forEach(function(point,index){
+                    point.cornerRadius = radiusList.length>1?radiusList[index]:radiusList[0]
+                })
             }    
             //this._addTokenToSymbol(token,l)
         }
