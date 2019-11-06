@@ -1,7 +1,10 @@
 # Change Log
 
 ##  Version 5.2.0 (6 Nov 2019)
-- Added ability to set opacity for symbol child layers ()
+- Added ability to set opacity for symbol child layers (https://github.com/ingrammicro/puzzle-tokens/tree/master/Examples/Opacity)
+- Moved Show Debug and Generate Symbol Files options to Configure dialog
+- Relayouted dialogs
+- Added "Check changes before" option
 
 ##  Version 5.1.1 (5 Nov 2019)
 - Fixed border-radius with multi(4) values
