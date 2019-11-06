@@ -53,10 +53,13 @@ class DSApp {
 
         // load settings       
         this.pathToToStyles = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS)
-        if(undefined==this.pathToToStyles) this.pathToToStyles = ''                
+        if(undefined==this.pathToToStyles) this.pathToToStyles = ''              
+        this.pathToToStylesList = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS_LIST)||[]
+        if(!this.pathToToStylesList.length && this.pathToToStyles!='') this.pathToToStylesList.push(this.pathToToStyles)
+
         this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS)==1        
         this.showDebug = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DEBUG)==1        
-        
+        this.showCheck = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_CHECK)==1             
 
         this._initStyles()
     }
@@ -97,7 +100,7 @@ class DSApp {
 
     runDialog(){
         if(!this._showDialog()) return false        
-        if(!this.run()) return false
+        if(!this.run(this.showCheck)) return false
         
         this._showMessages()
         return true        
@@ -145,6 +148,7 @@ class DSApp {
 
     _showCheck(){        
         const dialog = new UIDialog("Review changes before you apply it",NSMakeRect(0, 0, 400, 400),"Apply","")
+        dialog.removeLeftColumn()
         dialog.addTextViewBox("messages","The following changes will be made in Sketch file:",this.messages,400)
         
         const result = dialog.run()
@@ -156,6 +160,7 @@ class DSApp {
 
     _showMessages(){        
         const dialog = new UIDialog("Styles have been successfully applied",NSMakeRect(0, 0, 400, 400),"Dismiss","","")
+        dialog.removeLeftColumn()
         dialog.addTextViewBox("messages","See what has been changed:",this.messages,400)
         const result = dialog.run()
         dialog.finish()
@@ -163,6 +168,7 @@ class DSApp {
 
     _showDebug(rulesJSONStr){        
         const dialog = new UIDialog("Debug Information",NSMakeRect(0, 0, 600, 600),"Ok","","")
+        dialog.removeLeftColumn()
 
         dialog.addTextViewBox("debug","Convertor output",this.convertorOuput,rulesJSONStr!=null?250:600)
         
@@ -177,6 +183,7 @@ class DSApp {
         var errorsText = this.errors.join("\n\n")
 
         const dialog = new UIDialog("Found errors",NSMakeRect(0, 0, 600, 600),"Who cares!","","")
+        dialog.removeLeftColumn()
         dialog.addTextViewBox("debug","",errorsText,600)
         const result = dialog.run()
         dialog.finish()
@@ -192,35 +199,46 @@ class DSApp {
 
 
     _showDialog(){
-        const dialog = new UIDialog("Apply LESS or SASS styles to Sketch file",NSMakeRect(0, 0, 600, 140),"Apply")
+        const dialog = new UIDialog("Apply LESS/SASS styles",NSMakeRect(0, 0, 600, 120),"Apply","Load LESS or SASS file with style definions and create new Sketch styles (or update existing).")
+
+        this.pathToToStylesList = this.pathToToStylesList.slice(0,20)
 
         dialog.addPathInput({
-            id:"pathToToStyles",label:"Set path to a LESS or SASS styles file",labelSelect:"Select",
+            id:"pathToToStyles",label:"Style File",labelSelect:"Select",
             textValue:this.pathToToStyles,inlineHint:'e.g. /Work/ui-tokens.less',
-            width:550,askFilePath:true
+            width:430,askFilePath:true,
+            comboBoxOptions:this.pathToToStylesList
         })   
-        dialog.addCheckbox("genSymbTokens","Generate symbols & styles description file (used by Puzzle Publisher)",this.genSymbTokens)
-        dialog.addCheckbox("showDebug","Show debug information",this.showDebug)
-
+        dialog.addDivider()
+        dialog.addLabel("optionsLabel","Options")
+        dialog.addCheckbox("showCheck","Review style changes before apply",this.showCheck)
 
         while(true){
             const result = dialog.run()        
             if(!result) return false
     
-            this.pathToToStyles = dialog.views['pathToToStyles'].stringValue()+""
+            this.pathToToStyles = dialog.views['pathToToStyles'].stringValue()+""            
             if(""==this.pathToToStyles) continue
-            this.genSymbTokens = dialog.views['genSymbTokens'].state() == 1
-            this.showDebug = dialog.views['showDebug'].state() == 1
-
+            ////
+            const pathIndex = this.pathToToStylesList.indexOf( this.pathToToStyles )  
+            if(pathIndex<0){
+                this.pathToToStylesList.splice(0,0,this.pathToToStyles)
+            }else{
+                this.pathToToStylesList.splice(pathIndex,1)
+                this.pathToToStylesList.splice(0,0,this.pathToToStyles)
+            }
+            this.pathToToStylesList = this.pathToToStylesList.slice(0,20)
+            
+            ///
+            this.showCheck = dialog.views['showCheck'].state() == 1
             break
         }
     
         dialog.finish()
 
+        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS_LIST, this.pathToToStylesList)
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToToStyles)
-        Settings.setSettingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS, this.genSymbTokens)
-        Settings.setSettingForKey(SettingKeys.PLUGIN_SHOW_DEBUG, this.showDebug)
-    
+        Settings.setSettingForKey(SettingKeys.PLUGIN_SHOW_CHECK, this.showCheck)    
 
         return true
     }
@@ -241,7 +259,6 @@ class DSApp {
                     return
                 }
             }
-            //log("Check rule "+sStyleName)
             if(ruleType.indexOf("image")>=0){
                 this.messages += "Will update image "+sStyleName +  "\n"       
                 continue
@@ -288,7 +305,6 @@ class DSApp {
         for(const rule of this.rules){
             const ruleType = this._getRulePropsType(rule.props)
             const sStyleName = rule.name // spcified in  _checkRules()
-            //log("Process rule "+sStyleName)         
             //
 
 
@@ -711,18 +727,11 @@ class DSApp {
         const layers = rule.sLayer?[rule.sLayer]:sSharedStyle.getAllInstancesLayers()
 
         for(var l of layers){
-
-            if(radius!=""){               
-                const points =  l.points    
-                if(Array.isArray(radius)){                
-                    for (let x=0; x < points.length; ++x ) {
-                        points[x].cornerRadius =  parseFloat(radius[x])
-                    }
-                }else{
-                    for (let x=0; x < points.length; ++x ) {
-                        points[x].cornerRadius =  parseFloat(radius)
-                    }
-                }
+            if(radius!=""){                           
+                const radiusList = radius.split(' ').map(value=>parseFloat(value.replace("px","")))
+                l.points.forEach(function(point,index){
+                    point.cornerRadius = radiusList.length>1?radiusList[index]:radiusList[0]
+                })
             }    
             //this._addTokenToSymbol(token,l)
         }

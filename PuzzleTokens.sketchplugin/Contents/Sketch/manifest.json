@@ -7,7 +7,7 @@
   "appcast": "https://raw.githubusercontent.com/ingrammicro/puzzle-tokens/master/appcast.xml",
   "compatibleVersion": 3,
   "bundleVersion": 1,
-  "version" : "5.1.0",
+  "version" : "5.1.1",
   "icon": "icon.png",
   "commands" : [   
     {
@@ -29,13 +29,21 @@
         "handler" : "onRun",
         "name" : "Generate Styles Preview",
         "identifier" : "cmdGeneratePreview"
-      }
+    },
+    {
+        "script" : "cmd-config.js",
+        "handler" : "onRun",
+        "name" : "Configure",
+        "identifier" : "cmConfig"
+      },
   ],
   "menu": {
     "title": "📦 Puzzle Tokens",
     "items": [
       "cmApplyLess",
-      "cmQuickApply"
+      "cmQuickApply",
+      "-",
+      "cmConfig"
     ]
   }
 }

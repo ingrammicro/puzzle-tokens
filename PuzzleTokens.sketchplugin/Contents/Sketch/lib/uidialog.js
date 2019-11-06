@@ -12,6 +12,16 @@ class UIAbstractWindow {
 
         this.y = NSHeight(intRect)
         this.rect = intRect
+
+        this.leftColumn = true
+        this.leftColWidth = 120
+        this.textOffset = 2
+    }
+
+    removeLeftColumn(){
+        this.leftColumn = false
+        this.leftColWidth = 0
+        this.textOffset = 0
     }
 
     enableTextByID(id, enabled) {
@@ -35,7 +45,7 @@ class UIAbstractWindow {
     }
 
     getNewFrame(height = 25, width = -1, yinc = -1) {
-        var frame = NSMakeRect(0, this.y - height, width == -1 ? NSWidth(this.rect) - 10 : width, height)
+        var frame = NSMakeRect( this.leftColWidth, this.y - height, width == -1 ? NSWidth(this.rect) - 10 - this.leftColWidth : width, height)
         this.y -= height + (yinc >= 0 ? yinc : 10)
         return frame
     }
@@ -45,17 +55,27 @@ class UIAbstractWindow {
     }
 
     addLabel(id, text, height = 25) {
-        const label = NSTextField.alloc().initWithFrame(this.getNewFrame(height));
+        var frame = null
+        
+        if(this.leftColumn) 
+            frame = NSMakeRect(0, this.y - height - this.textOffset,this.leftColWidth-10, height)
+        else 
+            frame = this.getNewFrame(height)
+
+        const label = NSTextField.alloc().initWithFrame(frame);
         label.setStringValue(text);
         label.setBezeled(false);
         label.setDrawsBackground(false);
         label.setEditable(false);
         label.setSelectable(false);
+        if( this.leftColumn){
+            label.setFont(NSFont.boldSystemFontOfSize(12))
+            label.setAlignment( NSTextAlignmentRight )
+        }
 
         if ('' != id) this.views[id] = label
 
         this.container.addSubview(label)
-        this.y += 5
         return label
     }
 
@@ -89,6 +109,30 @@ class UIAbstractWindow {
 
         return textBox
     }
+
+
+    // required:  id:, options:
+    // opional:  label: "", width: 220, frame: undefined
+    addComboBox(opt) {
+        if(undefined==opt.label) opt.label = ""
+        if(undefined==opt.width) opt.width = 220
+
+        if(opt.label != '') 
+            this.addLabel(id + "Label", opt.label, 17)
+
+        const v = NSComboBox.alloc().initWithFrame(opt.frame ? opt.frame : this.getNewFrame(20,opt.width))
+        v.addItemsWithObjectValues(opt.options)         
+        v.setNumberOfVisibleItems(opt.options.length);
+        v.selectItemAtIndex(0)        
+        v.setCompletes(1);
+        
+        this.container.addSubview(v)
+        this.views[opt.id] = v
+
+        return v
+    }
+
+
 
     addTextViewBox(id, label, textValue, height = 120) {
         if (label != '') this.addLabel(id + "Label", label, 17)
@@ -131,6 +175,7 @@ class UIAbstractWindow {
 
     // opt: required: id, label, labelSelect, textValue
     //      optional: inlineHint = "", width = 220, widthSelect = 50), askFilePath=false
+    //       comboBoxOptions: string array
     addPathInput(opt) {
         if(!('width' in opt)) opt.width = 220
         if(!('widthSelect' in opt)) opt.widthSelect = 50
@@ -139,12 +184,14 @@ class UIAbstractWindow {
         
         if (opt.label != '') this.addLabel(opt.id + "Label", opt.label, 17)
 
-        const frame = this.getNewFrame(20, opt.width - opt.widthSelect - 5)
+        const frame = this.getNewFrame(28, opt.width - opt.widthSelect - 5)
         const frame2 = Utils.copyRect(frame)
         frame2.origin.x = frame2.origin.x + opt.width - opt.widthSelect
-        frame2.origin.y -= 8
+        frame2.origin.y -= 3
 
-        const input = this.addTextInput(opt.id, "", opt.textValue, opt.inlineHint, 0, frame)
+        const input = 'comboBoxOptions' in opt ?            
+            this.addComboBox({id:opt.id,options:opt.comboBoxOptions, width:0, frame:frame})
+            :this.addTextInput(opt.id, "", opt.textValue, opt.inlineHint, 0, frame)
 
         this.addButton(opt.id + "Select", opt.labelSelect, function () {
             const newPath = opt.askFilePath
@@ -158,7 +205,7 @@ class UIAbstractWindow {
         return input
     }
 
-    addComboBox(id, label, selectItem, options, width = 100) {
+    addSelect(id, label, selectItem, options, width = 100) {
         if (label != '') this.addLabel(id + "Label", label, 15)
 
         const v = NSPopUpButton.alloc().initWithFrame(this.getNewFrame(23, width));
@@ -234,6 +281,24 @@ class UIAbstractWindow {
         if ('' != id) this.views[id] = hint
         return hint
     }
+
+
+    addDivider() {
+        
+        const height = 1
+        var frame = NSMakeRect( 0, this.y - height,  NSWidth(this.rect) - 10,height)
+        this.y -=  height + 10
+
+        var divider = NSView.alloc().initWithFrame(frame);
+
+        divider.setWantsLayer(1);
+        divider.layer().setBackgroundColor(CGColorCreateGenericRGB(204/255,204/255,204/255,1));
+
+        this.container.addSubview(divider)
+
+	    return divider;
+}
+
 
 
     finish() {
