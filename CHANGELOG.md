@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 5.2.0 (6 Nov 2019)
+- Added ability to set opacity for symbol child layers ()
+
 ##  Version 5.1.1 (5 Nov 2019)
 - Fixed border-radius with multi(4) values
 

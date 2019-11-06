@@ -255,13 +255,16 @@ class DSApp {
                 rule.isStandalone = true
                 rule.sLayer = this._findSymbolChildByPath(rule.path)
                 if(!rule.sLayer){
-                 
                     return
                 }
             }
             if(ruleType.indexOf("image")>=0){
                 this.messages += "Will update image "+sStyleName +  "\n"       
                 continue
+            }
+            if(rule.isStandalone && ruleType.indexOf("opacity")>=0){
+                this.messages += "Will set opacity for layer "+sStyleName +  "\n"       
+                if('opacity'==ruleType) continue // only opacity in rule
             }
             
             // Check rule
@@ -311,6 +314,10 @@ class DSApp {
             if(ruleType.indexOf("image")>=0){                
                 this._applyPropsToImage(rule)
                 continue
+            }
+            if(rule.isStandalone && ruleType.indexOf("opacity")>=0){
+                this._applyOpacityToLayer(rule)
+                if('opacity'==ruleType) continue // only opacity in rule
             }
 
             const isText = ruleType.indexOf("text")>=0
@@ -386,6 +393,8 @@ class DSApp {
         if(null!=props['background-color'] || null!=props['border-color'] || null!=props['box-shadow']
             || null!=props['border-radius']
         )  res +="layer"
+        if(null!=props['opacity'])
+            res +="opacity"
 
         return res
     }  
@@ -943,6 +952,14 @@ class DSApp {
 
          // SET TEXT SHADOW
         this._applyShadow(rule,sStyle,"text-shadow")
+    }
+
+    _applyOpacityToLayer(rule){
+        const token = rule.props    
+        const sLayer = rule.sLayer
+        const opacity = token['opacity']
+
+        rule.sLayer.style.opacity = opacity
     }
 
 
