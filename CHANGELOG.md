@@ -1,6 +1,9 @@
 # Change Log
 
-##  Version 5.1.0 (4 Oct 2019)
+##  Version 5.1.1 (5 Nov 2019)
+- Fixed border-radius with multi(4) values
+
+##  Version 5.1.0 (4 Nov 2019)
 - Added "Quck Apply" command
 - Support for "Node/Node/Node" layer name format additonally to "Node / Node / Node"
 
