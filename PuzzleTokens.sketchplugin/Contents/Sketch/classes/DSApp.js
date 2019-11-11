@@ -705,7 +705,6 @@ class DSApp {
     }
 
     _applyShadow(rule,sStyle,shadowPropName) {                
-        var shadows = []
         var shadow = null
 
         var shadowCSS = rule.props[shadowPropName]
@@ -715,15 +714,27 @@ class DSApp {
             shadow = Utils.splitCSSShadow(shadowCSS)    
             shadow.enabled = true
             shadow.type = 'Shadow'
-            shadows = [shadow]
         }else{
            //sLayer.style.shadows = []
         }
 
-        if(shadow && shadow.inset)
-            sStyle.innerShadows = shadows
-        else   
-            sStyle.shadows = shadows
+        if(!shadow){
+            return false
+        }
+
+        const reset = !this.sAppliedStyles[rule.name]
+
+        if(shadow.inset){
+            if(reset ||  null==sStyle.innerShadows)
+                sStyle.innerShadows = [shadow]
+            else
+                sStyle.innerShadows.push(shadow)
+        }else{
+            if(reset ||  null==sStyle.shadows)
+                sStyle.shadows = [shadow]
+            else
+                sStyle.shadows.push(shadow)
+        }
 
     }
 
@@ -787,9 +798,11 @@ class DSApp {
         if(!( border && (borderColor==null || borderColor!='none') && (borderWidth==null || borderWidth!='0px') )){
             border = null
         }        
-        if( this.sAppliedStyles[rule.name] ){
+
+        if( this.sAppliedStyles[rule.name] &&  sStyle.border!=null){
             // already added border, now add one more
-            sStyle.borders.push(border)
+            if(border)
+                sStyle.borders.push(border)
         }else{
             // drop existing borders
             sStyle.borders = border ? [border] : []

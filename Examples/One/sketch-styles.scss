@@ -39,12 +39,13 @@ $font-size-normal:                      12px;
         border-radius:      2px;
         border-width:       4px;
         border-position:    inside;
-        box-shadow:         $inner-shadow-1;
+        box-shadow:         $shadow-large;
       }
       Back{
         border-color:       $color-primary;
         border-width:       4px;
         border-position:    outside;
+        box-shadow:         $shadow-large;
       }
   }
 }
