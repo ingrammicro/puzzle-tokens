@@ -41,6 +41,11 @@ $font-size-normal:                      12px;
         border-position:    inside;
         box-shadow:         $inner-shadow-1;
       }
+      Back{
+        border-color:       $color-primary;
+        border-width:       4px;
+        border-position:    outside;
+      }
   }
 }
 

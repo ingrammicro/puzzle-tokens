@@ -41,6 +41,7 @@ class DSApp {
         }
         this.sTextStyles = {}
         this.sLayerStyles = {}
+        this.sAppliedStyles = {}
 
         this.rules = undefined
     
@@ -291,7 +292,7 @@ class DSApp {
                     this.messages += "Will create new shared "+ strType + " style "+sStyleName +  "\n"
                 }else{
                     this.messages += "Will update shared "+ strType + " style "+sStyleName + "\n"
-                }            
+                }                            
             }
         }
         return true
@@ -363,7 +364,11 @@ class DSApp {
                 }            
                 this._saveTokensForStyleAndSymbols(rule.props,sSharedStyle)
             }
+            //
+            this.sAppliedStyles[sStyleName] = true
         }
+        
+
         return true
     }
 
@@ -748,7 +753,7 @@ class DSApp {
         const borderWidth = token['border-width']
         const borderColor = token['border-color']
         
-        var border =  sStyle.borders && sStyle.borders.length>0?sStyle.borders[0]:{}
+        var border =  {}
         
         // process color
         if(null!=borderColor){
@@ -777,9 +782,18 @@ class DSApp {
             border.thickness = borderWidth.replace("px","")               
         }                           
        
-        // save new border in style        
-    
-        sStyle.borders = border && (borderColor==null || borderColor!='none') && (borderWidth==null || borderWidth!='0px') ?[border]:[]
+
+        // save new border in style                
+        if(!( border && (borderColor==null || borderColor!='none') && (borderWidth==null || borderWidth!='0px') )){
+            border = null
+        }        
+        if( this.sAppliedStyles[rule.name] ){
+            // already added border, now add one more
+            sStyle.borders.push(border)
+        }else{
+            // drop existing borders
+            sStyle.borders = border ? [border] : []
+        }
 
     }
 
