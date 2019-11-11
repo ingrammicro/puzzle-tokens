@@ -71,11 +71,6 @@ class DSApp {
         this.messages += msg + "\n"
     }
 
-    logLayer(msg) {
-        if (!Constants.LAYER_LOGGING) return
-        log(msg)
-    }
-
 
     logError(error) {
         this.logMsg("[ ERROR ] " + error)
@@ -897,11 +892,15 @@ class DSApp {
          }
 
          //// SET LINE HEIGHT
-         if(undefined!=lineHeight){
-             if(null==sStyle.fontSize){
-                 return this.logError("Can not apply line-height without font-size for rule "+rule.name)
+         if(undefined!=lineHeight){            
+             if(lineHeight.indexOf("px")){
+                sStyle.lineHeight = lineHeight.replace("px","") 
+             }else{
+                if(null==sStyle.fontSize){
+                    return this.logError("Can not apply line-height without font-size for rule "+rule.name)
+                }
+                sStyle.lineHeight = Math.round(parseFloat(lineHeight) * sStyle.fontSize)
              }
-            sStyle.lineHeight = Math.round(parseFloat(lineHeight) * sStyle.fontSize)
          }else{
              //sLayer.style.lineHeight = null
          }
