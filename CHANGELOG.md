@@ -1,5 +1,11 @@
 # Change Log
 
+##  Version 5.3.0 (11 Nov 2019)
+- Added "Created X styles. Updated Y styles" summary info to Apply and Quck Apply
+- Made result dialog wider
+- Added support for line-height in pixels
+- Added support for multiply borders ( and shadows(hacky))
+
 ##  Version 5.2.0 (6 Nov 2019)
 - Added ability to set opacity for symbol child layers (https://github.com/ingrammicro/puzzle-tokens/tree/master/Examples/Opacity)
 - Moved Show Debug and Generate Symbol Files options to Configure dialog
