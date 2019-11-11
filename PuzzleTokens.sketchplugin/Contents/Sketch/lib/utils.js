@@ -93,9 +93,9 @@ class Utils {
             }
         }
     }
-   
+
     static RGBAToHexA(rgba) {
-        if(rgba.startsWith('#')) return rgba
+        if (rgba.startsWith('#')) return rgba
 
         let sep = rgba.indexOf(",") > -1 ? "," : " ";
         rgba = rgba.substr(5).split(")")[0].split(sep);
@@ -140,45 +140,45 @@ class Utils {
     // s:  "0 4px 16px 0 #000000"
     //  or 
     // s:  "inset 0 4px 16px #000000"
-    static splitCSSShadow(src){
+    static splitCSSShadow(src) {
 
         var inset = false
-        if(src.indexOf("inset")>=0){
+        if (src.indexOf("inset") >= 0) {
             inset = true
-            src = src.replace("inset ","")
+            src = src.replace("inset ", "")
         }
-    
-        src = src.replace(/(,{1}\s+)/g,',').replace(/(\s+)/g,' ')
 
-        var pxFunc = function(s){
-            s = s.replace('px','')
+        src = src.replace(/(,{1}\s+)/g, ',').replace(/(\s+)/g, ' ')
+
+        var pxFunc = function (s) {
+            s = s.replace('px', '')
             return parseInt(s)
-        }        
+        }
 
         var items = src.split(' ')
 
-        var spread = items.length>4?pxFunc(items[3]):0
-        var color =  Utils.RGBAToHexA( items[ items.length-1 ])
+        var spread = items.length > 4 ? pxFunc(items[3]) : 0
+        var color = Utils.RGBAToHexA(items[items.length - 1])
 
         return {
-            'inset':inset,
+            'inset': inset,
             'x': pxFunc(items[0]),
             'y': pxFunc(items[1]),
             'blur': pxFunc(items[2]),
             'spread': spread,
-            'color' : color
-        }        
+            'color': color
+        }
     }
 
 
     // opacity: 0 .. 1.0(transparent) or 0(transparent)..100%
-    static opacityToHex(opacity){
-        if(typeof opacity=='string' && opacity.indexOf("%")>=0){
-            opacity = opacity.replace("%","")
-            opacity = parseInt(opacity)/100
+    static opacityToHex(opacity) {
+        if (typeof opacity == 'string' && opacity.indexOf("%") >= 0) {
+            opacity = opacity.replace("%", "")
+            opacity = parseInt(opacity) / 100
         }
 
-        var i = Math.round(opacity * 100) / 100;        
+        var i = Math.round(opacity * 100) / 100;
 
         var alpha = Math.round(i * 255);
         var hex = (alpha + 0x10000).toString(16).substr(-2).toUpperCase();
@@ -279,9 +279,9 @@ class Utils {
         }
     }
 
-    static getPathToTempFolder(){
+    static getPathToTempFolder() {
         const fileManager = NSFileManager.defaultManager()
-        return fileManager.temporaryDirectory().path()+""
+        return fileManager.temporaryDirectory().path() + ""
     }
 
     static copyScript(scriptName, pathTo) {

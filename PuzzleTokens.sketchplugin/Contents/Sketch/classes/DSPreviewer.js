@@ -19,7 +19,7 @@ class DSPreviewer {
         this.sDoc = Sketch.fromNative(context.document)
         this.context = context
         this.UI = require('sketch/ui')
-    
+
         this.messages = ""
 
         this.errors = []
@@ -53,59 +53,59 @@ class DSPreviewer {
 
     // Public methods
 
-    run() {        
-        if(!this._showDialog()) return false
+    run() {
+        if (!this._showDialog()) return false
 
         var success = this._generate()
-        
+
         // show final message
-        if(this.errors.length>0){
+        if (this.errors.length > 0) {
             this._showErrors()
-        }else{
-            if(success){
+        } else {
+            if (success) {
                 this._showMessages()
             }
         }
-    
+
         return true
     }
 
     // Internal
 
-   
-    _showMessages(){        
-        const dialog = new UIDialog("Completed",NSMakeRect(0, 0, 400, 400),"Dismiss","","")
-        dialog.addTextViewBox("messages","See what has been changed:",this.messages,400)
+
+    _showMessages() {
+        const dialog = new UIDialog("Completed", NSMakeRect(0, 0, 400, 400), "Dismiss", "", "")
+        dialog.addTextViewBox("messages", "See what has been changed:", this.messages, 400)
         const result = dialog.run()
         dialog.finish()
     }
 
-    _showErrors(){
+    _showErrors() {
         var errorsText = this.errors.join("\n\n")
 
-        const dialog = new UIDialog("Found errors",NSMakeRect(0, 0, 600, 600),"Who cares!","","")
-        dialog.addTextViewBox("debug","",errorsText,600)
+        const dialog = new UIDialog("Found errors", NSMakeRect(0, 0, 600, 600), "Who cares!", "", "")
+        dialog.addTextViewBox("debug", "", errorsText, 600)
         const result = dialog.run()
         dialog.finish()
     }
 
-    _showDialog(){
-        const dialog = new UIDialog("Generate Styles Preview",NSMakeRect(0, 0, 600, 140),"Generate")
-     
+    _showDialog() {
+        const dialog = new UIDialog("Generate Styles Preview", NSMakeRect(0, 0, 600, 140), "Generate")
 
-        while(true){
-            const result = dialog.run()                    
-            if(!result) return false            
+
+        while (true) {
+            const result = dialog.run()
+            if (!result) return false
             break
         }
-    
+
         dialog.finish()
 
 
         return true
     }
 
-    _generate(){
+    _generate() {
         this.sPage = new Page({
             name: 'Styles Overview',
             parent: this.sDoc
@@ -115,35 +115,35 @@ class DSPreviewer {
             name: 'Overview',
             parent: this.sPage,
             frame: new Rectangle(
-                0,0,1000,1000
+                0, 0, 1000, 1000
             )
-          })
+        })
 
         this._showTextStyles()
-        
+
 
         return true
     }
 
-    _showTextStyles(){
+    _showTextStyles() {
         var x = 25
         var y = 25
         var textExample = "Test it"
 
-        this.sDoc.sharedTextStyles.forEach(function(sSharedStyle){
+        this.sDoc.sharedTextStyles.forEach(function (sSharedStyle) {
             const sStyle = sSharedStyle.style
             const sText = new Text({
                 text: textExample,
                 parent: this.sArtboard,
                 frame: new Rectangle(
-                    x,y,100,20                    
+                    x, y, 100, 20
                 ),
-                style:sStyle,
+                style: sStyle,
                 sharedStyleId: sSharedStyle.id
-              })
+            })
 
-              y += 100
-        },this)
+            y += 100
+        }, this)
     }
 
     ///////////////////////////////////////////////////////////////

@@ -18,7 +18,7 @@ class UIAbstractWindow {
         this.textOffset = 2
     }
 
-    removeLeftColumn(){
+    removeLeftColumn() {
         this.leftColumn = false
         this.leftColWidth = 0
         this.textOffset = 0
@@ -45,7 +45,7 @@ class UIAbstractWindow {
     }
 
     getNewFrame(height = 25, width = -1, yinc = -1) {
-        var frame = NSMakeRect( this.leftColWidth, this.y - height, width == -1 ? NSWidth(this.rect) - 10 - this.leftColWidth : width, height)
+        var frame = NSMakeRect(this.leftColWidth, this.y - height, width == -1 ? NSWidth(this.rect) - 10 - this.leftColWidth : width, height)
         this.y -= height + (yinc >= 0 ? yinc : 10)
         return frame
     }
@@ -56,10 +56,10 @@ class UIAbstractWindow {
 
     addLabel(id, text, height = 25) {
         var frame = null
-        
-        if(this.leftColumn) 
-            frame = NSMakeRect(0, this.y - height - this.textOffset,this.leftColWidth-10, height)
-        else 
+
+        if (this.leftColumn)
+            frame = NSMakeRect(0, this.y - height - this.textOffset, this.leftColWidth - 10, height)
+        else
             frame = this.getNewFrame(height)
 
         const label = NSTextField.alloc().initWithFrame(frame);
@@ -68,9 +68,9 @@ class UIAbstractWindow {
         label.setDrawsBackground(false);
         label.setEditable(false);
         label.setSelectable(false);
-        if( this.leftColumn){
+        if (this.leftColumn) {
             label.setFont(NSFont.boldSystemFontOfSize(12))
-            label.setAlignment( NSTextAlignmentRight )
+            label.setAlignment(NSTextAlignmentRight)
         }
 
         if ('' != id) this.views[id] = label
@@ -114,18 +114,18 @@ class UIAbstractWindow {
     // required:  id:, options:
     // opional:  label: "", width: 220, frame: undefined
     addComboBox(opt) {
-        if(undefined==opt.label) opt.label = ""
-        if(undefined==opt.width) opt.width = 220
+        if (undefined == opt.label) opt.label = ""
+        if (undefined == opt.width) opt.width = 220
 
-        if(opt.label != '') 
+        if (opt.label != '')
             this.addLabel(id + "Label", opt.label, 17)
 
-        const v = NSComboBox.alloc().initWithFrame(opt.frame ? opt.frame : this.getNewFrame(20,opt.width))
-        v.addItemsWithObjectValues(opt.options)         
+        const v = NSComboBox.alloc().initWithFrame(opt.frame ? opt.frame : this.getNewFrame(20, opt.width))
+        v.addItemsWithObjectValues(opt.options)
         v.setNumberOfVisibleItems(opt.options.length);
-        v.selectItemAtIndex(0)        
+        v.selectItemAtIndex(0)
         v.setCompletes(1);
-        
+
         this.container.addSubview(v)
         this.views[opt.id] = v
 
@@ -150,7 +150,7 @@ class UIAbstractWindow {
         scrollView.setDocumentView(textView)
         this.container.addSubview(scrollView)
 
-    
+
         this.views[id] = textView
 
         return textView
@@ -177,11 +177,11 @@ class UIAbstractWindow {
     //      optional: inlineHint = "", width = 220, widthSelect = 50), askFilePath=false
     //       comboBoxOptions: string array
     addPathInput(opt) {
-        if(!('width' in opt)) opt.width = 220
-        if(!('widthSelect' in opt)) opt.widthSelect = 50
-        if(!('inlineHint' in opt)) opt.inlineHint = ""
-        if(!('askFilePath' in opt)) opt.askFilePath = false
-        
+        if (!('width' in opt)) opt.width = 220
+        if (!('widthSelect' in opt)) opt.widthSelect = 50
+        if (!('inlineHint' in opt)) opt.inlineHint = ""
+        if (!('askFilePath' in opt)) opt.askFilePath = false
+
         if (opt.label != '') this.addLabel(opt.id + "Label", opt.label, 17)
 
         const frame = this.getNewFrame(28, opt.width - opt.widthSelect - 5)
@@ -189,9 +189,9 @@ class UIAbstractWindow {
         frame2.origin.x = frame2.origin.x + opt.width - opt.widthSelect
         frame2.origin.y -= 3
 
-        const input = 'comboBoxOptions' in opt ?            
-            this.addComboBox({id:opt.id,options:opt.comboBoxOptions, width:0, frame:frame})
-            :this.addTextInput(opt.id, "", opt.textValue, opt.inlineHint, 0, frame)
+        const input = 'comboBoxOptions' in opt ?
+            this.addComboBox({ id: opt.id, options: opt.comboBoxOptions, width: 0, frame: frame })
+            : this.addTextInput(opt.id, "", opt.textValue, opt.inlineHint, 0, frame)
 
         this.addButton(opt.id + "Select", opt.labelSelect, function () {
             const newPath = opt.askFilePath
@@ -284,20 +284,20 @@ class UIAbstractWindow {
 
 
     addDivider() {
-        
+
         const height = 1
-        var frame = NSMakeRect( 0, this.y - height,  NSWidth(this.rect) - 10,height)
-        this.y -=  height + 10
+        var frame = NSMakeRect(0, this.y - height, NSWidth(this.rect) - 10, height)
+        this.y -= height + 10
 
         var divider = NSView.alloc().initWithFrame(frame);
 
         divider.setWantsLayer(1);
-        divider.layer().setBackgroundColor(CGColorCreateGenericRGB(204/255,204/255,204/255,1));
+        divider.layer().setBackgroundColor(CGColorCreateGenericRGB(204 / 255, 204 / 255, 204 / 255, 1));
 
         this.container.addSubview(divider)
 
-	    return divider;
-}
+        return divider;
+    }
 
 
 
@@ -313,7 +313,7 @@ class UIDialog extends UIAbstractWindow {
         UIDialog_iconImage = NSImage.alloc().initByReferencingFile(context.plugin.urlForResourceNamed("icon.png").path())
     }
 
-    constructor(title, rect, okButtonTitle, description = '',cancelButtonTitle="Cancel") {
+    constructor(title, rect, okButtonTitle, description = '', cancelButtonTitle = "Cancel") {
         var window = NSAlert.alloc().init()
         window.setIcon(UIDialog_iconImage)
         window.setMessageText(title)
@@ -323,7 +323,7 @@ class UIDialog extends UIAbstractWindow {
         if (undefined != okButtonTitle) {
             window.addButtonWithTitle(okButtonTitle)
         }
-        if(cancelButtonTitle!="")
+        if (cancelButtonTitle != "")
             window.addButtonWithTitle(cancelButtonTitle)
 
         super(window, rect)

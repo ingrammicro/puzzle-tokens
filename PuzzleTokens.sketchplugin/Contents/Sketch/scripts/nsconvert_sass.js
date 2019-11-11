@@ -14,23 +14,23 @@ var _lookups = {}
 console.log("Started")
 
 // INIT DATA
-if(!initPaths()) process.exit(0)
+if (!initPaths()) process.exit(0)
 
 // LOAD LESS
 var strSrcSass = loadSassFromFiles(pathToSass)
-if(null==strSrcSass) process.exit(-1)
+if (null == strSrcSass) process.exit(-1)
 
 // SAVE TOKENS AS COMMENTS IN SASS
 var strSass = injectTokensIntoSass(strSrcSass)
 
 // RENDER SASS TO JSON
-transformSASStoJSON(strSass)    
+transformSASStoJSON(strSass)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-function initPaths(){
-    if(undefined==pathToSass){
+function initPaths() {
+    if (undefined == pathToSass) {
         console.log("nsconvert_sass.js PATH_TO_SAAS_FILE PATH_TO_JSON_FILE")
         return false
     }
@@ -44,27 +44,27 @@ function initPaths(){
     sassPath = nodePath.dirname(pathToSass)
     process.chdir(sassPath)
 
-    return true   
+    return true
 }
 
-function injectTokensIntoSass(srcData){
+function injectTokensIntoSass(srcData) {
     var sassLines = srcData.split("\n")
     var newData = ""
 
-    sassLines.forEach(function(line){
-        
+    sassLines.forEach(function (line) {
+
         // drop comment lines
         line = line.trim()
-        if(line.startsWith("//")) return
+        if (line.startsWith("//")) return
 
         var found = line.match(/\${1}([\w-]*)\w{0,};/)
-        if(null!=found && found.length>=1){
+        if (null != found && found.length >= 1) {
             var token = found[1]
             var commentPos = line.indexOf("//")
-            if(commentPos>0){
-                line = line.substring(0,commentPos)
+            if (commentPos > 0) {
+                line = line.substring(0, commentPos)
             }
-            line += " //!"+token+"!"
+            line += " //!" + token + "!"
         }
         newData += line + "\n"
     })
@@ -72,46 +72,46 @@ function injectTokensIntoSass(srcData){
     return newData
 }
 
-function loadSassFromFiles(fileName1,fileName2){
+function loadSassFromFiles(fileName1, fileName2) {
     console.log("Read SASS: running...")
-    
+
     var data = ''
     const data1 = fs.readFileSync(fileName1, 'utf8');
-    if(null==data1){
-        console.log("Can't open file by path:"+fileName1)
+    if (null == data1) {
+        console.log("Can't open file by path:" + fileName1)
         return null
     }
     data = data + data1;
-    if(fileName2!=undefined){
-        data = data + "\n"+fs.readFileSync(fileName2, 'utf8');
+    if (fileName2 != undefined) {
+        data = data + "\n" + fs.readFileSync(fileName2, 'utf8');
     }
 
     return data
 }
 
-function transformSASStoJSON(data){
-  
+function transformSASStoJSON(data) {
+
     var passToSassModules = _getPathToSassModules()
     console.log(passToSassModules)
-    var sass = require(passToSassModules)   
+    var sass = require(passToSassModules)
 
     process.on('unhandledRejection', error => {
         // Will print "unhandledRejection err is not defined"
         console.log('Failed to parse SASS with error message:', error.message);
         process.exit(-1)
     });
-      
+
 
     try {
         result = sass.renderSync({
             data: data,
             outputStyle: "expanded"
         })
-        console.log("Completed")    
-        saveData(result.css.toString(),pathToJSON)
-        console.log("Saved")    
+        console.log("Completed")
+        saveData(result.css.toString(), pathToJSON)
+        console.log("Saved")
 
-    } catch ( e ) {
+    } catch (e) {
         console.log("Failed to parse SASS with error message:\n")
         console.log(e.message)
         process.exit(-1)
@@ -119,12 +119,12 @@ function transformSASStoJSON(data){
 
     console.log(sketchRules)
 
-    
+
     console.log("Read SASS: done")
 }
 
 
-function saveData(strCSS,pathToJSON){   
+function saveData(strCSS, pathToJSON) {
     var data = []
     console.log("CSS:")
     //console.log(strCSS)
@@ -134,16 +134,16 @@ function saveData(strCSS,pathToJSON){
     var sassLines = strCSS.split("\n")
     var node = null
     var inComments = false
-    sassLines.forEach(function(line){
-        if(line.startsWith("/*")){
+    sassLines.forEach(function (line) {
+        if (line.startsWith("/*")) {
             inComments = true
-        }else if(line.startsWith("*/")){
+        } else if (line.startsWith("*/")) {
             inComments = false
-        }else if(inComments){
+        } else if (inComments) {
             // skip comment
-        }else if(line.endsWith("{")){
+        } else if (line.endsWith("{")) {
             // start node declaration
-            const paths = line.replace(" {","").split(' ')
+            const paths = line.replace(" {", "").split(' ')
             node = {
                 path: paths,
                 props: {
@@ -151,32 +151,32 @@ function saveData(strCSS,pathToJSON){
                     }
                 }
             }
-        }else if(line.endsWith("}")){
+        } else if (line.endsWith("}")) {
             // complete node declaration
             data.push(node)
-        }else{
+        } else {
             // save css rule
-            line = line.replace(/^(\s*)/,"")
-            var ruleName = line.replace(/(:+\s+.+;+)/,"")
-            var ruleValue = line.replace(/(\S+\s+)/,"").replace(/(;+)$/,"")
+            line = line.replace(/^(\s*)/, "")
+            var ruleName = line.replace(/(:+\s+.+;+)/, "")
+            var ruleValue = line.replace(/(\S+\s+)/, "").replace(/(;+)$/, "")
             node.props[ruleName] = ruleValue
         }
     })
     //
 
-    var json = JSON.stringify(data,null,'    ')
-    
-    if(pathToJSON && pathToJSON!=''){
+    var json = JSON.stringify(data, null, '    ')
+
+    if (pathToJSON && pathToJSON != '') {
         fs.writeFileSync(pathToJSON, json, 'utf8');
-    }else{
+    } else {
         console.log(json)
     }
 
     return true
 }
 
-function _getPathToSassModules(){
-    var result = require('child_process').execSync("node /usr/local/bin/npm -g root",{env:process.env.PATH})
-    var path = result.toString().replace("\n","")
-    return path+"/sass"
+function _getPathToSassModules() {
+    var result = require('child_process').execSync("node /usr/local/bin/npm -g root", { env: process.env.PATH })
+    var path = result.toString().replace("\n", "")
+    return path + "/sass"
 }

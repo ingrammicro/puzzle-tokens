@@ -1,49 +1,49 @@
 {
-  "name": "Puzzle Tokens",
-  "description": "Apply design tokens to Sketch styles",
-  "author" : "Maxim Bazarov",
-  "homepage": "",  
-  "identifier" : "com.cloudblue.sketch.ds",
-  "appcast": "https://raw.githubusercontent.com/ingrammicro/puzzle-tokens/master/appcast.xml",
-  "compatibleVersion": 3,
-  "bundleVersion": 1,
-  "version" : "5.2.0",
-  "icon": "icon.png",
-  "commands" : [   
-    {
-      "script" : "cmd-apply-less.js",
-      "handler" : "onRunDialog",
-      "name" : "Apply Design Tokens",
-      "shortcut" : "command alt a", 
-      "identifier" : "cmApplyLess"
-    },
-    {
-      "script" : "cmd-apply-less.js",
-      "handler" : "onRunQuick",
-      "name" : "Quick Apply",
-      "shortcut" : "command alt k", 
-      "identifier" : "cmQuickApply"
-    },
-    {
-        "script" : "cmd-generate-preview.js",
-        "handler" : "onRun",
-        "name" : "Generate Styles Preview",
-        "identifier" : "cmdGeneratePreview"
-    },
-    {
-        "script" : "cmd-config.js",
-        "handler" : "onRun",
-        "name" : "Configure",
-        "identifier" : "cmConfig"
-      },
-  ],
-  "menu": {
-    "title": "📦 Puzzle Tokens",
-    "items": [
-      "cmApplyLess",
-      "cmQuickApply",
-      "-",
-      "cmConfig"
-    ]
-  }
+    "name": "Puzzle Tokens",
+    "description": "Apply design tokens to Sketch styles",
+    "author": "Maxim Bazarov",
+    "homepage": "",
+    "identifier": "com.cloudblue.sketch.ds",
+    "appcast": "https://raw.githubusercontent.com/ingrammicro/puzzle-tokens/master/appcast.xml",
+    "compatibleVersion": 3,
+    "bundleVersion": 1,
+    "version": "5.2.0",
+    "icon": "icon.png",
+    "commands": [
+        {
+            "script": "cmd-apply-less.js",
+            "handler": "onRunDialog",
+            "name": "Apply Design Tokens",
+            "shortcut": "command alt a",
+            "identifier": "cmApplyLess"
+        },
+        {
+            "script": "cmd-apply-less.js",
+            "handler": "onRunQuick",
+            "name": "Quick Apply",
+            "shortcut": "command alt k",
+            "identifier": "cmQuickApply"
+        },
+        {
+            "script": "cmd-generate-preview.js",
+            "handler": "onRun",
+            "name": "Generate Styles Preview",
+            "identifier": "cmdGeneratePreview"
+        },
+        {
+            "script": "cmd-config.js",
+            "handler": "onRun",
+            "name": "Configure",
+            "identifier": "cmConfig"
+        }
+    ],
+    "menu": {
+        "title": "📦 Puzzle Tokens",
+        "items": [
+            "cmApplyLess",
+            "cmQuickApply",
+            "-",
+            "cmConfig"
+        ]
+    }
 }
