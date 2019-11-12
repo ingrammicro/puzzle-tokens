@@ -121,9 +121,11 @@ class UIAbstractWindow {
             this.addLabel(id + "Label", opt.label, 17)
 
         const v = NSComboBox.alloc().initWithFrame(opt.frame ? opt.frame : this.getNewFrame(20, opt.width))
-        v.addItemsWithObjectValues(opt.options)
-        v.setNumberOfVisibleItems(opt.options.length);
-        v.selectItemAtIndex(0)
+        if (opt.options.length > 0) {
+            v.addItemsWithObjectValues(opt.options)
+            v.setNumberOfVisibleItems(opt.options.length);
+            v.selectItemAtIndex(0)
+        }
         v.setCompletes(1);
 
         this.container.addSubview(v)

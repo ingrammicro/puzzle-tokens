@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 5.3.1 (12 Nov 2019)
+- Fixed crash on new installation
+
 ##  Version 5.3.0 (11 Nov 2019)
 - Added "Created X styles. Updated Y styles" summary info to Apply and Quck Apply
 - Made result dialog wider

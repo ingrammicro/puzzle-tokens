@@ -58,10 +58,10 @@ class DSApp {
         app = this
 
         // load settings       
-        this.pathToToStyles = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS)
-        if (undefined == this.pathToToStyles) this.pathToToStyles = ''
-        this.pathToToStylesList = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS_LIST) || []
-        if (!this.pathToToStylesList.length && this.pathToToStyles != '') this.pathToToStylesList.push(this.pathToToStyles)
+        this.pathToStyles = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS)
+        if (undefined == this.pathToStyles) this.pathToStyles = ''
+        this.pathToStylesList = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS_LIST) || []
+        if (this.pathToStylesList.length == 0 && this.pathToStyles != '') this.pathToStylesList.push(this.pathToStyles)
 
         this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS) == 1
         this.showDebug = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DEBUG) == 1
@@ -93,7 +93,7 @@ class DSApp {
 
 
     runQuick() {
-        if ('' == this.pathToToStyles) return this.runDialog()
+        if ('' == this.pathToStyles) return this.runDialog()
         if (!this.run(false)) return false
 
         UI.message(this._getResultSummary())
@@ -110,7 +110,7 @@ class DSApp {
     }
 
     run(showCheck = true) {
-        this.pathToTokens = this.pathToToStyles.substring(0, this.pathToToStyles.lastIndexOf("/"));
+        this.pathToTokens = this.pathToStyles.substring(0, this.pathToStyles.lastIndexOf("/"));
 
         var applied = false
         while (true) {
@@ -211,13 +211,13 @@ class DSApp {
     _showDialog() {
         const dialog = new UIDialog("Apply LESS/SASS styles", NSMakeRect(0, 0, 600, 120), "Apply", "Load LESS or SASS file with style definions and create new Sketch styles (or update existing).")
 
-        this.pathToToStylesList = this.pathToToStylesList.slice(0, 20)
+        this.pathToStylesList = this.pathToStylesList.slice(0, 20)
 
         dialog.addPathInput({
-            id: "pathToToStyles", label: "Style File", labelSelect: "Select",
-            textValue: this.pathToToStyles, inlineHint: 'e.g. /Work/ui-tokens.less',
+            id: "pathToStyles", label: "Style File", labelSelect: "Select",
+            textValue: this.pathToStyles, inlineHint: 'e.g. /Work/ui-tokens.less',
             width: 430, askFilePath: true,
-            comboBoxOptions: this.pathToToStylesList
+            comboBoxOptions: this.pathToStylesList
         })
         dialog.addDivider()
         dialog.addLabel("optionsLabel", "Options")
@@ -227,17 +227,17 @@ class DSApp {
             const result = dialog.run()
             if (!result) return false
 
-            this.pathToToStyles = dialog.views['pathToToStyles'].stringValue() + ""
-            if ("" == this.pathToToStyles) continue
+            this.pathToStyles = dialog.views['pathToStyles'].stringValue() + ""
+            if ("" == this.pathToStyles) continue
             ////
-            const pathIndex = this.pathToToStylesList.indexOf(this.pathToToStyles)
+            const pathIndex = this.pathToStylesList.indexOf(this.pathToStyles)
             if (pathIndex < 0) {
-                this.pathToToStylesList.splice(0, 0, this.pathToToStyles)
+                this.pathToStylesList.splice(0, 0, this.pathToStyles)
             } else {
-                this.pathToToStylesList.splice(pathIndex, 1)
-                this.pathToToStylesList.splice(0, 0, this.pathToToStyles)
+                this.pathToStylesList.splice(pathIndex, 1)
+                this.pathToStylesList.splice(0, 0, this.pathToStyles)
             }
-            this.pathToToStylesList = this.pathToToStylesList.slice(0, 20)
+            this.pathToStylesList = this.pathToStylesList.slice(0, 20)
 
             ///
             this.showCheck = dialog.views['showCheck'].state() == 1
@@ -246,8 +246,8 @@ class DSApp {
 
         dialog.finish()
 
-        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS_LIST, this.pathToToStylesList)
-        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToToStyles)
+        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS_LIST, this.pathToStylesList)
+        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToStyles)
         Settings.setSettingForKey(SettingKeys.PLUGIN_SHOW_CHECK, this.showCheck)
 
         return true
@@ -420,12 +420,12 @@ class DSApp {
         const tempFolder = Utils.getPathToTempFolder()
 
         // check files
-        if (!Utils.fileExistsAtPath(this.pathToToStyles)) {
-            this.logError("Can not find styles file by path: " + this.pathToToStyles)
+        if (!Utils.fileExistsAtPath(this.pathToStyles)) {
+            this.logError("Can not find styles file by path: " + this.pathToStyles)
             return false
         }
 
-        const stylesType = this.pathToToStyles.endsWith(".less") ? "less" : "sass"
+        const stylesType = this.pathToStyles.endsWith(".less") ? "less" : "sass"
 
         // Copy  conversion script
         const scriptPath = Utils.copyScript('nsconvert_' + stylesType + '.js', tempFolder)
@@ -434,7 +434,7 @@ class DSApp {
         // Run script 
         const pathToRulesJSON = tempFolder + "/nsdata.json"
         var args = [scriptPath]
-        args.push(this.pathToToStyles)
+        args.push(this.pathToStyles)
         args.push(pathToRulesJSON)
 
         const runResult = Utils.runCommand("/usr/local/bin/node", args)
