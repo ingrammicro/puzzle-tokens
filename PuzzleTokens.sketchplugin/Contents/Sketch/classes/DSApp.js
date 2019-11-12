@@ -59,8 +59,10 @@ class DSApp {
 
         // load settings       
         this.pathToStyles = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS)
-        if (undefined == this.pathToStyles) this.pathToStyles = ''
-        this.pathToStylesList = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS_LIST) || []
+        this.pathToStyles = this.pathToStyles || ''
+
+        this.pathToStylesList = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS_LIST)
+        this.pathToStylesList = this.pathToStylesList || []
         if (this.pathToStylesList.length == 0 && this.pathToStyles != '') this.pathToStylesList.push(this.pathToStyles)
 
         this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS) == 1

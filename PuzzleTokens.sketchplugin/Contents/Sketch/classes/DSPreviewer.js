@@ -9,6 +9,8 @@ const Style = require('sketch/dom').Style
 const Image = require('sketch/dom').Image
 const path = require('path');
 const Text = require('sketch/dom').Text
+const Shape = require('sketch/dom').Shape
+const Group = require('sketch/dom').Group
 const Page = require('sketch/dom').Page
 const Artboard = require('sketch/dom').Artboard
 
@@ -126,23 +128,69 @@ class DSPreviewer {
     }
 
     _showTextStyles() {
-        var x = 25
         var y = 25
-        var textExample = "Test it"
+        const offsetX = 25
+        const textExample = "Aa"
+        const colLimit = 5
+        const colWidth = 100
+        const colHeight = 100
+        let colIndex = 1
+
+        var x = offsetX
+
+        const backStyle = {
+            fills: [
+                {
+                    color: '#FFFFFF',
+                    fillType: Style.FillType.Color
+                }
+            ],
+            borders: [{ color: '#979797' }],
+        }
 
         this.sDoc.sharedTextStyles.forEach(function (sSharedStyle) {
             const sStyle = sSharedStyle.style
-            const sText = new Text({
-                text: textExample,
+            let height = colHeight
+            let width = colWidth
+
+            const sGroup = new Group({
+                name: sSharedStyle.name,
                 parent: this.sArtboard,
                 frame: new Rectangle(
-                    x, y, 100, 20
+                    x, y, width, height
+                )
+            })
+
+            const sBack = new Shape({
+                name: "Back",
+                parent: sGroup,
+                style: backStyle,
+                frame: new Rectangle(
+                    x, y, width, height
+                )
+            })
+
+            const sText = new Text({
+                name: "Text",
+                text: textExample,
+                parent: sGroup,
+                frame: new Rectangle(
+                    x, y, width, height
                 ),
                 style: sStyle,
                 sharedStyleId: sSharedStyle.id
             })
 
-            y += 100
+            if (colIndex % colLimit === 0) {
+                // make new row
+                y += 100
+                x = offsetX
+                colIndex = 1
+            } else {
+                // add new column
+                colIndex++
+                x += colWidth + 10
+            }
         }, this)
     }
 
