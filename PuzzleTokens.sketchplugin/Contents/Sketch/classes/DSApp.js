@@ -938,7 +938,7 @@ class DSApp {
 
         //// SET LINE HEIGHT
         if (undefined != lineHeight) {
-            if (lineHeight.indexOf("px")) {
+            if (lineHeight.indexOf("px") > 0) {
                 sStyle.lineHeight = lineHeight.replace("px", "")
             } else {
                 if (null == sStyle.fontSize) {

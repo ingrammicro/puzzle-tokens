@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 5.3.2 (13 Nov 2019)
+- Fixed relative line-height
+
 ##  Version 5.3.1 (12 Nov 2019)
 - Fixed crash on new installation
 
