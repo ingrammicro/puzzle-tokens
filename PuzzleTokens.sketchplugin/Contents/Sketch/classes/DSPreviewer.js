@@ -108,9 +108,18 @@ class DSPreviewer {
     }
 
     _generate() {
+        const defPageName = 'Styles Overview'
+
+        // drop old Preview Pages
+        this.sDoc.pages.forEach(function (sPage) {
+            if (defPageName == sPage.name)
+                sPage.remove()
+        })
+
         this.sPage = new Page({
-            name: 'Styles Overview',
-            parent: this.sDoc
+            name: defPageName,
+            parent: this.sDoc,
+            selected: true
         })
 
         this.sArtboard = new Artboard({
@@ -127,69 +136,120 @@ class DSPreviewer {
         return true
     }
 
+    _calcBackColor(textColorHEX) {
+        let rgba = Utils.hexColorToRGBA(textColorHEX)
+        if (rgba.r > 128 && rgba.g > 128 && rgba.b > 128)
+            return "#545454"
+        else
+            return "#FFFFFF"
+    }
+
     _showTextStyles() {
         var y = 25
         const offsetX = 25
         const textExample = "Aa"
         const colLimit = 5
         const colWidth = 100
-        const colHeight = 100
+        const colSpace = 50
+        const textOffsetTop = 5
+        const textOffsetBottom = 5
         let colIndex = 1
 
-        var x = offsetX
-
-        const backStyle = {
-            fills: [
-                {
-                    color: '#FFFFFF',
-                    fillType: Style.FillType.Color
-                }
-            ],
-            borders: [{ color: '#979797' }],
+        const labelStyle = {
+            textColor: "#353536",
+            alignment: Text.Alignment.left,
+            fontSize: 12
         }
 
-        this.sDoc.sharedTextStyles.forEach(function (sSharedStyle) {
+        let x = offsetX
+        let colHeight = 100
+
+        const textSharedStyles = this.sDoc.sharedTextStyles
+        textSharedStyles.forEach(function (sSharedStyle, styleIndex) {
+
+            /// calculate max height of texts in this row
+            if (1 == colIndex) {
+                colHeight = 0
+                let last = Math.min(styleIndex + colLimit - 1, textSharedStyles.length - 1)
+                for (let index = styleIndex; index <= last; index++) {
+                    const sStyle = textSharedStyles[index].style
+                    colHeight = Math.max(colHeight, sStyle.fontSize)
+                }
+                colHeight += textOffsetTop + textOffsetBottom
+            }
+            ///
+
             const sStyle = sSharedStyle.style
             let height = colHeight
             let width = colWidth
 
-            const sGroup = new Group({
+            const backStyle = {
+                fills: [
+                    {
+                        color: this._calcBackColor(sStyle.textColor),
+                        fillType: Style.FillType.Color
+                    }
+                ],
+                borders: [{ color: '#979797' }],
+            }
+
+            ///
+
+            const sParent = new Group({
                 name: sSharedStyle.name,
                 parent: this.sArtboard,
                 frame: new Rectangle(
                     x, y, width, height
                 )
             })
+            //const sParent = this.sArtboard
+
 
             const sBack = new Shape({
                 name: "Back",
-                parent: sGroup,
+                parent: sParent,
                 style: backStyle,
                 frame: new Rectangle(
-                    x, y, width, height
+                    0, 0, width, height
                 )
             })
 
             const sText = new Text({
                 name: "Text",
                 text: textExample,
-                parent: sGroup,
+                parent: sParent,
                 frame: new Rectangle(
-                    x, y, width, height
+                    0 + 5, 0 + textOffsetTop, width, sStyle.fontSize
                 ),
                 style: sStyle,
                 sharedStyleId: sSharedStyle.id
             })
+            //sText.adjustToFit()
 
+            const sLabel = new Text({
+                name: "Label",
+                text: sSharedStyle.name,
+                parent: sParent,
+                frame: new Rectangle(
+                    0, y + colHeight, width, labelStyle.fontSize
+                ),
+                style: labelStyle
+            })
+
+
+            // Final adjustment
+            //sGroup.adjustToFit()
+
+            // Calculate next cell position
             if (colIndex % colLimit === 0) {
                 // make new row
-                y += 100
+                y += colHeight + labelStyle.fontSize
                 x = offsetX
                 colIndex = 1
             } else {
                 // add new column
                 colIndex++
-                x += colWidth + 10
+                x += colWidth + colSpace
             }
         }, this)
     }

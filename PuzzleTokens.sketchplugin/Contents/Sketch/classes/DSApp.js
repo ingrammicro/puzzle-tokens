@@ -202,6 +202,9 @@ class DSApp {
     }
 
     _saveElements() {
+        if (!this.sDoc.path) {
+            return this.logError("Can't create symbols & style file for unsaved Sketch file. Save it befor or disable symbols & style file generation in Settings.")
+        }
         const pathDetails = path.parse(this.sDoc.path)
         const pathToRules = pathDetails.dir + "/" + pathDetails.name + Constants.SYMBOLTOKENFILE_POSTFIX
         const json = JSON.stringify(this.elements, null, null)
@@ -940,7 +943,7 @@ class DSApp {
 
         //// SET LINE HEIGHT
         if (undefined != lineHeight) {
-            if (lineHeight.indexOf("px")) {
+            if (lineHeight.indexOf("px") >= 0) {
                 sStyle.lineHeight = lineHeight.replace("px", "")
             } else {
                 if (null == sStyle.fontSize) {
@@ -949,7 +952,7 @@ class DSApp {
                 sStyle.lineHeight = Math.round(parseFloat(lineHeight) * sStyle.fontSize)
             }
         } else {
-            //sLayer.style.lineHeight = null
+            sLayer.style.lineHeight = 0
         }
         //// SET FONT WEIGHT
         if (undefined != fontWeight) {
