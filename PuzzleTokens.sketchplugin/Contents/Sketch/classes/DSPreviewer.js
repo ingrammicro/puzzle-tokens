@@ -13,6 +13,7 @@ const Shape = require('sketch/dom').Shape
 const Group = require('sketch/dom').Group
 const Page = require('sketch/dom').Page
 const Artboard = require('sketch/dom').Artboard
+const SharedStyle = require('sketch/dom').SharedStyle
 
 
 class DSPreviewer {
@@ -23,63 +24,76 @@ class DSPreviewer {
         this.UI = require('sketch/ui')
 
         this.messages = ""
-
         this.errors = []
 
+        this.sArtboard = null
+        this.sArtboards = []
+        this.artboardY = 0
+        this.artboardRowMaxHeight = null
+
         this._init()
+
         // init global variable
         app = this
     }
 
     _init() {
-        this.defGroup = {
-            labelColor: "#353536",
-            labelFontSize: 25,
-            bottomSpace: 20,
-        }
-        this.defText = {
+        this.def = {
             initialTop: 25,
             initialLeft: 25,
-            text: "Aa",
-            columns: 9,
-            colWidth: 100,
-            colVSpace: 50,
-            colHSpace: 50,
-            textTop: 5,
-            textBottom: 5,
-            labelFontFamily: "Helvetica",
-            labelFontWeight: 5,
-            labelColor: "#353536",
-            labelFontSize: 20,
-            descrFontSize: 12,
-            descrColor: "#B1B1B1",
             pageWidth: 1600,
             pageHeight: 1200,
+            pageVSpace: 100,
+            pageHSpace: 100,
+            pagesInRow: 3,
+            group: {
+                labelColor: "#353536",
+                labelFontSize: 25,
+                bottomSpace: 20,
+            },
+            layer: {
+                colHeight: 100,
+            },
+            text: {
+                text: "Aa",
+                columns: 9,
+                colWidth: 100,
+                colVSpace: 50,
+                colHSpace: 50,
+                textTop: 5,
+                textBottom: 5,
+                labelFontFamily: "Helvetica",
+                labelFontWeight: 5,
+                labelColor: "#353536",
+                labelFontSize: 20,
+                descrFontSize: 12,
+                descrColor: "#B1B1B1",
+            }
         }
 
         this.groupLabelStyle = {
-            textColor: this.defGroup.labelColor,
+            textColor: this.def.group.labelColor,
             alignment: Text.Alignment.left,
-            fontSize: this.defGroup.labelFontSize,
-            lineHeight: this.defGroup.labelFontSize * 1.5,
+            fontSize: this.def.group.labelFontSize,
+            lineHeight: this.def.group.labelFontSize * 1.5,
         }
 
         this.labelStyle = {
-            textColor: this.defText.labelColor,
+            textColor: this.def.text.labelColor,
             alignment: Text.Alignment.left,
-            fontSize: this.defText.labelFontSize,
+            fontSize: this.def.text.labelFontSize,
             lineHeight: 20,
-            fontFamily: this.defText.labelFontFamily,
-            fontWeight: this.defText.labelFontWeight,
+            fontFamily: this.def.text.labelFontFamily,
+            fontWeight: this.def.text.labelFontWeight,
         }
 
         this.descrStyle = {
-            textColor: this.defText.descrColor,
+            textColor: this.def.text.descrColor,
             alignment: Text.Alignment.left,
-            fontSize: this.defText.descrFontSize,
-            lineHeight: this.defText.descrFontSize * 1.5,
-            fontFamily: this.defText.labelFontFamily,
-            fontWeight: this.defText.labelFontWeight,
+            fontSize: this.def.text.descrFontSize,
+            lineHeight: this.def.text.descrFontSize * 1.5,
+            fontFamily: this.def.text.labelFontFamily,
+            fontWeight: this.def.text.labelFontWeight,
         }
     }
 
@@ -175,34 +189,45 @@ class DSPreviewer {
             selected: true
         })
 
-        this.sArtboard = new Artboard({
-            name: 'Overview',
-            parent: this.sPage,
-            frame: new Rectangle(
-                0, 0, this.defText.pageWidth, this.defText.pageHeight
-
-            )
-        })
-
-        this._showTextStyles()
-
+        this._showStyles(this.sDoc.sharedTextStyles, "Text Styles")
+        this._showStyles(this.sDoc.sharedLayerStyles, "Layer Styles")
 
         return true
     }
 
-    _calcBackColor(textColorHEX) {
-        let rgba = Utils.hexColorToRGBA(textColorHEX)
-        if (rgba.r > 128 && rgba.g > 128 && rgba.b > 128)
-            return "#545454"
-        else
-            return "#FFFFFF"
+
+    _showStyles(sStyles, name) {
+        this._resetArtboards()
+
+        // build style groups
+        const styleGroups = this._buildStyleGroups(sStyles)
+        //
+        var y = this.def.initialTop
+        for (let [groupName, styles] of Object.entries(styleGroups)) {
+            if (y > this.def.pageHeight || !this.sArtboard) {
+                if (this.sArtboard) {
+                    this.sArtboard.frame.height = y
+                }
+                y = this._createNewArtboard(name)
+            }
+            y = this._showGroupHead(groupName, y)
+            y = this._showTextStyleGroup(styles, y)
+        }
     }
 
-    _showTextStyles() {
-        const sharedTextStyles = this.sDoc.sharedTextStyles
-        // build style group list
+    _resetArtboards() {
+        if (this.sArtboard) {
+            this.artboardY += this.artboardRowMaxHeight + this.def.pageVSpace
+        }
+
+        this.sArtboard = null
+        this.sArtboards = []
+        this.artboardRowMaxHeight = null
+    }
+
+    _buildStyleGroups(sStyles) {
         var styleGroups = {}
-        sharedTextStyles.forEach(function (sSharedStyle, styleIndex) {
+        sStyles.forEach(function (sSharedStyle, styleIndex) {
             let groupName = "top"
             const lastShashIndex = sSharedStyle.name.lastIndexOf("/")
             if (lastShashIndex > 0) {
@@ -215,72 +240,118 @@ class DSPreviewer {
             }
             group.push(sSharedStyle)
         }, this)
-
-        // show groups
-        var y = this.defText.initialTop
-        for (let [groupName, styles] of Object.entries(styleGroups)) {
-            y = this._showTextStyleGroupLabel(groupName, y)
-            y = this._showTextStyleGroup(styles, y)
-        }
+        return styleGroups
     }
 
-    _showTextStyleGroupLabel(groupName, y) {
+    // return new Y
+    _createNewArtboard(name) {
+        //// Save prev artboards to increment artboard counter and for future usage
+        let artboardX = 0
+
+        if (this.sArtboard) {
+            this.artboardRowMaxHeight = Math.max(this.artboardRowMaxHeight, this.sArtboard.frame.height)
+            if (this.sArtboards.length % this.def.pagesInRow === 0) {
+                // place new artboard below last existing
+                log(' this.artboardRowMaxHeight =' + this.artboardRowMaxHeight)
+                this.artboardY += this.artboardRowMaxHeight + this.def.pageVSpace
+                // reset artboard max height in current row
+                this.artboardRowMaxHeight = 0
+            } else {
+                // place new artboard in the right side of last existing
+                artboardX = this.sArtboard.frame.x + this.sArtboard.frame.width + this.def.pageHSpace
+                //                
+            }
+            ///
+        } else {
+            this.artboardRowMaxHeight = 0
+        }
+        //// Create new artbord for styles
+        this.sArtboard = new Artboard({
+            name: name + ' #' + (this.sArtboards.length + 1),
+            parent: this.sPage,
+            frame: new Rectangle(
+                artboardX, this.artboardY, this.def.pageWidth, this.def.pageHeight
+
+            )
+        })
+        this.sArtboards.push(this.sArtboard)
+
+        return this.def.initialTop
+    }
+
+    _calcBackColor(textColorHEX) {
+        let rgba = Utils.hexColorToRGBA(textColorHEX)
+        if (rgba.r > 128 && rgba.g > 128 && rgba.b > 128)
+            return "#545454"
+        else
+            return "#FFFFFF"
+    }
+
+    _showGroupHead(groupName, y) {
         groupName = groupName.replace(/[/]/g, " / ")
         const sText = new Text({
             name: "Group Label",
             text: groupName,
             parent: this.sArtboard,
             frame: new Rectangle(
-                this.defText.initialLeft, y, 400, this.groupLabelStyle.lineHeight
+                this.def.initialLeft, y, 400, this.groupLabelStyle.lineHeight
             ),
             style: this.groupLabelStyle,
         })
-        return y + this.groupLabelStyle.lineHeight + this.defGroup.bottomSpace
+        return y + this.groupLabelStyle.lineHeight + this.def.group.bottomSpace
     }
 
     _showTextStyleGroup(styles, y) {
 
-        const offsetX = this.defText.initialLeft
+        const offsetX = this.def.initialLeft
 
-        const textExample = this.defText.text
-        const colLimit = this.defText.columns
-        const colWidth = this.defText.colWidth
-        const colHSpace = this.defText.colHSpace
-        const colVSpace = this.defText.colVSpace
-        const textOffsetTop = this.defText.textTop
-        const textOffsetBottom = this.defText.textBottom
+        const textExample = this.def.text.text
+        const colLimit = this.def.text.columns
+        const colWidth = this.def.text.colWidth
+        const colHSpace = this.def.text.colHSpace
+        const colVSpace = this.def.text.colVSpace
+        const textOffsetTop = this.def.text.textTop
+        const textOffsetBottom = this.def.text.textBottom
         let colIndex = 1
         let x = offsetX
         let colHeight = 0
 
 
         styles.forEach(function (sSharedStyle, styleIndex) {
+            const sStyle = sSharedStyle.style
+            const isTextStyle = SharedStyle.StyleType.Text == sStyle.styleType
 
             /// calculate max height of texts in this row
             if (1 == colIndex) {
-                colHeight = 0
-                let last = Math.min(styleIndex + colLimit - 1, styles.length - 1)
-                for (let index = styleIndex; index <= last; index++) {
-                    const sStyle = styles[index].style
-                    colHeight = Math.max(colHeight, sStyle.lineHeight)
+                log(sSharedStyle)
+                if (isTextStyle) {
+                    colHeight = 0
+                    let last = Math.min(styleIndex + colLimit - 1, styles.length - 1)
+                    for (let index = styleIndex; index <= last; index++) {
+                        const sStyle = styles[index].style
+                        colHeight = Math.max(colHeight, sStyle.lineHeight)
+                    }
+                    colHeight += textOffsetTop + textOffsetBottom
+                } else {
+                    colHeight = this.def.layer.colHeight
                 }
-                colHeight += textOffsetTop + textOffsetBottom
             }
             ///
 
-            const sStyle = sSharedStyle.style
             let height = colHeight
             let width = colWidth
 
-            const backStyle = {
-                fills: [
-                    {
-                        color: this._calcBackColor(sStyle.textColor),
-                        fillType: Style.FillType.Color
-                    }
-                ],
-                borders: [{ color: '#979797' }],
-            }
+            const backStyle = isTextStyle ?
+                {
+                    fills: [
+                        {
+                            color: this._calcBackColor(sStyle.textColor),
+                            fillType: Style.FillType.Color
+                        }
+                    ],
+                    borders: [{ color: '#979797' }],
+                } : sStyle
+
 
             let styleName = sSharedStyle.name
             const lastShashIndex = styleName.lastIndexOf("/")
@@ -288,8 +359,7 @@ class DSPreviewer {
                 styleName = styleName.substring(lastShashIndex + 1)
             }
 
-            let descr = sStyle.fontFamily + " " + sStyle.fontSize + "px"
-
+            let descr = ""
             ///
 
             const sParent = new Group({
@@ -301,7 +371,6 @@ class DSPreviewer {
             })
             let localY = 0
 
-
             const sBack = new Shape({
                 name: "Back",
                 parent: sParent,
@@ -310,18 +379,24 @@ class DSPreviewer {
                     0, localY, width, height
                 )
             })
+
             localY += textOffsetTop
 
-            const sText = new Text({
-                name: "Text",
-                text: textExample,
-                parent: sParent,
-                frame: new Rectangle(
-                    0 + 5, 0 + localY, width, sStyle.lineHeight
-                ),
-                style: sStyle,
-                sharedStyleId: sSharedStyle.id
-            })
+            if (isTextStyle) {
+
+                descr = sStyle.fontFamily + " " + sStyle.fontSize + "px" + "\n" + sStyle.textColor.toUpperCase()
+
+                const sText = new Text({
+                    name: "Text",
+                    text: textExample,
+                    parent: sParent,
+                    frame: new Rectangle(
+                        0 + 5, 0 + localY, width - 10, sStyle.lineHeight
+                    ),
+                    style: sStyle,
+                    sharedStyleId: sSharedStyle.id
+                })
+            }
             localY += colHeight
 
             const sLabel = new Text({
@@ -344,7 +419,7 @@ class DSPreviewer {
                 ),
                 style: this.descrStyle
             })
-            localY += this.descrStyle.lineHeight
+            localY += this.descrStyle.fontSize * 2
 
 
             // Final adjustment
@@ -356,7 +431,6 @@ class DSPreviewer {
                 y += localY + colVSpace
                 x = offsetX
                 colIndex = 1
-                log("next row, y=" + y + " colHeight=" + colHeight + " sLabel.frame.height=" + sLabel.frame.height + " colVSpace=" + colVSpace)
             } else {
                 // add new column
                 colIndex++
