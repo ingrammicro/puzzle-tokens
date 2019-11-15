@@ -1,0 +1,82 @@
+// Material Design Palette Sketch Styles Generation
+// Using Puzzle Tokens Sketch plugin and SASS
+// version 1.0.1 by Marcelo Paiva (gh: mpaiva) and Juan Alvarado (gh: jalvarado91)
+
+
+// Required SASS modules:
+@use "sass:map";     // access values in arrays
+@use "sass:color";   // color manipulation
+
+// Dependencies:
+@import "_constants.scss";
+@import "_functions.scss";
+
+// BaseColors - from these colors we will generate the lighter and darker tints.
+$baseColors: (
+  red        : #F44336,
+  pink       : #E91E63,
+  purple     : #9C27B0,
+  deep-purple: #673AB7,
+  indigo     : #3F51B5,
+  blue       : #2196F3,
+  light-blue : #03A9F4,
+  cyan       : #00BCD4,
+  teal       : #009688,
+  green      : #4CAF50,
+  light-green: #8BC34A,
+  lime       : #CDDC39,
+  yellow     : #FFEB3B,
+  amber      : #FFC107,
+  orange     : #ff6600,
+  deep-orange: #FF5722,
+  brown      : #795548,
+  grey       : #9E9E9E,
+  blue-grey  : #607D8B
+);
+
+// Generate the the light and dark tint colors for each base color
+//
+@function colorMap($baseColors, $variations, $colorStep: 100) {
+  $colors: ();
+  @each $color, $value in $baseColors {
+    $maxVar: 36;
+    $mid   : $variations / 2;
+    $dist  : $mid - 1;
+    $step  : $maxVar / $dist;
+    // lighten and darken
+    @for $i from 1 through $dist {
+      $percent: $maxVar - ($step * ($i - 1));
+      $darken : ($variations - $i) * $colorStep;
+      $lighten: $i * $colorStep;
+      $colors : map-merge($colors, (#{$color}-#{$lighten}: lighten($value, $percent), #{$color}-#{$darken}: darken($value, $percent)));
+    }
+    // middle eg 500
+    $colors: map-merge($colors, (#{$color}-050: lighten($value, 38.7)));
+    $colors: map-merge($colors, (#{$color}-#{$variations/2*$colorStep}: $value));
+  }
+  @return $colors;
+}
+
+// Let's generate some palettes and styles.
+
+// Create a folder to hold all Palettes.
+
+.palettes {
+  @each $baseColor, $baseColorValue in $baseColors {
+    $bColor: (
+      $baseColor: $baseColorValue
+    );
+
+    // Create a sub-folder with the base color names
+
+    .#{"" + $baseColor} {
+      $paletteNumber    : 10; // How many palettes you want for each base color?
+      $paletteIncrements: 100; // Incremental for pallete names e.g.: blue-100, blue-200
+      @each $color, $value in colorMap(($bColor), $paletteNumber, $paletteIncrements) {
+        .#{$color} {
+          background-color: $value;
+        }
+      }
+    }
+  }
+}
