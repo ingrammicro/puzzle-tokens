@@ -429,18 +429,17 @@ class UIDialog extends UIAbstractWindow {
         UIDialog_iconImage = NSImage.alloc().initByReferencingFile(context.plugin.urlForResourceNamed("icon.png").path())
     }
 
-    constructor(title, rect, okButtonTitle, description = '', cancelButtonTitle = "Cancel") {
+    constructor(title, rect, okButtonTitle, description = '', cancelButtonTitle = "Cancel",thirdButtonTitle=undefined) {
         var window = NSAlert.alloc().init()
         window.setIcon(UIDialog_iconImage)
         window.setMessageText(title)
         if (description != '') {
             window.setInformativeText(description)
         }
-        if (undefined != okButtonTitle) {
-            window.addButtonWithTitle(okButtonTitle)
-        }
-        if (cancelButtonTitle != "")
-            window.addButtonWithTitle(cancelButtonTitle)
+        if (okButtonTitle) window.addButtonWithTitle(okButtonTitle)
+        if (cancelButtonTitle) window.addButtonWithTitle(cancelButtonTitle)
+        if (thirdButtonTitle) window.addButtonWithTitle(thirdButtonTitle)
+
 
         super(window, rect)
     }
@@ -448,9 +447,12 @@ class UIDialog extends UIAbstractWindow {
 
 
     run() {
-        this.userClickedOK = false
         this.window.setAccessoryView(this.topContainer)
-        return this.window.runModal() == '1000'
+        const res = this.window.runModal()
+        this.userClickedOk = res == '1000'
+        this.userClickedCancel = res == '1001'
+        this.userClickedThird = res == '1002'
+        return this.userClickedOk
     }
 
 }

@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 6.0.0 (15 Nov 2019)
+- Added Style Overview Generator
+
 ##  Version 5.3.2 (13 Nov 2019)
 - Fixed relative line-height
 

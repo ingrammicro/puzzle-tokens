@@ -7,7 +7,7 @@
     "appcast": "https://raw.githubusercontent.com/ingrammicro/puzzle-tokens/master/appcast.xml",
     "compatibleVersion": 3,
     "bundleVersion": 1,
-    "version": "5.3.2",
+    "version": "6.0.0",
     "icon": "icon.png",
     "commands": [
         {
@@ -27,7 +27,7 @@
         {
             "script": "cmd-generate-preview.js",
             "handler": "onRun",
-            "name": "Generate Styles Preview",
+            "name": "Generate Styles Overview",
             "identifier": "cmdGeneratePreview"
         },
         {

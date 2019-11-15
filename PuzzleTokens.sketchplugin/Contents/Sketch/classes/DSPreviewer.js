@@ -15,6 +15,40 @@ const Page = require('sketch/dom').Page
 const Artboard = require('sketch/dom').Artboard
 const SharedStyle = require('sketch/dom').SharedStyle
 
+const defSettings = {
+    gen:{
+        pageWidth: 1600,
+        pageHeight: 1200,
+        pagesInRow: 3,
+        columns: 9,
+        initialTop: 25,
+        initialLeft: 25,
+        pageHSpace: 100,
+        pageVSpace: 100,
+    },
+    group: {
+        labelColor: "#353536",
+        labelFontSize: 25,
+        bottomSpace: 20,
+    },
+    text: {
+        text: "Aa",
+        textTop: 5,
+        textBottom: 5,
+        colWidth: 100,
+        colVSpace: 50,
+        colHSpace: 50,
+        labelFontFamily: "Helvetica",
+        labelFontWeight: 5,
+        labelColor: "#353536",
+        labelFontSize: 20,
+        descrFontSize: 12,
+        descrColor: "#B1B1B1",
+    },
+    layer: {
+        colHeight: 100,
+    },
+}
 
 class DSPreviewer {
     constructor(context) {
@@ -38,38 +72,11 @@ class DSPreviewer {
     }
 
     _init() {
-        this.def = {
-            pageWidth: 1600,
-            pageHeight: 1200,
-            pagesInRow: 3,
-            columns: 9,
-            group: {
-                labelColor: "#353536",
-                labelFontSize: 25,
-                bottomSpace: 20,
-            },
-            text: {
-                text: "Aa",
-                textTop: 5,
-                textBottom: 5,
-                colWidth: 100,
-                colVSpace: 50,
-                colHSpace: 50,
-                labelFontFamily: "Helvetica",
-                labelFontWeight: 5,
-                labelColor: "#353536",
-                labelFontSize: 20,
-                descrFontSize: 12,
-                descrColor: "#B1B1B1",
-            },
-            layer: {
-                colHeight: 100,
-            },
-            initialTop: 25,
-            initialLeft: 25,
-            pageVSpace: 100,
-            pageHSpace: 100,
-        }
+        this.def = JSON.parse(JSON.stringify(defSettings))
+        const restoredDef = Settings.settingForKey(SettingKeys.PLUGIN_PREVIEWER_DEF)
+        if(restoredDef) this._fillDef(this.def,restoredDef)
+
+        ///
 
         this.groupLabelStyle = {
             textColor: this.def.group.labelColor,
@@ -95,6 +102,15 @@ class DSPreviewer {
             fontFamily: this.def.text.labelFontFamily,
             fontWeight: this.def.text.labelFontWeight,
         }
+    }
+
+    _fillDef(def,restored){
+        Object.keys(def).forEach(function(baseKey){
+            if(!(baseKey in restored)) return
+            Object.keys(def[baseKey]).forEach(function(key){
+                if(key in restored[baseKey]) def[baseKey][key] = restored[baseKey][key]
+            })
+        })        
     }
 
     // Tools
@@ -123,7 +139,15 @@ class DSPreviewer {
     // Public methods
 
     run() {
-        if (!this._showDialog()) return false
+        while(true){
+            const res = this._showDialog()
+            if('cancel'==res) return false
+            if('reset'==res){
+                this.def = JSON.parse(JSON.stringify(defSettings))
+                continue
+            }
+            break
+        }
 
         var success = this._generate()
 
@@ -132,7 +156,7 @@ class DSPreviewer {
             this._showErrors()
         } else {
             if (success) {
-                this._showMessages()
+                UI.message("Completed")
             }
         }
 
@@ -159,7 +183,8 @@ class DSPreviewer {
     }
 
     _showDialog() {
-        const dialog = new UIDialog("Generate Styles Preview", NSMakeRect(0, 0, 600, 400), "Generate")
+        const dialog = new UIDialog("Generate Styles Preview", NSMakeRect(0, 0, 600, 420), "Generate",
+        "","Cancel","Reset")
         dialog.leftColWidth = 200
 
         dialog.initTabs(["General", "Headers", "Text Styles", "Layer Styles", "Advanced"])
@@ -168,20 +193,21 @@ class DSPreviewer {
         dialog.addLeftLabel("", "Artboard Size")
         let y = dialog.y
         let leftColWidth = dialog.leftColWidth
-        dialog.addTextInput("pageWidth", "Width (px)", this.def.pageWidth, "", 100)
+        dialog.addTextInput("pageWidth", "Width (px)", this.def.gen.pageWidth, "", 100)
         dialog.y = y
         dialog.leftColWidth += 120
-        dialog.addTextInput("pageHeight", "Height (px)", this.def.pageHeight, "", 100)
+        dialog.addTextInput("pageHeight", "Height (px)", this.def.gen.pageHeight, "", 100)
         dialog.leftColWidth = leftColWidth
 
         dialog.addSpace()
         dialog.addLeftLabel("", "Artbords in row")
-        dialog.addTextInput("pagesInRow", "", this.def.pagesInRow, "4", 100)
+        dialog.addTextInput("pagesInRow", "", this.def.gen.pagesInRow, "4", 100)
 
         dialog.addSpace()
         dialog.addLeftLabel("", "Styles in row")
-        dialog.addTextInput("columns", "", this.def.columns, "9", 100)
-        //////////////////////////////
+        dialog.addTextInput("columns", "", this.def.gen.columns, "9", 100)
+        
+        ////////////////////////////// Headers
         dialog.setTabForViewsCreating(1)
         dialog.addLeftLabel("", "Text Color")
         dialog.addTextInput("group.labelColor", "", this.def.group.labelColor, "#000000", 120)
@@ -190,7 +216,7 @@ class DSPreviewer {
         dialog.addLeftLabel("", "Bottom Space (px)")
         dialog.addTextInput("group.bottomSpace", "", this.def.group.bottomSpace, "20", 120)
 
-        //////////////////////////////
+        ////////////////////////////// Text Styles
         dialog.setTabForViewsCreating(2)
         dialog.addLeftLabel("", "Text Example")
         dialog.addTextInput("text.text", "", this.def.text.text, "Aa", 120)
@@ -206,13 +232,17 @@ class DSPreviewer {
 
         dialog.addDivider()
 
+        dialog.addLeftLabel("", "Column Width (px)")
+        dialog.addTextInput("text.colWidth", "", this.def.text.colWidth, "100", 100)
+        
+
         dialog.addLeftLabel("", "Style Ident")
         y = dialog.y
         leftColWidth = dialog.leftColWidth
-        dialog.addTextInput("text.colVSpace", "Vertical (px)", this.def.text.colVSpace, "50", 100)
+        dialog.addTextInput("text.colHSpace", "Horizontal (px)", this.def.text.colHSpace, "50", 100)
         dialog.y = y
         dialog.leftColWidth += 120
-        dialog.addTextInput("text.colHSpace", "Horizontal (px)", this.def.text.colHSpace, "50", 100)
+        dialog.addTextInput("text.colVSpace", "Vertical (px)", this.def.text.colVSpace, "50", 100)        
         dialog.leftColWidth = leftColWidth
 
         dialog.addDivider()
@@ -223,8 +253,8 @@ class DSPreviewer {
         dialog.addTextInput("text.labelFontFamily", "Font Family", this.def.text.labelFontFamily, "Helvetica", 100)
         dialog.y = y
         dialog.leftColWidth += 120
-        const weightIndex = weights.findIndex(w => w.sketch == this.def.text.labelFontWeight)
-        dialog.addSelect("text.labelFontWeightIndex", "Font Weight", weightIndex, weights.map(w => w.title))
+        let weightIndex = weights.findIndex(w => w.sketch == this.def.text.labelFontWeight)
+        dialog.addSelect("text.labelFontWeight", "Font Weight", weightIndex, weights.map(w => w.title))
         dialog.y = y
         dialog.leftColWidth += 120
         dialog.addTextInput("text.labelFontSize", "Font Size", this.def.text.labelFontSize, "20", 100)
@@ -242,34 +272,80 @@ class DSPreviewer {
         dialog.addTextInput("text.descrColor", "Text Color", this.def.text.descrColor, "#000000", 100)
         dialog.leftColWidth = leftColWidth
 
-
-
         //////////////////////////////
         dialog.setTabForViewsCreating(3)
         dialog.addLeftLabel("", "Rectangle Height (px)")
         dialog.addTextInput("layer.colHeight", "", this.def.layer.colHeight, "100", 120)
 
+        //////////////////////////////
+        dialog.setTabForViewsCreating(4)
+
+        dialog.addLeftLabel("", "Style Initial Offset")
+        y = dialog.y
+        leftColWidth = dialog.leftColWidth
+        dialog.addTextInput("initialLeft", "Left (px)", this.def.gen.initialLeft, "12", 100)
+        dialog.y = y
+        dialog.leftColWidth += 120
+        dialog.addTextInput("initialTop", "Top (px)", this.def.gen.initialTop, "12", 100)        
+        dialog.leftColWidth = leftColWidth
+
+        dialog.addLeftLabel("", "Space Between Artboards")
+        y = dialog.y
+        leftColWidth = dialog.leftColWidth
+        dialog.addTextInput("pageHSpace", "Horizontal (px)", this.def.gen.pageHSpace, "100", 100)
+        dialog.y = y
+        dialog.leftColWidth += 120
+        dialog.addTextInput("pageVSpace", "Vertical (px)", this.def.gen.pageVSpace, "100", 100)
+        dialog.leftColWidth = leftColWidth
+
+
         while (true) {
-            const result = dialog.run()
-            if (!result) {
+            dialog.run()
+            if (dialog.userClickedCancel) {
                 dialog.finish()
-                return false
+                return "cancel"
+            }
+            if (dialog.userClickedThird) {
+                dialog.finish()
+                return "reset"
             }
 
+
             // read dialog data
-            this.def.pageWidth = parseInt(dialog.views['pageWidth'].stringValue(), 10)
-            this.def.pageHeight = parseInt(dialog.views['pageHeight'].stringValue(), 10)
-            this.def.pagesInRow = parseInt(dialog.views['pagesInRow'].stringValue(), 10)
-            this.def.columns = parseInt(dialog.views['columns'].stringValue(), 10)
+            this.def.gen.pageWidth = parseInt(dialog.views['pageWidth'].stringValue(), 10)
+            this.def.gen.pageHeight = parseInt(dialog.views['pageHeight'].stringValue(), 10)
+            this.def.gen.pagesInRow = parseInt(dialog.views['pagesInRow'].stringValue(), 10)
+            this.def.gen.columns = parseInt(dialog.views['columns'].stringValue(), 10)
+
             this.def.group.labelColor = dialog.views['group.labelColor'].stringValue()
-            this.def.group.labelColor = parseInt(dialog.views['group.labelColor'].stringValue(), 10)
+            this.def.group.labelFontSize = parseInt(dialog.views['group.labelFontSize'].stringValue(), 10)
+            this.def.group.bottomSpace = parseInt(dialog.views['group.bottomSpace'].stringValue(), 10)
+            
+            this.def.text.text = dialog.views['text.text'].stringValue()
+            this.def.text.textTop =  parseInt(dialog.views['text.textTop'].stringValue(), 10)
+            this.def.text.textBottom =  parseInt(dialog.views['text.textBottom'].stringValue(), 10)
+            this.def.text.colWidth =  parseInt(dialog.views['text.colWidth'].stringValue(), 10)
+            this.def.text.colVSpace =  parseInt(dialog.views['text.colVSpace'].stringValue(), 10)
+            this.def.text.colHSpace =  parseInt(dialog.views['text.colHSpace'].stringValue(), 10)
+            this.def.text.labelFontFamily = dialog.views['text.labelFontFamily'].stringValue()
+            weightIndex = dialog.views['text.labelFontWeight'].indexOfSelectedItem()
+            this.def.text.labelFontWeight = weights[weightIndex].sketch
+            this.def.text.labelColor = dialog.views['text.labelColor'].stringValue()
+            this.def.text.labelFontSize =  parseInt(dialog.views['text.labelFontSize'].stringValue(), 10)
+            this.def.text.descrFontSize =  parseInt(dialog.views['text.descrFontSize'].stringValue(), 10)
+            this.def.text.descrColor = dialog.views['text.descrColor'].stringValue()
 
+            this.def.layer.colHeight =  parseInt(dialog.views['layer.colHeight'].stringValue(), 10)
 
+            this.def.gen.initialTop =  parseInt(dialog.views['initialTop'].stringValue(), 10)
+                    
             break
         }
 
+        Settings.setSettingForKey(SettingKeys.PLUGIN_PREVIEWER_DEF, this.def)
 
-        return true
+
+        return "ok"
     }
 
     _generate() {
@@ -300,9 +376,9 @@ class DSPreviewer {
         // build style groups
         const styleGroups = this._buildStyleGroups(sStyles)
         //
-        var y = this.def.initialTop
+        var y = this.def.gen.initialTop
         for (let [groupName, styles] of Object.entries(styleGroups)) {
-            if (y > this.def.pageHeight || !this.sArtboard) {
+            if (y > this.def.gen.pageHeight || !this.sArtboard) {
                 if (this.sArtboard) {
                     this.sArtboard.frame.height = y
                 }
@@ -315,7 +391,7 @@ class DSPreviewer {
 
     _resetArtboards() {
         if (this.sArtboard) {
-            this.artboardY += this.artboardRowMaxHeight + this.def.pageVSpace
+            this.artboardY += this.artboardRowMaxHeight + this.def.gen.pageVSpace
         }
 
         this.sArtboard = null
@@ -348,14 +424,14 @@ class DSPreviewer {
 
         if (this.sArtboard) {
             this.artboardRowMaxHeight = Math.max(this.artboardRowMaxHeight, this.sArtboard.frame.height)
-            if (this.sArtboards.length % this.def.pagesInRow === 0) {
+            if (this.sArtboards.length % this.def.gen.pagesInRow === 0) {
                 // place new artboard below last existing
-                this.artboardY += this.artboardRowMaxHeight + this.def.pageVSpace
+                this.artboardY += this.artboardRowMaxHeight + this.def.gen.pageVSpace
                 // reset artboard max height in current row
                 this.artboardRowMaxHeight = 0
             } else {
                 // place new artboard in the right side of last existing
-                artboardX = this.sArtboard.frame.x + this.sArtboard.frame.width + this.def.pageHSpace
+                artboardX = this.sArtboard.frame.x + this.sArtboard.frame.width + this.def.gen.pageHSpace
                 //                
             }
             ///
@@ -367,13 +443,13 @@ class DSPreviewer {
             name: name + ' #' + (this.sArtboards.length + 1),
             parent: this.sPage,
             frame: new Rectangle(
-                artboardX, this.artboardY, this.def.pageWidth, this.def.pageHeight
+                artboardX, this.artboardY, this.def.gen.pageWidth, this.def.gen.pageHeight
 
             )
         })
         this.sArtboards.push(this.sArtboard)
 
-        return this.def.initialTop
+        return this.def.gen.initialTop
     }
 
     _calcBackColor(textColorHEX) {
@@ -391,7 +467,7 @@ class DSPreviewer {
             text: groupName,
             parent: this.sArtboard,
             frame: new Rectangle(
-                this.def.initialLeft, y, 400, this.groupLabelStyle.lineHeight
+                this.def.gen.initialLeft, y, 400, this.groupLabelStyle.lineHeight
             ),
             style: this.groupLabelStyle,
         })
@@ -400,10 +476,10 @@ class DSPreviewer {
 
     _showTextStyleGroup(styles, y) {
 
-        const offsetX = this.def.initialLeft
+        const offsetX = this.def.gen.initialLeft
 
         const textExample = this.def.text.text
-        const colLimit = this.def.columns
+        const colLimit = this.def.gen.columns
         const colWidth = this.def.text.colWidth
         const colHSpace = this.def.text.colHSpace
         const colVSpace = this.def.text.colVSpace

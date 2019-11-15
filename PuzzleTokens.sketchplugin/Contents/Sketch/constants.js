@@ -9,6 +9,7 @@ var Constants = {
 };
 
 var SettingKeys = {
+    PLUGIN_PREVIEWER_DEF: "pluginPreviewerDef",
     PLUGIN_PATH_TO_TOKENS_LESS: "pluginPathToTokensLess",
     PLUGIN_PATH_TO_TOKENS_LESS_LIST: "pluginPathToTokensLessList",
     PLUGIN_PATH_TO_SKETCHSTYLES_LESS: "pluginPathToSketchStylesJSON",
