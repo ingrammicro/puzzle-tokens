@@ -59,8 +59,10 @@ class DSApp {
 
         // load settings       
         this.pathToStyles = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS)
-        if (undefined == this.pathToStyles) this.pathToStyles = ''
-        this.pathToStylesList = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS_LIST) || []
+        this.pathToStyles = this.pathToStyles || ''
+
+        this.pathToStylesList = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS_LIST)
+        this.pathToStylesList = this.pathToStylesList || []
         if (this.pathToStylesList.length == 0 && this.pathToStyles != '') this.pathToStylesList.push(this.pathToStyles)
 
         this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS) == 1
@@ -200,6 +202,9 @@ class DSApp {
     }
 
     _saveElements() {
+        if (!this.sDoc.path) {
+            return this.logError("Can't create symbols & style file for unsaved Sketch file. Save it befor or disable symbols & style file generation in Settings.")
+        }
         const pathDetails = path.parse(this.sDoc.path)
         const pathToRules = pathDetails.dir + "/" + pathDetails.name + Constants.SYMBOLTOKENFILE_POSTFIX
         const json = JSON.stringify(this.elements, null, null)
@@ -947,7 +952,7 @@ class DSApp {
                 sStyle.lineHeight = Math.round(parseFloat(lineHeight) * sStyle.fontSize)
             }
         } else {
-            //sLayer.style.lineHeight = null
+            sLayer.style.lineHeight = 0
         }
         //// SET FONT WEIGHT
         if (undefined != fontWeight) {

@@ -170,6 +170,20 @@ class Utils {
         }
     }
 
+    static hexColorToRGBA(hex) {
+        return {
+            r: parseInt(hex.substr(1, 2), 16),
+            g: parseInt(hex.substr(3, 2), 16),
+            b: parseInt(hex.substr(5, 2), 16),
+            a: parseInt(hex.substr(7, 2), 16)
+        }
+    }
+
+    // it will drop optional opacity
+    static invertHexColor(hex) {
+        hex = hex.substr(0, 7)
+        return '#' + hex.match(/[a-f0-9]{2}/ig).map(e => (255 - parseInt(e, 16) | 0).toString(16).replace(/^([a-f0-9])$/, '0$1')).join('')
+    }
 
     // opacity: 0 .. 1.0(transparent) or 0(transparent)..100%
     static opacityToHex(opacity) {
