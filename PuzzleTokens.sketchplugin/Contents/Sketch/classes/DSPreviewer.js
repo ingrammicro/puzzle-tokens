@@ -39,36 +39,36 @@ class DSPreviewer {
 
     _init() {
         this.def = {
-            initialTop: 25,
-            initialLeft: 25,
             pageWidth: 1600,
             pageHeight: 1200,
-            pageVSpace: 100,
-            pageHSpace: 100,
             pagesInRow: 3,
+            columns: 9,
             group: {
                 labelColor: "#353536",
                 labelFontSize: 25,
                 bottomSpace: 20,
             },
-            layer: {
-                colHeight: 100,
-            },
             text: {
                 text: "Aa",
-                columns: 9,
+                textTop: 5,
+                textBottom: 5,
                 colWidth: 100,
                 colVSpace: 50,
                 colHSpace: 50,
-                textTop: 5,
-                textBottom: 5,
                 labelFontFamily: "Helvetica",
                 labelFontWeight: 5,
                 labelColor: "#353536",
                 labelFontSize: 20,
                 descrFontSize: 12,
                 descrColor: "#B1B1B1",
-            }
+            },
+            layer: {
+                colHeight: 100,
+            },
+            initialTop: 25,
+            initialLeft: 25,
+            pageVSpace: 100,
+            pageHSpace: 100,
         }
 
         this.groupLabelStyle = {
@@ -159,16 +159,114 @@ class DSPreviewer {
     }
 
     _showDialog() {
-        const dialog = new UIDialog("Generate Styles Preview", NSMakeRect(0, 0, 600, 140), "Generate")
+        const dialog = new UIDialog("Generate Styles Preview", NSMakeRect(0, 0, 600, 400), "Generate")
+        dialog.leftColWidth = 200
 
+        dialog.initTabs(["General", "Headers", "Text Styles", "Layer Styles", "Advanced"])
+
+        //////////////////////////////
+        dialog.addLeftLabel("", "Artboard Size")
+        let y = dialog.y
+        let leftColWidth = dialog.leftColWidth
+        dialog.addTextInput("pageWidth", "Width (px)", this.def.pageWidth, "", 100)
+        dialog.y = y
+        dialog.leftColWidth += 120
+        dialog.addTextInput("pageHeight", "Height (px)", this.def.pageHeight, "", 100)
+        dialog.leftColWidth = leftColWidth
+
+        dialog.addSpace()
+        dialog.addLeftLabel("", "Artbords in row")
+        dialog.addTextInput("pagesInRow", "", this.def.pagesInRow, "4", 100)
+
+        dialog.addSpace()
+        dialog.addLeftLabel("", "Styles in row")
+        dialog.addTextInput("columns", "", this.def.columns, "9", 100)
+        //////////////////////////////
+        dialog.setTabForViewsCreating(1)
+        dialog.addLeftLabel("", "Text Color")
+        dialog.addTextInput("group.labelColor", "", this.def.group.labelColor, "#000000", 120)
+        dialog.addLeftLabel("", "Font Size (px)")
+        dialog.addTextInput("group.labelFontSize", "", this.def.group.labelFontSize, "25", 120)
+        dialog.addLeftLabel("", "Bottom Space (px)")
+        dialog.addTextInput("group.bottomSpace", "", this.def.group.bottomSpace, "20", 120)
+
+        //////////////////////////////
+        dialog.setTabForViewsCreating(2)
+        dialog.addLeftLabel("", "Text Example")
+        dialog.addTextInput("text.text", "", this.def.text.text, "Aa", 120)
+
+        dialog.addLeftLabel("", "Text Ident")
+        y = dialog.y
+        leftColWidth = dialog.leftColWidth
+        dialog.addTextInput("text.textTop", "Top (px)", this.def.text.textTop, "5", 100)
+        dialog.y = y
+        dialog.leftColWidth += 120
+        dialog.addTextInput("text.textBottom", "Bottom (px)", this.def.text.textBottom, "5", 100)
+        dialog.leftColWidth = leftColWidth
+
+        dialog.addDivider()
+
+        dialog.addLeftLabel("", "Style Ident")
+        y = dialog.y
+        leftColWidth = dialog.leftColWidth
+        dialog.addTextInput("text.colVSpace", "Vertical (px)", this.def.text.colVSpace, "50", 100)
+        dialog.y = y
+        dialog.leftColWidth += 120
+        dialog.addTextInput("text.colHSpace", "Horizontal (px)", this.def.text.colHSpace, "50", 100)
+        dialog.leftColWidth = leftColWidth
+
+        dialog.addDivider()
+
+        dialog.addLeftLabel("", "Style Label")
+        y = dialog.y
+        leftColWidth = dialog.leftColWidth
+        dialog.addTextInput("text.labelFontFamily", "Font Family", this.def.text.labelFontFamily, "Helvetica", 100)
+        dialog.y = y
+        dialog.leftColWidth += 120
+        const weightIndex = weights.findIndex(w => w.sketch == this.def.text.labelFontWeight)
+        dialog.addSelect("text.labelFontWeightIndex", "Font Weight", weightIndex, weights.map(w => w.title))
+        dialog.y = y
+        dialog.leftColWidth += 120
+        dialog.addTextInput("text.labelFontSize", "Font Size", this.def.text.labelFontSize, "20", 100)
+        dialog.leftColWidth = leftColWidth
+        dialog.addTextInput("text.labelColor", "Text Color", this.def.text.labelColor, "#000000", 100)
+
+        dialog.addDivider()
+
+        dialog.addLeftLabel("", "Style Description")
+        y = dialog.y
+        leftColWidth = dialog.leftColWidth
+        dialog.addTextInput("text.descrFontSize", "Font Size", this.def.text.descrFontSize, "12", 100)
+        dialog.y = y
+        dialog.leftColWidth += 120
+        dialog.addTextInput("text.descrColor", "Text Color", this.def.text.descrColor, "#000000", 100)
+        dialog.leftColWidth = leftColWidth
+
+
+
+        //////////////////////////////
+        dialog.setTabForViewsCreating(3)
+        dialog.addLeftLabel("", "Rectangle Height (px)")
+        dialog.addTextInput("layer.colHeight", "", this.def.layer.colHeight, "100", 120)
 
         while (true) {
             const result = dialog.run()
-            if (!result) return false
+            if (!result) {
+                dialog.finish()
+                return false
+            }
+
+            // read dialog data
+            this.def.pageWidth = parseInt(dialog.views['pageWidth'].stringValue(), 10)
+            this.def.pageHeight = parseInt(dialog.views['pageHeight'].stringValue(), 10)
+            this.def.pagesInRow = parseInt(dialog.views['pagesInRow'].stringValue(), 10)
+            this.def.columns = parseInt(dialog.views['columns'].stringValue(), 10)
+            this.def.group.labelColor = dialog.views['group.labelColor'].stringValue()
+            this.def.group.labelColor = parseInt(dialog.views['group.labelColor'].stringValue(), 10)
+
+
             break
         }
-
-        dialog.finish()
 
 
         return true
@@ -252,7 +350,6 @@ class DSPreviewer {
             this.artboardRowMaxHeight = Math.max(this.artboardRowMaxHeight, this.sArtboard.frame.height)
             if (this.sArtboards.length % this.def.pagesInRow === 0) {
                 // place new artboard below last existing
-                log(' this.artboardRowMaxHeight =' + this.artboardRowMaxHeight)
                 this.artboardY += this.artboardRowMaxHeight + this.def.pageVSpace
                 // reset artboard max height in current row
                 this.artboardRowMaxHeight = 0
@@ -306,7 +403,7 @@ class DSPreviewer {
         const offsetX = this.def.initialLeft
 
         const textExample = this.def.text.text
-        const colLimit = this.def.text.columns
+        const colLimit = this.def.columns
         const colWidth = this.def.text.colWidth
         const colHSpace = this.def.text.colHSpace
         const colVSpace = this.def.text.colVSpace
@@ -316,14 +413,12 @@ class DSPreviewer {
         let x = offsetX
         let colHeight = 0
 
-
         styles.forEach(function (sSharedStyle, styleIndex) {
             const sStyle = sSharedStyle.style
             const isTextStyle = SharedStyle.StyleType.Text == sStyle.styleType
 
             /// calculate max height of texts in this row
             if (1 == colIndex) {
-                log(sSharedStyle)
                 if (isTextStyle) {
                     colHeight = 0
                     let last = Math.min(styleIndex + colLimit - 1, styles.length - 1)

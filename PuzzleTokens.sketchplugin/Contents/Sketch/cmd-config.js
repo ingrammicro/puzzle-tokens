@@ -18,11 +18,11 @@ var onRun = function (context) {
     // Build dialog
     const dialog = new UIDialog("Configure", NSMakeRect(0, 0, 400, 120), "Save", "Edit Puzzle Tokens common configuration settings.")
 
-    dialog.addLabel("", "Apply Options")
+    dialog.addLeftLabel("", "Apply Options")
     dialog.addCheckbox("showDebug", "Show debug information", showDebug)
 
     dialog.addDivider()
-    dialog.addLabel("", "Integration with Puzzle Publisher", 40)
+    dialog.addLeftLabel("", "Integration with Puzzle Publisher", 40)
     dialog.addCheckbox("genSymbTokens", "Generate symbols & styles file", genSymbTokens)
 
 

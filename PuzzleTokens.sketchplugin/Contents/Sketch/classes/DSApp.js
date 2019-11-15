@@ -12,6 +12,7 @@ var UI = require('sketch/ui')
 const path = require('path');
 const Text = require('sketch/dom').Text
 
+
 const alignMap = {
     left: Text.Alignment.left,
     center: Text.Alignment.center,
@@ -215,17 +216,17 @@ class DSApp {
 
     _showDialog() {
         const dialog = new UIDialog("Apply LESS/SASS styles", NSMakeRect(0, 0, 600, 120), "Apply", "Load LESS or SASS file with style definions and create new Sketch styles (or update existing).")
+        dialog.removeLeftColumn()
 
         this.pathToStylesList = this.pathToStylesList.slice(0, 20)
 
         dialog.addPathInput({
             id: "pathToStyles", label: "Style File", labelSelect: "Select",
             textValue: this.pathToStyles, inlineHint: 'e.g. /Work/ui-tokens.less',
-            width: 430, askFilePath: true,
+            width: 580, askFilePath: true,
             comboBoxOptions: this.pathToStylesList
         })
         dialog.addDivider()
-        dialog.addLabel("optionsLabel", "Options")
         dialog.addCheckbox("showCheck", "Review style changes before apply", this.showCheck)
 
         while (true) {
@@ -957,15 +958,6 @@ class DSApp {
         //// SET FONT WEIGHT
         if (undefined != fontWeight) {
             var weightKey = "label"
-            const weights = [
-                { label: 'extra-light', sketch: 3, css: 200 },
-                { label: 'light', sketch: 4, css: 300 },
-                { label: 'regular', sketch: 5, css: 400 },
-                { label: 'medium', sketch: 6, css: 500 },
-                { label: 'semi-bold', sketch: 8, css: 600 },
-                { label: 'semibold', sketch: 8, css: 600 },
-                { label: 'bold', sketch: 9, css: 700 }
-            ]
 
             // for numeric weight we support it uses css format
             if (!isNaN(fontWeight)) {

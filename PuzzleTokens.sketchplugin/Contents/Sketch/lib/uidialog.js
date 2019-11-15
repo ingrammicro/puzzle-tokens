@@ -1,5 +1,15 @@
 var UIDialog_iconImage = null
+const TAB_HEIGHT = 55
 
+function Class(className, BaseClass, selectorHandlerDict) {
+    var uniqueClassName = className + NSUUID.UUID().UUIDString();
+    var delegateClassDesc = MOClassDescription.allocateDescriptionForClassWithName_superclass_(uniqueClassName, BaseClass);
+    for (var selectorString in selectorHandlerDict) {
+        delegateClassDesc.addInstanceMethodWithSelector_function_(selectorString, selectorHandlerDict[selectorString]);
+    }
+    delegateClassDesc.registerClass();
+    return NSClassFromString(uniqueClassName);
+};
 
 class UIAbstractWindow {
 
@@ -8,10 +18,13 @@ class UIAbstractWindow {
 
         var container = NSView.alloc().initWithFrame(intRect)
         this.container = container
+        this.topContainer = container
         this.views = []
 
-        this.y = NSHeight(intRect)
+        this.leftOffset = 0
+
         this.rect = intRect
+        this.y = NSHeight(this.rect)
 
         this.leftColumn = true
         this.leftColWidth = 120
@@ -24,6 +37,48 @@ class UIAbstractWindow {
         this.textOffset = 0
     }
 
+    initTabs(tabs) {
+        const intRect = this.rect
+
+        this.tabs = tabs.map(function (tab) { return { label: tab } })
+
+        var tabView = NSTabView.alloc().initWithFrame(intRect)
+
+        this.tabs.forEach(function (tab, index) {
+
+            let viewController = NSViewController.alloc().init()
+            viewController.originalSize = intRect
+
+            var view = NSView.alloc().initWithFrame(intRect)
+            view.wantsLayer = false
+            viewController.view = view
+
+            let tabViewIem = NSTabViewItem.alloc().init()
+            tabViewIem.viewController = viewController
+            tabViewIem.label = tab.label
+            tabViewIem.initialFirstResponder = view
+
+            tabView.addTabViewItem(tabViewIem)
+
+            tab.container = view
+
+        }, this)
+
+        this.tabView = tabView
+        this.container = this.tabs[0].container
+        this.topContainer = tabView
+
+        this.leftOffset = 20
+        this.y = NSHeight(this.rect) - TAB_HEIGHT
+    }
+
+    setTabForViewsCreating(tabIndex) {
+        this.container = this.tabs[tabIndex].container
+
+        this.y = NSHeight(this.rect) - TAB_HEIGHT
+    }
+
+
     enableTextByID(id, enabled) {
         if (!(id in dialog.views)) return
 
@@ -35,12 +90,23 @@ class UIAbstractWindow {
 
     }
 
+    enableHintByID(id, enabled) {
+        if (!(id in dialog.views)) return
+
+        var text = dialog.views[id]
+        if (!enabled)
+            text.textColor = NSColor.disabledControlTextColor()
+        else
+            text.textColor = NSColor.secondaryLabelColor()
+
+    }
+
     enableControlByID(id, enabled) {
         var control = dialog.views[id]
         control.enabled = enabled
 
-        this.enableTextByID(id + 'Hint', enabled)
         this.enableTextByID(id + 'Label', enabled)
+        this.enableHintByID(id + 'Hint', enabled)
 
     }
 
@@ -54,7 +120,7 @@ class UIAbstractWindow {
         this.getNewFrame(0)
     }
 
-    addLabel(id, text, height = 25) {
+    addLeftLabel(id, text, height = 40) {
         var frame = null
 
         if (this.leftColumn)
@@ -77,6 +143,46 @@ class UIAbstractWindow {
 
         this.container.addSubview(label)
         return label
+    }
+
+    addLabel(id, text, height = 25, frame = undefined) {
+        const myframe = frame ? Utils.copyRect(frame) : undefined
+        if (myframe) myframe.size.height = height
+        const label = NSTextField.alloc().initWithFrame(myframe ? myframe : this.getNewFrame(height));
+        label.setStringValue(text);
+        label.setBezeled(false);
+        label.setDrawsBackground(false);
+        label.setEditable(false);
+        label.setSelectable(false);
+
+        if ('' != id) this.views[id] = label
+
+        this.container.addSubview(label)
+        this.y += 5
+        return label
+    }
+
+    // required:  id:, options:
+    // opional:  label: "", width: 220, frame: undefined
+    addComboBox(opt) {
+        if (undefined == opt.label) opt.label = ""
+        if (undefined == opt.width) opt.width = 220
+
+        if (opt.label != '')
+            this.addLabel(id + "Label", opt.label, 17)
+
+        const v = NSComboBox.alloc().initWithFrame(opt.frame ? opt.frame : this.getNewFrame(20, opt.width))
+        if (opt.options.length > 0) {
+            v.addItemsWithObjectValues(opt.options)
+            v.setNumberOfVisibleItems(opt.options.length);
+            v.selectItemAtIndex(0)
+        }
+        v.setCompletes(1);
+
+        this.container.addSubview(v)
+        this.views[opt.id] = v
+
+        return v
     }
 
     addCheckbox(id, label, checked, height = 18) {
@@ -111,31 +217,6 @@ class UIAbstractWindow {
     }
 
 
-    // required:  id:, options:
-    // opional:  label: "", width: 220, frame: undefined
-    addComboBox(opt) {
-        if (undefined == opt.label) opt.label = ""
-        if (undefined == opt.width) opt.width = 220
-
-        if (opt.label != '')
-            this.addLabel(id + "Label", opt.label, 17)
-
-        const v = NSComboBox.alloc().initWithFrame(opt.frame ? opt.frame : this.getNewFrame(20, opt.width))
-        if (opt.options.length > 0) {
-            v.addItemsWithObjectValues(opt.options)
-            v.setNumberOfVisibleItems(opt.options.length);
-            v.selectItemAtIndex(0)
-        }
-        v.setCompletes(1);
-
-        this.container.addSubview(v)
-        this.views[opt.id] = v
-
-        return v
-    }
-
-
-
     addTextViewBox(id, label, textValue, height = 120) {
         if (label != '') this.addLabel(id + "Label", label, 17)
 
@@ -146,7 +227,7 @@ class UIAbstractWindow {
 
         const textView = NSTextView.alloc().initWithFrame(frame)
         textView.setEditable(false)
-        textView.setString(textValue)
+        textView.setString(textValue + "")
 
         scrollView.addSubview(textView)
         scrollView.setDocumentView(textView)
@@ -159,12 +240,12 @@ class UIAbstractWindow {
     }
 
     addTextInput(id, label, textValue, inlineHint = "", width = 220, frame = undefined) {
-        if (label != '') this.addLabel(id + "Label", label, 17)
+        if (label != '') this.addLabel(id + "Label", label, 17, frame)
 
         const input = NSTextField.alloc().initWithFrame(frame ? frame : this.getNewFrame(20, width))
         input.setEditable(true)
         input.setBordered(true)
-        input.setStringValue(textValue)
+        input.setStringValue(textValue + "")
         if (inlineHint != "") {
             input.setPlaceholderString(inlineHint)
         }
@@ -206,7 +287,6 @@ class UIAbstractWindow {
         }, 0, frame2)
         return input
     }
-
     addSelect(id, label, selectItem, options, width = 100) {
         if (label != '') this.addLabel(id + "Label", label, 15)
 
@@ -226,14 +306,8 @@ class UIAbstractWindow {
         // pre-select the first item
         if (selectItem < 0) selectItem = 0
 
-        let radioTargetFunction = (sender) => {
-            sender.myGroup.selectedIndex = sender.myIndex
-        };
+        let group = this.startRadioButtions(id, selectItem)
 
-        let group = {
-            btns: [],
-            selectedIndex: selectItem
-        }
         for (var item of options) {
             const index = group.btns.length
 
@@ -243,14 +317,46 @@ class UIAbstractWindow {
             btn.setState(index != selectItem ? NSOffState : NSOnState)
             btn.myGroup = group
             btn.myIndex = index
-            btn.setCOSJSTargetFunction(sender => radioTargetFunction(sender));
+            btn.setCOSJSTargetFunction(group.radioTargetFunction)
 
             this.container.addSubview(btn)
             group.btns.push(btn)
         }
 
-        this.views[id] = group
         return group
+    }
+
+    startRadioButtions(idGroup, selectedIndex) {
+        const groups = {
+            id: idGroup,
+            btns: [],
+            selectedIndex: selectedIndex,
+            radioTargetFunction: (sender) => {
+                sender.myGroup.selectedIndex = sender.myIndex
+            }
+
+        }
+        this._buttonsGroups = groups
+        this.views[idGroup] = this._buttonsGroups
+        return this._buttonsGroups
+    }
+
+    addRadioButton(id, title, index, frame) {
+        const selected = this._buttonsGroups.selectedIndex == index
+
+        const btn = NSButton.alloc().initWithFrame(frame)
+        btn.setButtonType(NSRadioButton)
+        if (title != '') btn.setTitle(title)
+        btn.setState(!selected ? NSOffState : NSOnState)
+        btn.myGroup = this._buttonsGroups
+        btn.myIndex = index
+        btn.setCOSJSTargetFunction(this._buttonsGroups.radioTargetFunction)
+
+        this.views[id] = btn
+        this.container.addSubview(btn)
+        this._buttonsGroups.btns.push(btn)
+
+        return btn
     }
 
     addButton(id, label, func, width = 100, frame = undefined) {
@@ -267,12 +373,12 @@ class UIAbstractWindow {
 
     }
 
-    addHint(id, label, height = 30) {
+    addHint(id, label, height = 23) {
         this.y += 3
 
         const hint = NSTextField.alloc().initWithFrame(this.getNewFrame(height, -1, 3));
         hint.setStringValue(label);
-        //label.setFont(NSFont.systemFontOfSize(fontSize));
+        hint.setColor = NSColor.secondaryLabelColor()
         hint.setBezeled(false);
         hint.setDrawsBackground(false);
         hint.setEditable(false);
@@ -283,7 +389,6 @@ class UIAbstractWindow {
         if ('' != id) this.views[id] = hint
         return hint
     }
-
 
     addDivider() {
 
@@ -301,6 +406,15 @@ class UIAbstractWindow {
         return divider;
     }
 
+    // image: NSImage
+
+    addImage(id, image, frame) {
+        var nImageView = NSImageView.alloc().initWithFrame(frame)
+        nImageView.setImage(image)
+        this.container.addSubview(nImageView)
+        this.views[id] = nImageView
+        return nImageView
+    }
 
 
     finish() {
@@ -329,13 +443,13 @@ class UIDialog extends UIAbstractWindow {
             window.addButtonWithTitle(cancelButtonTitle)
 
         super(window, rect)
-
-        window.setAccessoryView(this.container)
-        this.userClickedOK = false
     }
 
 
+
     run() {
+        this.userClickedOK = false
+        this.window.setAccessoryView(this.topContainer)
         return this.window.runModal() == '1000'
     }
 

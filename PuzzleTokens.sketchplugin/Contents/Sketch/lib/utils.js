@@ -21,8 +21,18 @@ Rectangle.prototype.copyToRect = function () {
     return NSMakeRect(this.x, this.y, this.width, this.height)
 }
 
-class Utils {
+const weights = [
+    { label: 'extra-light', sketch: 3, css: 200, title: "Extra Light" },
+    { label: 'light', sketch: 4, css: 300, title: "Light" },
+    { label: 'regular', sketch: 5, css: 400, title: "Regular" },
+    { label: 'medium', sketch: 6, css: 500, title: "Medium" },
+    { label: 'semi-bold', sketch: 8, css: 600, title: "Semi Bold" },
+    { label: 'semibold', sketch: 8, css: 600, title: "Semi Bold#2" },
+    { label: 'bold', sketch: 9, css: 700, title: "Bold" },
+]
 
+
+class Utils {
     static askPath(currentPath = null, buttonName = "Select") {
         let panel = NSOpenPanel.openPanel()
         panel.setTitle("Choose a location...")
