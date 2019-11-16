@@ -69,7 +69,7 @@ ShapeStyle {
 ```
 
 
-You can [look into more examples](https://github.com/ingrammicro/puzzle-tokens/tree/master/Examples) to get familiar with the plugin.
+You can [look into more examples](https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Tests) to get familiar with the plugin.
 
 ## Sketch versions supported
 Some styles, such as text font/transformation/etc require Sketch 53 or later. You're safe using the latest stable Sketch version to get the plugin working.
