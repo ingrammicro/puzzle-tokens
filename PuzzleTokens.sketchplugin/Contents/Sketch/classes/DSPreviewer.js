@@ -131,8 +131,7 @@ class DSPreviewer {
     }
 
     stopWithError(error) {
-        const UI = require('sketch/ui')
-        UI.alert('Error', error)
+        this.UI.alert('Error', error)
         exit = true
     }
 
@@ -156,7 +155,7 @@ class DSPreviewer {
             this._showErrors()
         } else {
             if (success) {
-                UI.message("Completed")
+                this.UI.message("Completed")
             }
         }
 

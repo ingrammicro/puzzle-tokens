@@ -953,7 +953,7 @@ class DSApp {
                 sStyle.lineHeight = Math.round(parseFloat(lineHeight) * sStyle.fontSize)
             }
         } else {
-            sLayer.style.lineHeight = 0
+            sStyle.lineHeight = 0
         }
         //// SET FONT WEIGHT
         if (undefined != fontWeight) {
