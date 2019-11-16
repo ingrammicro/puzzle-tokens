@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 6.0.1 (16 Nov 2019)
+- Fixed missed shared style for layers styles
+
 ##  Version 6.0.0 (15 Nov 2019)
 - Added Style Overview Generator
 

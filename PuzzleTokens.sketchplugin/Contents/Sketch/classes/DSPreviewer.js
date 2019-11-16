@@ -548,7 +548,8 @@ class DSPreviewer {
                 style: backStyle,
                 frame: new Rectangle(
                     0, localY, width, height
-                )
+                ),
+                sharedStyleId: isTextStyle?undefined:sSharedStyle.id
             })
 
             localY += textOffsetTop
