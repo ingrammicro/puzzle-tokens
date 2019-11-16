@@ -21,7 +21,7 @@ npm i sass -g
 3. Run Plugins > Puzzle Tokens > Apply Design Tokens menu command
 4. Specify LESS file according to screenshot
 
-<img width="755" height="538" src="https://raw.githubusercontent.com/ingrammicro/puzzle-tokens/master/Examples/One/Illustration.png"/>
+<img width="755" height="538" src="https://raw.githubusercontent.com/ingrammicro/puzzle-tokens/master/Styles/Tests/Buttons/Illustration.png"/>
 
 5. Repeat the same operation, but select "tokens-blue.less" file. See how styles and widgets look now.
 
@@ -35,7 +35,7 @@ The following styles are supporting.
     font-size:             12px;   
     font-family:           "Open Sans"; // or "Open Sans","Times New Roman"
     font-weight:           bold;      // or extra-light, light, regular, medium, semibold, bold
-    line-height:           1.0;       // or 1.2 or 1.5 or any other mulitplier for font-size
+    line-height:           1.0;       // or 1.2 or 1.5 or any other mulitplier for font-size OR 10px
     color:                 #FFFFFF;
     opacity:               63%;       // supported "63%" or "0.42"
     text-transform:        uppercase; // "uppercase", "lowercase", and "none"
