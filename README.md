@@ -16,8 +16,8 @@ npm i sass -g
 5. Now you're good to go!
 
 ## Usage
-1. Download [Example 1](https://github.com/ingrammicro/puzzle-tokens/raw/master/Examples/One.zip) and unarchive it into some local folder.
-2. Open Widget Library.sketch file in Sketch.app
+1. Download [Example 1](https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Tests/Buttons).
+2. Open Library.sketch file in Sketch.app
 3. Run Plugins > Puzzle Tokens > Apply Design Tokens menu command
 4. Specify LESS file according to screenshot
 
