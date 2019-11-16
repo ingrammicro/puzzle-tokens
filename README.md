@@ -1,5 +1,6 @@
 # puzzle-tokens
-Sketch.app plugin to apply design tokens (specified in LESS OR SASS format) to Sketch layers (with shared styles)
+Sketch.app plugin to apply design tokens (specified in LESS OR SASS format) to Sketch layers (with shared styles).
+Also Puzzle Tokens can generate Styles Overview.
 
 ### [Check this article](https://medium.com/@akalenyuk/bringing-styles-preprocessing-to-sketch-9cdf0d0c49bd) to get a detailed overview with examples and join [Spectrum Chat](https://spectrum.chat/puzzle-tokens?) for live talk
 
