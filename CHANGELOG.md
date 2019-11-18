@@ -1,5 +1,10 @@
 # Change Log
 
+##  Version 6.1.1 (18 Nov 2019)
+- Added missing font weights (by @mikebronner) - TRY #2
+- Added style sorting to Styles Overview (can be disabled on Advanced tab)
+- Added layer style descriptions
+
 ##  Version 6.1.0 (18 Nov 2019)
 - Added support for font-style: italic OR normal
 - Fixed multiply borders
