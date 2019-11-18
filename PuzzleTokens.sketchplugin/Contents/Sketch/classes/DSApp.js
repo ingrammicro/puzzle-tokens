@@ -408,7 +408,7 @@ class DSApp {
 
     _getRulePropsType(props) {
         var res = ""
-        if (null != props['color'] || null != props['font-family'] || null != props['font-size']
+        if (null != props['color'] || null != props['font-family'] || null != props['font-style'] || null != props['font-size']
             || null != props['font-weight'] || null != props['text-transform'] || null != props['text-align'] || null != props['vertical-align']
         )
             res += "text"
@@ -913,6 +913,7 @@ class DSApp {
         // read token attribues
         var fontSize = token['font-size']
         var fontFace = token['font-family']
+        var fontStyle = token['font-style']
         var color = token['color']
         var fontWeight = token['font-weight']
         var transform = token['text-transform']
@@ -924,7 +925,6 @@ class DSApp {
         if (undefined != fontSize) {
             sStyle.fontSize = parseFloat(fontSize.replace("px", ""))
         }
-        if (sStyle.fontStyle != "") sStyle.fontStyle = ""
         if (sStyle.fontVariant != "") sStyle.fontVariant = ""
         if (sStyle.fontStretch != "") sStyle.fontStretch = ""
 
@@ -933,6 +933,12 @@ class DSApp {
             let firstFont = fontFace.split(',')[0]
             firstFont = firstFont.replace(/[""]/gi, '')
             sStyle.fontFamily = firstFont
+        }
+        //// SET FONT STYLE
+        if (undefined != fontStyle) {
+            sStyle.fontStyle = fontStyle
+        } else {
+            sStyle.fontStyle = ""
         }
         if (undefined != align) {
             if (!(align in alignMap)) {
