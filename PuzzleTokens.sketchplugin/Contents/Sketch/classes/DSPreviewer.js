@@ -16,7 +16,7 @@ const Artboard = require('sketch/dom').Artboard
 const SharedStyle = require('sketch/dom').SharedStyle
 
 const defSettings = {
-    gen:{
+    gen: {
         pageWidth: 1600,
         pageHeight: 1200,
         pagesInRow: 3,
@@ -74,7 +74,7 @@ class DSPreviewer {
     _init() {
         this.def = JSON.parse(JSON.stringify(defSettings))
         const restoredDef = Settings.settingForKey(SettingKeys.PLUGIN_PREVIEWER_DEF)
-        if(restoredDef) this._fillDef(this.def,restoredDef)
+        if (restoredDef) this._fillDef(this.def, restoredDef)
 
         ///
 
@@ -104,13 +104,13 @@ class DSPreviewer {
         }
     }
 
-    _fillDef(def,restored){
-        Object.keys(def).forEach(function(baseKey){
-            if(!(baseKey in restored)) return
-            Object.keys(def[baseKey]).forEach(function(key){
-                if(key in restored[baseKey]) def[baseKey][key] = restored[baseKey][key]
+    _fillDef(def, restored) {
+        Object.keys(def).forEach(function (baseKey) {
+            if (!(baseKey in restored)) return
+            Object.keys(def[baseKey]).forEach(function (key) {
+                if (key in restored[baseKey]) def[baseKey][key] = restored[baseKey][key]
             })
-        })        
+        })
     }
 
     // Tools
@@ -138,10 +138,10 @@ class DSPreviewer {
     // Public methods
 
     run() {
-        while(true){
+        while (true) {
             const res = this._showDialog()
-            if('cancel'==res) return false
-            if('reset'==res){
+            if ('cancel' == res) return false
+            if ('reset' == res) {
                 this.def = JSON.parse(JSON.stringify(defSettings))
                 continue
             }
@@ -183,7 +183,7 @@ class DSPreviewer {
 
     _showDialog() {
         const dialog = new UIDialog("Generate Styles Preview", NSMakeRect(0, 0, 600, 420), "Generate",
-        "","Cancel","Reset")
+            "", "Cancel", "Reset")
         dialog.leftColWidth = 200
 
         dialog.initTabs(["General", "Headers", "Text Styles", "Layer Styles", "Advanced"])
@@ -205,7 +205,7 @@ class DSPreviewer {
         dialog.addSpace()
         dialog.addLeftLabel("", "Styles in row")
         dialog.addTextInput("columns", "", this.def.gen.columns, "9", 100)
-        
+
         ////////////////////////////// Headers
         dialog.setTabForViewsCreating(1)
         dialog.addLeftLabel("", "Text Color")
@@ -233,7 +233,7 @@ class DSPreviewer {
 
         dialog.addLeftLabel("", "Column Width (px)")
         dialog.addTextInput("text.colWidth", "", this.def.text.colWidth, "100", 100)
-        
+
 
         dialog.addLeftLabel("", "Style Ident")
         y = dialog.y
@@ -241,7 +241,7 @@ class DSPreviewer {
         dialog.addTextInput("text.colHSpace", "Horizontal (px)", this.def.text.colHSpace, "50", 100)
         dialog.y = y
         dialog.leftColWidth += 120
-        dialog.addTextInput("text.colVSpace", "Vertical (px)", this.def.text.colVSpace, "50", 100)        
+        dialog.addTextInput("text.colVSpace", "Vertical (px)", this.def.text.colVSpace, "50", 100)
         dialog.leftColWidth = leftColWidth
 
         dialog.addDivider()
@@ -285,7 +285,7 @@ class DSPreviewer {
         dialog.addTextInput("initialLeft", "Left (px)", this.def.gen.initialLeft, "12", 100)
         dialog.y = y
         dialog.leftColWidth += 120
-        dialog.addTextInput("initialTop", "Top (px)", this.def.gen.initialTop, "12", 100)        
+        dialog.addTextInput("initialTop", "Top (px)", this.def.gen.initialTop, "12", 100)
         dialog.leftColWidth = leftColWidth
 
         dialog.addLeftLabel("", "Space Between Artboards")
@@ -319,25 +319,25 @@ class DSPreviewer {
             this.def.group.labelColor = dialog.views['group.labelColor'].stringValue()
             this.def.group.labelFontSize = parseInt(dialog.views['group.labelFontSize'].stringValue(), 10)
             this.def.group.bottomSpace = parseInt(dialog.views['group.bottomSpace'].stringValue(), 10)
-            
+
             this.def.text.text = dialog.views['text.text'].stringValue()
-            this.def.text.textTop =  parseInt(dialog.views['text.textTop'].stringValue(), 10)
-            this.def.text.textBottom =  parseInt(dialog.views['text.textBottom'].stringValue(), 10)
-            this.def.text.colWidth =  parseInt(dialog.views['text.colWidth'].stringValue(), 10)
-            this.def.text.colVSpace =  parseInt(dialog.views['text.colVSpace'].stringValue(), 10)
-            this.def.text.colHSpace =  parseInt(dialog.views['text.colHSpace'].stringValue(), 10)
+            this.def.text.textTop = parseInt(dialog.views['text.textTop'].stringValue(), 10)
+            this.def.text.textBottom = parseInt(dialog.views['text.textBottom'].stringValue(), 10)
+            this.def.text.colWidth = parseInt(dialog.views['text.colWidth'].stringValue(), 10)
+            this.def.text.colVSpace = parseInt(dialog.views['text.colVSpace'].stringValue(), 10)
+            this.def.text.colHSpace = parseInt(dialog.views['text.colHSpace'].stringValue(), 10)
             this.def.text.labelFontFamily = dialog.views['text.labelFontFamily'].stringValue()
             weightIndex = dialog.views['text.labelFontWeight'].indexOfSelectedItem()
             this.def.text.labelFontWeight = weights[weightIndex].sketch
             this.def.text.labelColor = dialog.views['text.labelColor'].stringValue()
-            this.def.text.labelFontSize =  parseInt(dialog.views['text.labelFontSize'].stringValue(), 10)
-            this.def.text.descrFontSize =  parseInt(dialog.views['text.descrFontSize'].stringValue(), 10)
+            this.def.text.labelFontSize = parseInt(dialog.views['text.labelFontSize'].stringValue(), 10)
+            this.def.text.descrFontSize = parseInt(dialog.views['text.descrFontSize'].stringValue(), 10)
             this.def.text.descrColor = dialog.views['text.descrColor'].stringValue()
 
-            this.def.layer.colHeight =  parseInt(dialog.views['layer.colHeight'].stringValue(), 10)
+            this.def.layer.colHeight = parseInt(dialog.views['layer.colHeight'].stringValue(), 10)
 
-            this.def.gen.initialTop =  parseInt(dialog.views['initialTop'].stringValue(), 10)
-                    
+            this.def.gen.initialTop = parseInt(dialog.views['initialTop'].stringValue(), 10)
+
             break
         }
 
@@ -548,15 +548,12 @@ class DSPreviewer {
                 frame: new Rectangle(
                     0, localY, width, height
                 ),
-                sharedStyleId: isTextStyle?undefined:sSharedStyle.id
+                sharedStyleId: isTextStyle ? undefined : sSharedStyle.id
             })
 
             localY += textOffsetTop
 
             if (isTextStyle) {
-
-                descr = sStyle.fontFamily + " " + sStyle.fontSize + "px" + "\n" + sStyle.textColor.toUpperCase()
-
                 const sText = new Text({
                     name: "Text",
                     text: textExample,
@@ -581,16 +578,34 @@ class DSPreviewer {
             })
             localY += this.labelStyle.lineHeight
 
+
+            log(isTextStyle)
+            let descrLineCount = 1
+            if (isTextStyle) {
+                descr = sStyle.fontFamily + " " + sStyle.fontSize + "px" + "\n" + sStyle.textColor.toUpperCase()
+                descrLineCount = 2
+            } else {
+                descr = ""
+                sStyle.fills.forEach(function (fill) {
+                    if (descrLineCount > 1) descr += "\n"
+                    descr += fill.color
+                    if (fill.fillType != Style.FillType.Color)
+                        descr += " " + fill.fillType
+                    descrLineCount++
+                })
+            }
+
+
             const sDescr = new Text({
                 name: "Description",
                 text: descr,
                 parent: sParent,
                 frame: new Rectangle(
-                    0, localY, width, this.descrStyle.lineHeight
+                    0, localY, width, this.descrStyle.lineHeight * descrLineCount
                 ),
                 style: this.descrStyle
             })
-            localY += this.descrStyle.fontSize * 2
+            localY += this.descrStyle.lineHeight * descrLineCount
 
 
             // Final adjustment
