@@ -1,5 +1,10 @@
 # Change Log
 
+##  Version 6.1.0 (18 Nov 2019)
+- Added support for font-style: italic OR normal
+- Fixed multiply borders
+- Added missing font weights (by @mikebronner)
+
 ##  Version 6.0.1 (16 Nov 2019)
 - Fixed missed shared style for layers styles
 
