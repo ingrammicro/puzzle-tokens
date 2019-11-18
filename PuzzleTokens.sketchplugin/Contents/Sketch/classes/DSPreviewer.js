@@ -25,6 +25,7 @@ const defSettings = {
         initialLeft: 25,
         pageHSpace: 100,
         pageVSpace: 100,
+        disableSort: false,
     },
     group: {
         labelColor: "#353536",
@@ -297,6 +298,9 @@ class DSPreviewer {
         dialog.addTextInput("pageVSpace", "Vertical (px)", this.def.gen.pageVSpace, "100", 100)
         dialog.leftColWidth = leftColWidth
 
+        dialog.addLeftLabel("", "Disable Style Sorting")
+        dialog.addCheckbox("disableSort", "", this.def.gen.disableSort == true)
+
 
         while (true) {
             dialog.run()
@@ -337,6 +341,10 @@ class DSPreviewer {
             this.def.layer.colHeight = parseInt(dialog.views['layer.colHeight'].stringValue(), 10)
 
             this.def.gen.initialTop = parseInt(dialog.views['initialTop'].stringValue(), 10)
+            this.def.gen.initialLeft = parseInt(dialog.views['initialLeft'].stringValue(), 10)
+            this.def.gen.pageHSpace = parseInt(dialog.views['pageHSpace'].stringValue(), 10)
+            this.def.gen.pageVSpace = parseInt(dialog.views['pageVSpace'].stringValue(), 10)
+            this.def.gen.disableSort = dialog.views['disableSort'].state() == 1
 
             break
         }
@@ -402,7 +410,7 @@ class DSPreviewer {
         var styleGroups = {}
         sStyles.forEach(function (sSharedStyle, styleIndex) {
             let groupName = "top"
-            const lastShashIndex = sSharedStyle.name.lastIndexOf("/")
+            let lastShashIndex = sSharedStyle.name.lastIndexOf("/")
             if (lastShashIndex > 0) {
                 groupName = sSharedStyle.name.substring(0, lastShashIndex)
             }
@@ -412,7 +420,23 @@ class DSPreviewer {
                 styleGroups[groupName] = group
             }
             group.push(sSharedStyle)
+            //
+            let compactName = sSharedStyle.name
+            lastShashIndex = compactName.lastIndexOf("/")
+            if (lastShashIndex > 0) {
+                compactName = compactName.substring(lastShashIndex + 1)
+            }
+            sSharedStyle.compactName = compactName
         }, this)
+
+        if (!this.def.gen.disableSort) {
+            Object.keys(styleGroups).forEach(function (key) {
+                styleGroups[key] = styleGroups[key].sort(function (a, b) {
+                    return a.compactName > b.compactName
+                })
+            })
+        }
+
         return styleGroups
     }
 
@@ -523,12 +547,7 @@ class DSPreviewer {
                 } : sStyle
 
 
-            let styleName = sSharedStyle.name
-            const lastShashIndex = styleName.lastIndexOf("/")
-            if (lastShashIndex > 0) {
-                styleName = styleName.substring(lastShashIndex + 1)
-            }
-
+            let styleName = sSharedStyle.compactName
             let descr = ""
             ///
 
@@ -579,7 +598,6 @@ class DSPreviewer {
             localY += this.labelStyle.lineHeight
 
 
-            log(isTextStyle)
             let descrLineCount = 1
             if (isTextStyle) {
                 descr = sStyle.fontFamily + " " + sStyle.fontSize + "px" + "\n" + sStyle.textColor.toUpperCase()
