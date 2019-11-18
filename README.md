@@ -72,5 +72,27 @@ ShapeStyle {
 
 You can [look into more examples](https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Tests) to get familiar with the plugin.
 
+## Requited Style Properties
+To apply _text_ style you need to defined at least on of the following properites:
+- color
+- font-family
+- font-size
+- font-weight
+- text-transform
+- text-align
+- vertical-align
+
+For _layer_ style:
+- background-color
+- border-color
+- box-shadow
+- border-radius
+
+To apply _opacity_ to full layer:
+- opacity
+
+To create _image:
+- image
+
 ## Sketch versions supported
 Some styles, such as text font/transformation/etc require Sketch 53 or later. You're safe using the latest stable Sketch version to get the plugin working.
