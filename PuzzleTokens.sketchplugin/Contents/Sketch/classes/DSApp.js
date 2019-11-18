@@ -76,7 +76,7 @@ class DSApp {
     // Tools
 
     logMsg(msg) {
-        //log(msg)
+        if (Constants.LOGGING) log(msg)
         this.messages += msg + "\n"
     }
 
@@ -325,6 +325,7 @@ class DSApp {
             const ruleType = this._getRulePropsType(rule.props)
             const sStyleName = rule.name // spcified in  _checkRules()
             //
+            this.logMsg("_applyRules: process style  " + sStyleName)
 
 
             if (ruleType.indexOf("image") >= 0) {
@@ -772,6 +773,10 @@ class DSApp {
         for (var l of layers) {
             if (radius != "") {
                 const radiusList = radius.split(' ').map(value => parseFloat(value.replace("px", "")))
+                if (undefined == l.points) {
+                    this.logMsg('_applyShapeRadius: ' + l.name)
+                    l = l.layers[0]
+                }
                 l.points.forEach(function (point, index) {
                     point.cornerRadius = radiusList.length > 1 ? radiusList[index] : radiusList[0]
                 })
@@ -823,7 +828,7 @@ class DSApp {
             border = null
         }
 
-        if (this.sAppliedStyles[rule.name] && sStyle.border != null) {
+        if (this.sAppliedStyles[rule.name] && sStyle.borders != null) {
             // already added border, now add one more
             if (border)
                 sStyle.borders.push(border)

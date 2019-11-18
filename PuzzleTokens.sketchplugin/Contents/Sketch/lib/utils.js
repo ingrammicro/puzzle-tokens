@@ -22,7 +22,6 @@ Rectangle.prototype.copyToRect = function () {
 }
 
 const weights = [
-    { label: 'thin', sketch: 2, css: 100, title: "Thin" },
     { label: 'extra-light', sketch: 3, css: 200, title: "Extra Light" },
     { label: 'light', sketch: 4, css: 300, title: "Light" },
     { label: 'regular', sketch: 5, css: 400, title: "Regular" },
@@ -30,8 +29,6 @@ const weights = [
     { label: 'semi-bold', sketch: 8, css: 600, title: "Semi Bold" },
     { label: 'semibold', sketch: 8, css: 600, title: "Semi Bold#2" },
     { label: 'bold', sketch: 9, css: 700, title: "Bold" },
-    { label: 'extra-bold', sketch: 10, css: 800, title: "Extra Bold" },
-    { label: 'black', sketch: 12, css: 900, title: "Black" },
 ]
 
 
