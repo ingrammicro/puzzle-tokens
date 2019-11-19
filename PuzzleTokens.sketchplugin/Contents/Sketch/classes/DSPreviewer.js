@@ -561,7 +561,7 @@ class DSPreviewer {
             let localY = 0
 
             const sBack = new Shape({
-                name: "Back",
+                name: isTextStyle ? "Back" : styleName,
                 parent: sParent,
                 style: backStyle,
                 frame: new Rectangle(
@@ -569,12 +569,16 @@ class DSPreviewer {
                 ),
                 sharedStyleId: isTextStyle ? undefined : sSharedStyle.id
             })
+            if (sBack.layers) { // remove group which Sketch creates for Shape
+                const realShape = sBack.layers[0]
+                realShape.parent = sParent
+                realShape.name = "Shape"
+            }
 
             localY += textOffsetTop
 
             if (isTextStyle) {
                 const sText = new Text({
-                    name: "Text",
                     text: textExample,
                     parent: sParent,
                     frame: new Rectangle(
@@ -583,11 +587,11 @@ class DSPreviewer {
                     style: sStyle,
                     sharedStyleId: sSharedStyle.id
                 })
+                sText.name = styleName
             }
             localY += colHeight
 
             const sLabel = new Text({
-                name: "Label",
                 text: styleName,
                 parent: sParent,
                 frame: new Rectangle(
@@ -595,6 +599,7 @@ class DSPreviewer {
                 ),
                 style: this.labelStyle
             })
+            sLabel.name = "Label"
             localY += this.labelStyle.lineHeight
 
 
