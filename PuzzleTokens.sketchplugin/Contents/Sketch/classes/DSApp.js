@@ -266,6 +266,7 @@ class DSApp {
             const ruleType = this._getRulePropsType(rule.props)
             const sStyleName = this._pathToStr(rule.path)
             rule.name = sStyleName
+            rule.type = ruleType
 
             if (rule.path[0].startsWith('#')) {
                 rule.isStandalone = true
@@ -277,12 +278,7 @@ class DSApp {
             if (ruleType.indexOf("image") >= 0) {
                 this.messages += "Will update image " + sStyleName + "\n"
                 continue
-            }
-            if (rule.isStandalone && ruleType.indexOf("opacity") >= 0) {
-                this.messages += "Will set opacity for layer " + sStyleName + "\n"
-                if ('opacity' == ruleType) continue // only opacity in rule
-            }
-
+            }           
             // Check rule
             if (ruleType.indexOf("text") >= 0 && ruleType.indexOf("layer") >= 0) {
                 this.logError("Rule \"" + sStyleName + "\" has properties for both Text and Layer styles.")
@@ -331,11 +327,7 @@ class DSApp {
             if (ruleType.indexOf("image") >= 0) {
                 this._applyPropsToImage(rule)
                 continue
-            }
-            if (rule.isStandalone && ruleType.indexOf("opacity") >= 0) {
-                this._applyOpacityToLayer(rule)
-                if ('opacity' == ruleType) continue // only opacity in rule
-            }
+            }          
 
             const isText = ruleType.indexOf("text") >= 0
 
@@ -357,8 +349,7 @@ class DSApp {
             if (isText)
                 this._applyRuleToTextStyle(rule, sSharedStyle, sStyle)
             else
-                this._applyRuleToLayerStyle(rule, sSharedStyle, sStyle)
-
+                this._applyRuleToLayerStyle(rule, sSharedStyle, sStyle)                
 
             if (rule.isStandalone) {
                 this.logMsg("[Updated] style for standalone layer " + sStyleName)
@@ -418,7 +409,10 @@ class DSApp {
             || null != props['border-radius']
         ) res += "layer"
         if (null != props['opacity'])
-            res += "opacity"
+            if(""==res)
+                res += "single_opacity"
+            else
+                res += "opacity"
 
         return res
     }
@@ -889,6 +883,10 @@ class DSApp {
             } else {
                 sStyle.fills = []
             }
+        }
+
+        if("single_opacity"==rule.type){
+            sStyle.opacity = token['opacity']
         }
 
         // SET SHADOW 
