@@ -40,7 +40,8 @@ The following styles are supporting.
     line-height:           1.0;       // or 1.2 or 1.5 or any other mulitplier for font-size OR 10px
     color:                 #FFFFFF;
     opacity:               63%;       // supported "63%" or "0.42"
-    text-transform:        uppercase; // "uppercase", "lowercase", and "none"
+    text-transform:        uppercase; // "uppercase", "lowercase", "none"
+    text-decoration:       underline; // "underline", "line-through"
     text-align:            left;      // "left", center", "right", "justify"
     vertical-align:        top;       // "top", "middle", "bottom"
 }

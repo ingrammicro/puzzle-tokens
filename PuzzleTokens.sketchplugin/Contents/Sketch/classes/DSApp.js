@@ -401,6 +401,7 @@ class DSApp {
         var res = ""
         if (null != props['color'] || null != props['font-family'] || null != props['font-style'] || null != props['font-size']
             || null != props['font-weight'] || null != props['text-transform'] || null != props['text-align'] || null != props['vertical-align']
+            || null != props['text-decoration']
         )
             res += "text"
         if (null != props['image'])
@@ -896,11 +897,11 @@ class DSApp {
         if (('border-color' in token) || ('border-width' in token) || ('border-position' in token))
             this._applyBorderStyle(rule, sStyle)
 
-
         // SET BORDER RADIUS
         if ('border-radius' in token)
             this._applyShapeRadius(rule, sSharedStyle, sStyle)
 
+    
     }
 
 
@@ -915,6 +916,7 @@ class DSApp {
         var color = token['color']
         var fontWeight = token['font-weight']
         var transform = token['text-transform']
+        var decoration = token['text-decoration']
         var lineHeight = token['line-height']
         var align = token['text-align']
         var verticalAlign = token['vertical-align']
@@ -998,6 +1000,16 @@ class DSApp {
         // SET TEXT TRANSFORM
         if (undefined != transform) {
             sStyle.textTransform = transform
+        }
+         // SET TEXT DECORATION
+         if (undefined != decoration) {
+            if("underline"==decoration){
+                sStyle.textUnderline = "single"
+                sStyle.textStrikethrough = undefined
+            }else if("line-through"==decoration){
+                sStyle.textUnderline = undefined
+                sStyle.textStrikethrough = "single"
+            }
         }
 
         // SET TEXT SHADOW
