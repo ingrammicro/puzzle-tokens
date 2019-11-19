@@ -36,6 +36,7 @@ The following styles are supporting.
     font-size:             12px;   
     font-family:           "Open Sans"; // or "Open Sans","Times New Roman"
     font-weight:           bold;      // or extra-light, light, regular, medium, semibold, bold
+    font-style:            italic;    // or normal
     line-height:           1.0;       // or 1.2 or 1.5 or any other mulitplier for font-size OR 10px
     color:                 #FFFFFF;
     opacity:               63%;       // supported "63%" or "0.42"
