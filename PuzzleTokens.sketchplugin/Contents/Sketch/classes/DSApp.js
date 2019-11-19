@@ -1010,7 +1010,7 @@ class DSApp {
             }else if (!isNaN(spacing)) {
                 sStyle.kerning = spacing * 1
             }else{
-                this.logError("Wrong '"+letterSpacing+"' value for line-spacing")
+                this.logError("Wrong '"+letterSpacing+"' value for letter-spacing")
             }
         }
         

@@ -44,7 +44,7 @@ The following styles are supporting.
     text-decoration:       underline; // "underline", "line-through"
     text-align:            left;      // "left", center", "right", "justify"
     vertical-align:        top;       // "top", "middle", "bottom"
-    line-spacing:          10px;      // <value>, "normal"
+    letter-spacing:        10px;      // <value>px, "normal"
 }
 
 // Shape layers
