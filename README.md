@@ -74,7 +74,7 @@ ShapeStyle {
 You can [look into more examples](https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Tests) to get familiar with the plugin.
 
 ## Requited Style Properties
-To apply _text_ style you need to defined at least on of the following properites:
+To apply _text_ style you need to defined at least one of the following properites:
 - color
 - font-family
 - font-size
@@ -88,8 +88,6 @@ For _layer_ style:
 - border-color
 - box-shadow
 - border-radius
-
-To apply _opacity_ to full layer:
 - opacity
 
 To create _image:
