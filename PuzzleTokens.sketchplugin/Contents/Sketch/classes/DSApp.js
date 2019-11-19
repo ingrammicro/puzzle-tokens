@@ -401,7 +401,7 @@ class DSApp {
         var res = ""
         if (null != props['color'] || null != props['font-family'] || null != props['font-style'] || null != props['font-size']
             || null != props['font-weight'] || null != props['text-transform'] || null != props['text-align'] || null != props['vertical-align']
-            || null != props['text-decoration']
+            || null != props['text-decoration'] || null != props['letter-spacing']
         )
             res += "text"
         if (null != props['image'])
@@ -916,6 +916,7 @@ class DSApp {
         var color = token['color']
         var fontWeight = token['font-weight']
         var transform = token['text-transform']
+        var letterSpacing = token['letter-spacing']        
         var decoration = token['text-decoration']
         var lineHeight = token['line-height']
         var align = token['text-align']
@@ -1001,6 +1002,18 @@ class DSApp {
         if (undefined != transform) {
             sStyle.textTransform = transform
         }
+        // SET TEXT letterSpacing
+        if (undefined != letterSpacing) {            
+            const spacing = letterSpacing.replace("px", "")
+            if("normal"==spacing){
+                sStyle.kerning = null    
+            }else if (!isNaN(spacing)) {
+                sStyle.kerning = spacing * 1
+            }else{
+                this.logError("Wrong '"+letterSpacing+"' value for line-spacing")
+            }
+        }
+        
          // SET TEXT DECORATION
          if (undefined != decoration) {
             if("underline"==decoration){
