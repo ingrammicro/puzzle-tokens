@@ -1,5 +1,11 @@
 # Change Log
 
+##  Version 6.2.0 (19 Nov 2019)
+- Added support for line-spacing
+- Added support for text-decoration
+- Added support for standaldone opacity
+- Other improvements
+
 ##  Version 6.1.1 (18 Nov 2019)
 - Added missing font weights (by @mikebronner) - TRY #2
 - Added style sorting to Styles Overview (can be disabled on Advanced tab)
