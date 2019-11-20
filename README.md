@@ -51,7 +51,7 @@ The following styles are supporting.
 
 ShapeStyle {
     background-color:      #B0AFB1;
-    background-color:      linear-gradient(45deg, #B0AFB1,#B0AFB4);
+    background-color:      linear-gradient(45deg, #000000,#B0AFB4);
     opacity:               63%;       // "63%" or "0.42"
     border-color:          #000000;
     border-width:          2px;
