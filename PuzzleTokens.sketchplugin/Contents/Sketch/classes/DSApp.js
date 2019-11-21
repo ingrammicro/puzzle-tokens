@@ -278,7 +278,7 @@ class DSApp {
             if (ruleType.indexOf("image") >= 0) {
                 this.messages += "Will update image " + sStyleName + "\n"
                 continue
-            }           
+            }
             // Check rule
             if (ruleType.indexOf("text") >= 0 && ruleType.indexOf("layer") >= 0) {
                 this.logError("Rule \"" + sStyleName + "\" has properties for both Text and Layer styles.")
@@ -327,7 +327,7 @@ class DSApp {
             if (ruleType.indexOf("image") >= 0) {
                 this._applyPropsToImage(rule)
                 continue
-            }          
+            }
 
             const isText = ruleType.indexOf("text") >= 0
 
@@ -349,7 +349,7 @@ class DSApp {
             if (isText)
                 this._applyRuleToTextStyle(rule, sSharedStyle, sStyle)
             else
-                this._applyRuleToLayerStyle(rule, sSharedStyle, sStyle)                
+                this._applyRuleToLayerStyle(rule, sSharedStyle, sStyle)
 
             if (rule.isStandalone) {
                 this.logMsg("[Updated] style for standalone layer " + sStyleName)
@@ -410,7 +410,7 @@ class DSApp {
             || null != props['border-radius']
         ) res += "layer"
         if (null != props['opacity'])
-            if(""==res)
+            if ("" == res)
                 res += "single_opacity"
             else
                 res += "opacity"
@@ -886,7 +886,7 @@ class DSApp {
             }
         }
 
-        if("single_opacity"==rule.type){
+        if ("single_opacity" == rule.type) {
             sStyle.opacity = token['opacity']
         }
 
@@ -901,7 +901,7 @@ class DSApp {
         if ('border-radius' in token)
             this._applyShapeRadius(rule, sSharedStyle, sStyle)
 
-    
+
     }
 
 
@@ -916,7 +916,7 @@ class DSApp {
         var color = token['color']
         var fontWeight = token['font-weight']
         var transform = token['text-transform']
-        var letterSpacing = token['letter-spacing']        
+        var letterSpacing = token['letter-spacing']
         var decoration = token['text-decoration']
         var lineHeight = token['line-height']
         var align = token['text-align']
@@ -925,7 +925,24 @@ class DSApp {
         //// SET FONT SIZE
         if (undefined != fontSize) {
             sStyle.fontSize = parseFloat(fontSize.replace("px", ""))
+
+            // If applied font size at first time then drop line-height
+            if (!this.sAppliedStyles[rule.name]) {
+                sStyle.lineHeight = 0
+            }
         }
+        //// SET LINE HEIGHT
+        if (undefined != lineHeight) {
+            if (lineHeight.indexOf("px") > 0) {
+                sStyle.lineHeight = lineHeight.replace("px", "")
+            } else {
+                if (null == sStyle.fontSize) {
+                    return this.logError("Can not apply line-height without font-size for rule " + rule.name)
+                }
+                sStyle.lineHeight = Math.round(parseFloat(lineHeight) * sStyle.fontSize)
+            }
+        }
+
         if (sStyle.fontVariant != "") sStyle.fontVariant = ""
         if (sStyle.fontStretch != "") sStyle.fontStretch = ""
 
@@ -954,19 +971,6 @@ class DSApp {
             sStyle.verticalAlignment = vertAlignMap[verticalAlign]
         }
 
-        //// SET LINE HEIGHT
-        if (undefined != lineHeight) {
-            if (lineHeight.indexOf("px") > 0) {
-                sStyle.lineHeight = lineHeight.replace("px", "")
-            } else {
-                if (null == sStyle.fontSize) {
-                    return this.logError("Can not apply line-height without font-size for rule " + rule.name)
-                }
-                sStyle.lineHeight = Math.round(parseFloat(lineHeight) * sStyle.fontSize)
-            }
-        } else {
-            sStyle.lineHeight = 0
-        }
         //// SET FONT WEIGHT
         if (undefined != fontWeight) {
             var weightKey = "label"
@@ -1003,23 +1007,23 @@ class DSApp {
             sStyle.textTransform = transform
         }
         // SET TEXT letterSpacing
-        if (undefined != letterSpacing) {            
+        if (undefined != letterSpacing) {
             const spacing = letterSpacing.replace("px", "")
-            if("normal"==spacing){
-                sStyle.kerning = null    
-            }else if (!isNaN(spacing)) {
+            if ("normal" == spacing) {
+                sStyle.kerning = null
+            } else if (!isNaN(spacing)) {
                 sStyle.kerning = spacing * 1
-            }else{
-                this.logError("Wrong '"+letterSpacing+"' value for letter-spacing")
+            } else {
+                this.logError("Wrong '" + letterSpacing + "' value for letter-spacing")
             }
         }
-        
-         // SET TEXT DECORATION
-         if (undefined != decoration) {
-            if("underline"==decoration){
+
+        // SET TEXT DECORATION
+        if (undefined != decoration) {
+            if ("underline" == decoration) {
                 sStyle.textUnderline = "single"
                 sStyle.textStrikethrough = undefined
-            }else if("line-through"==decoration){
+            } else if ("line-through" == decoration) {
                 sStyle.textUnderline = undefined
                 sStyle.textStrikethrough = "single"
             }
