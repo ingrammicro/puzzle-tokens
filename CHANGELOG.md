@@ -1,5 +1,9 @@
 # Change Log
 
+##  Version 6.2.1 (21 Nov 2019)
+- Removed label borders in Preview
+- Removed trailed FF in description in Preview
+
 ##  Version 6.2.0 (19 Nov 2019)
 - Added support for line-spacing
 - Added support for text-decoration
