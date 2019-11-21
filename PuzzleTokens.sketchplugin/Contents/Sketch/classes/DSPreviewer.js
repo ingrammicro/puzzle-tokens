@@ -84,6 +84,7 @@ class DSPreviewer {
             alignment: Text.Alignment.left,
             fontSize: this.def.group.labelFontSize,
             lineHeight: this.def.group.labelFontSize * 1.5,
+            borders: [],
         }
 
         this.labelStyle = {
@@ -93,6 +94,7 @@ class DSPreviewer {
             lineHeight: 20,
             fontFamily: this.def.text.labelFontFamily,
             fontWeight: this.def.text.labelFontWeight,
+            borders: [],
         }
 
         this.descrStyle = {
@@ -102,6 +104,7 @@ class DSPreviewer {
             lineHeight: this.def.text.descrFontSize * 1.5,
             fontFamily: this.def.text.labelFontFamily,
             fontWeight: this.def.text.labelFontWeight,
+            borders: [],
         }
     }
 
@@ -605,7 +608,13 @@ class DSPreviewer {
 
             let descrLineCount = 1
             if (isTextStyle) {
-                descr = sStyle.fontFamily + " " + sStyle.fontSize + "px" + "\n" + sStyle.textColor.toUpperCase()
+                let color = sStyle.textColor.toUpperCase()
+                // check color for #001122FF format
+                if (9 == color.length && color.endsWith("FF")) {
+                    // drop trailed alfa FF
+                    color = color.substring(0, 7)
+                }
+                descr = sStyle.fontFamily + " " + sStyle.fontSize + "px" + "\n" + color
                 descrLineCount = 2
             } else {
                 descr = ""
