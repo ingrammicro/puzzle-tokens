@@ -321,7 +321,7 @@ class DSApp {
             const ruleType = this._getRulePropsType(rule.props)
             const sStyleName = rule.name // spcified in  _checkRules()
             //
-            this.logMsg("_applyRules: process style  " + sStyleName)
+            //this.logMsg("_applyRules: process style  " + sStyleName)
 
 
             if (ruleType.indexOf("image") >= 0) {
