@@ -8,6 +8,7 @@ var Sketch = require('sketch/dom')
 var Settings = require('sketch/settings')
 var Style = require('sketch/dom').Style
 var Image = require('sketch/dom').Image
+var SharedStyle = require('sketch/dom').SharedStyle
 var UI = require('sketch/ui')
 const path = require('path');
 const Text = require('sketch/dom').Text
@@ -339,7 +340,11 @@ class DSApp {
                 sStyle = rule.sLayer.style
             } else {
                 sSharedStyle = isText ? this.sTextStyles[sStyleName] : this.sLayerStyles[sStyleName]
-                sStyle = sSharedStyle != null ? sSharedStyle.style : {}
+                //if ("Style" == sSharedStyle.styleType)
+                //  sSharedStyle.styleType = isText ? SharedStyle.StyleType.Text : SharedStyle.StyleType.Layer
+                sStyle = sSharedStyle != null ? sSharedStyle.style : {
+                    styleType: isText ? SharedStyle.StyleType.Text : SharedStyle.StyleType.Layer
+                }
             }
 
             // Apply rule properties
@@ -359,7 +364,6 @@ class DSApp {
                     // change some wrong default values               
                     this._tuneNewStyle(sStyle, isText)
                     // create
-                    var SharedStyle = require('sketch/dom').SharedStyle
                     sSharedStyle = SharedStyle.fromStyle({
                         name: sStyleName,
                         style: sStyle,
