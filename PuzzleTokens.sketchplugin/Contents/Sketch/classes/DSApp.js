@@ -327,61 +327,62 @@ class DSApp {
 
             if (ruleType.indexOf("image") >= 0) {
                 this._applyPropsToImage(rule)
-                continue
-            }
-
-            const isText = ruleType.indexOf("text") >= 0
-
-            // Find or create new style
-            var sSharedStyle = null
-            var sStyle = null
-
-            if (rule.isStandalone) {
-                sStyle = rule.sLayer.style
             } else {
-                sSharedStyle = isText ? this.sTextStyles[sStyleName] : this.sLayerStyles[sStyleName]
-                //if ("Style" == sSharedStyle.styleType)
-                //  sSharedStyle.styleType = isText ? SharedStyle.StyleType.Text : SharedStyle.StyleType.Layer
-                sStyle = sSharedStyle != null ? sSharedStyle.style : {
-                    styleType: isText ? SharedStyle.StyleType.Text : SharedStyle.StyleType.Layer
-                }
-            }
 
-            // Apply rule properties
-            // drop commented property
-            const validProps = Object.keys(rule.props).filter(n => n.indexOf("__") < 0)
+                const isText = ruleType.indexOf("text") >= 0
 
-            if (isText)
-                this._applyRuleToTextStyle(rule, sSharedStyle, sStyle)
-            else
-                this._applyRuleToLayerStyle(rule, sSharedStyle, sStyle)
+                // Find or create new style
+                var sSharedStyle = null
+                var sStyle = null
 
-            if (rule.isStandalone) {
-                this.logMsg("[Updated] style for standalone layer " + sStyleName)
-            } else {
-                // Create new shared style
-                if (!sSharedStyle) {
-                    // change some wrong default values               
-                    this._tuneNewStyle(sStyle, isText)
-                    // create
-                    sSharedStyle = SharedStyle.fromStyle({
-                        name: sStyleName,
-                        style: sStyle,
-                        document: this.nDoc
-                    })
-                    if (isText)
-                        this.sTextStyles[sStyleName] = sSharedStyle
-                    else
-                        this.sLayerStyles[sStyleName] = sSharedStyle
-                    this.result.createdStyles++
-                    this.logMsg("[Created] new shared style " + sStyleName)
-
+                if (rule.isStandalone) {
+                    sStyle = rule.sLayer.style
                 } else {
-                    sSharedStyle.sketchObject.resetReferencingInstances()
-                    this.logMsg("[Updated] shared style " + sStyleName)
-                    this.result.updatedStyles++
+                    sSharedStyle = isText ? this.sTextStyles[sStyleName] : this.sLayerStyles[sStyleName]
+                    //if ("Style" == sSharedStyle.styleType)
+                    //  sSharedStyle.styleType = isText ? SharedStyle.StyleType.Text : SharedStyle.StyleType.Layer
+                    sStyle = sSharedStyle != null ? sSharedStyle.style : {
+                        styleType: isText ? SharedStyle.StyleType.Text : SharedStyle.StyleType.Layer
+                    }
                 }
-                this._saveTokensForStyleAndSymbols(rule.props, sSharedStyle)
+
+                // drop existing (or new) style properties before first apply
+                if (!this.sAppliedStyles[sStyleName]) this._resetStyle(sStyle, isText)
+
+                // Apply rule properties
+                // drop commented property
+                const validProps = Object.keys(rule.props).filter(n => n.indexOf("__") < 0)
+
+                if (isText)
+                    this._applyRuleToTextStyle(rule, sSharedStyle, sStyle)
+                else
+                    this._applyRuleToLayerStyle(rule, sSharedStyle, sStyle)
+
+                if (rule.isStandalone) {
+                    this.logMsg("[Updated] style for standalone layer " + sStyleName)
+                } else {
+                    // Create new shared style
+                    if (!sSharedStyle) {
+                        // create
+                        sSharedStyle = SharedStyle.fromStyle({
+                            name: sStyleName,
+                            style: sStyle,
+                            document: this.nDoc
+                        })
+                        if (isText)
+                            this.sTextStyles[sStyleName] = sSharedStyle
+                        else
+                            this.sLayerStyles[sStyleName] = sSharedStyle
+                        this.result.createdStyles++
+                        this.logMsg("[Created] new shared style " + sStyleName)
+
+                    } else {
+                        sSharedStyle.sketchObject.resetReferencingInstances()
+                        this.logMsg("[Updated] shared style " + sStyleName)
+                        this.result.updatedStyles++
+                    }
+                    this._saveTokensForStyleAndSymbols(rule.props, sSharedStyle)
+                }
             }
             //
             this.sAppliedStyles[sStyleName] = true
@@ -391,14 +392,10 @@ class DSApp {
         return true
     }
 
-    _tuneNewStyle(sStyle, isText) {
-        if (null == sStyle.borders) {
-            sStyle.borders = []
-        }
-        if (null == sStyle.fills) {
-            sStyle.fills = []
-        }
-
+    _resetStyle(sStyle, isText) {
+        sStyle.borders = []
+        sStyle.fills = []
+        sStyle.shadows = []
     }
 
     _getRulePropsType(props) {
@@ -746,6 +743,7 @@ class DSApp {
         }
 
         const reset = !this.sAppliedStyles[rule.name]
+        log('_applyShadow: reset:' + reset)
 
         if (shadow.inset) {
             if (reset || null == sStyle.innerShadows)
@@ -823,18 +821,25 @@ class DSApp {
 
 
         // save new border in style                
-        if (!(border && (borderColor == null || borderColor != 'none') && (borderWidth == null || borderWidth != '0px'))) {
+        if (Object.keys(border) == 0 || !(border && (borderColor == null || borderColor != 'none') && (borderWidth == null || borderWidth != '0px'))) {
             border = null
         }
 
-        if (this.sAppliedStyles[rule.name] && sStyle.borders != null) {
+        log("this.sAppliedStyles[rule.name]=" + (this.sAppliedStyles[rule.name] != undefined))
+        if (this.sAppliedStyles[rule.name] != undefined && sStyle.borders != null) {
+            log("1")
             // already added border, now add one more
-            if (border)
+            if (border) {
+                log("1.1")
                 sStyle.borders.push(border)
+            }
         } else {
             // drop existing borders
+            log("2")
+            log(border)
             sStyle.borders = border ? [border] : []
         }
+        log(sStyle.borders)
 
     }
 
@@ -1053,6 +1058,7 @@ class DSApp {
         const imageName = token['image']
         var sLayer = rule.sLayer
 
+
         if (imageName != "") {
             if ('transparent' == imageName) {
                 sLayer.style.opacity = 0
@@ -1075,6 +1081,8 @@ class DSApp {
                     image: path
                 })
                 var sStyle = sNewImage.style
+                this._resetStyle(sStyle, false)
+
                 // remove old image
                 sLayer.remove()
                 sLayer = null
@@ -1127,7 +1135,7 @@ class DSApp {
                     sNewImage.frame.height = (parent.frame.height - parseInt(newBottom.replace('px', ""))) - sNewImage.frame.y
                 } else if (null != newTop) {
                     sNewImage.frame.y = parseInt(newTop.replace('px', ""))
-                } else {
+                } else if (null != newBottom) {
                     sNewImage.frame.y = parent.frame.height - parseInt(newBottom.replace('px', "")) - sNewImage.frame.height
                 }
                 if (null != newLeft && null != newRight) {
@@ -1135,7 +1143,7 @@ class DSApp {
                     sNewImage.frame.width = (parent.frame.width - parseInt(newRight.replace('px', ""))) - sNewImage.frame.x
                 } else if (null != newLeft) {
                     sNewImage.frame.x = parseInt(newLeft.replace('px', ""))
-                } else {
+                } else if (null != newRight) {
                     sNewImage.frame.x = parent.frame.width - parseInt(newRight.replace('px', "")) - sNewImage.frame.width
                 }
 
@@ -1144,6 +1152,9 @@ class DSApp {
                 // apply additional styles
                 this._applyShadow(rule, sStyle, 'box-shadow')
                 this._applyBorderStyle(rule, sStyle)
+
+                log("_applyBorderStyle() style: ")
+                log(sStyle)
 
                 /*
                 let image = [[NSImage alloc] initWithContentsOfFile:path];
