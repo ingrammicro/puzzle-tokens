@@ -825,22 +825,15 @@ class DSApp {
             border = null
         }
 
-        log("this.sAppliedStyles[rule.name]=" + (this.sAppliedStyles[rule.name] != undefined))
         if (this.sAppliedStyles[rule.name] != undefined && sStyle.borders != null) {
-            log("1")
             // already added border, now add one more
             if (border) {
-                log("1.1")
                 sStyle.borders.push(border)
             }
         } else {
             // drop existing borders
-            log("2")
-            log(border)
             sStyle.borders = border ? [border] : []
-        }
-        log(sStyle.borders)
-
+        }        
     }
 
     _getObjTextData(obj) {
@@ -1152,10 +1145,7 @@ class DSApp {
                 // apply additional styles
                 this._applyShadow(rule, sStyle, 'box-shadow')
                 this._applyBorderStyle(rule, sStyle)
-
-                log("_applyBorderStyle() style: ")
-                log(sStyle)
-
+            
                 /*
                 let image = [[NSImage alloc] initWithContentsOfFile:path];
                 sLayer.image = image                
