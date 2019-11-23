@@ -1,5 +1,10 @@
 # Change Log
 
+##  Version 6.2.2 (21 Nov 2019)
+- Always reset borders, fills and shadows for style on the fist apply
+- Set line-height on first font-size definition
+- Specified homepage parameter in manifest (by abynim@)
+
 ##  Version 6.2.1 (21 Nov 2019)
 - Removed label borders in Preview
 - Removed trailed FF in description in Preview
