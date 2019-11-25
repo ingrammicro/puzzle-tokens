@@ -396,6 +396,7 @@ class DSApp {
         sStyle.borders = []
         sStyle.fills = []
         sStyle.shadows = []
+        sStyle.borderOptions = undefined
     }
 
     _getRulePropsType(props) {
@@ -788,6 +789,7 @@ class DSApp {
         const token = rule.props
         const borderWidth = token['border-width']
         const borderColor = token['border-color']
+        const borderStyle = token['border-style']
 
         var border = {}
 
@@ -819,6 +821,16 @@ class DSApp {
             border.thickness = borderWidth.replace("px", "")
         }
 
+        // process border-style
+        if (null != borderStyle) {
+            if (undefined == sStyle.borderOptions) sStyle.borderOptions = {}
+            if ("dashed" == borderStyle) {
+                sStyle.borderOptions.dashPattern = [4, 4]
+            } else if ("dotted" == borderStyle) {
+                sStyle.borderOptions.dashPattern = [1, 1]
+            }
+        }
+
 
         // save new border in style                
         if (Object.keys(border) == 0 || !(border && (borderColor == null || borderColor != 'none') && (borderWidth == null || borderWidth != '0px'))) {
@@ -833,7 +845,7 @@ class DSApp {
         } else {
             // drop existing borders
             sStyle.borders = border ? [border] : []
-        }        
+        }
     }
 
     _getObjTextData(obj) {
@@ -1145,18 +1157,7 @@ class DSApp {
                 // apply additional styles
                 this._applyShadow(rule, sStyle, 'box-shadow')
                 this._applyBorderStyle(rule, sStyle)
-            
-                /*
-                let image = [[NSImage alloc] initWithContentsOfFile:path];
-                sLayer.image = image                
-                sLayer.style.opacity = 1
-                if(path.includes('@2x')){
-                    sLayer.frame.width  = image.size().width  / 2
-                    sLayer.frame.height  = image.size().height / 2  
-                }else{
-                    sLayer.frame.width  = image.size().width
-                    sLayer.frame.height  = image.size().height    
-                }*/
+
             }
         }
 
