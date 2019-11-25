@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 6.3.0 (25 Nov 2019)
+- Support for border-style: dotted OR dashed
+
 ##  Version 6.2.2 (21 Nov 2019)
 - Always reset borders, fills and shadows for style on the fist apply
 - Set line-height on first font-size definition

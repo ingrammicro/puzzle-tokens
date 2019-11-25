@@ -44,7 +44,7 @@ The following styles are supporting.
     text-decoration:       underline; // "underline", "line-through"
     text-align:            left;      // "left", center", "right", "justify"
     vertical-align:        top;       // "top", "middle", "bottom"
-    letter-spacing:        10px;      // <value>px, "normal"
+    letter-spacing:        10px;      // <value>px OR "normal"
 }
 
 // Shape layers
@@ -55,7 +55,8 @@ ShapeStyle {
     opacity:               63%;       // "63%" or "0.42"
     border-color:          #000000;
     border-width:          2px;
-    border-position:       center;    // center or inside or outside
+    border-style:          dotted;    // dotted OR dashed
+    border-position:       center;    // center OR inside OR outside
     
     // !!ATTENTION!!
     // Shared styles don't include radius property,
