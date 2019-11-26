@@ -825,9 +825,9 @@ class DSApp {
         if (null != borderStyle) {
             if (undefined == sStyle.borderOptions) sStyle.borderOptions = {}
             if ("dashed" == borderStyle) {
-                sStyle.borderOptions.dashPattern = [4, 4]
+                sStyle.borderOptions.dashPattern = [3 * borderWidth, 3 * borderWidth]
             } else if ("dotted" == borderStyle) {
-                sStyle.borderOptions.dashPattern = [1, 1]
+                sStyle.borderOptions.dashPattern = [1 * borderWidth, 1 * borderWidth]
             }
         }
 
