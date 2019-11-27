@@ -744,7 +744,6 @@ class DSApp {
         }
 
         const reset = !this.sAppliedStyles[rule.name]
-        log('_applyShadow: reset:' + reset)
 
         if (shadow.inset) {
             if (reset || null == sStyle.innerShadows)
@@ -824,10 +823,11 @@ class DSApp {
         // process border-style
         if (null != borderStyle) {
             if (undefined == sStyle.borderOptions) sStyle.borderOptions = {}
+            const width = borderWidth != null ? borderWidth.replace("px", "") : 1
             if ("dashed" == borderStyle) {
-                sStyle.borderOptions.dashPattern = [3 * borderWidth, 3 * borderWidth]
+                sStyle.borderOptions.dashPattern = [3 * width, 3 * width]
             } else if ("dotted" == borderStyle) {
-                sStyle.borderOptions.dashPattern = [1 * borderWidth, 1 * borderWidth]
+                sStyle.borderOptions.dashPattern = [1 * width, 1 * width]
             }
         }
 
