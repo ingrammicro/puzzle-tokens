@@ -1,5 +1,9 @@
 # Change Log
 
+##  Version 6.3.1 (27 Nov 2019)
+- Border-style: dotted OR dashed now uses border-width (if exists) (by Make Bronner)
+- Show error if found multiple styles with the same name
+
 ##  Version 6.3.0 (25 Nov 2019)
 - Support for border-style: dotted OR dashed
 

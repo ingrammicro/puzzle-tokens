@@ -98,19 +98,19 @@ class DSApp {
 
     runQuick() {
         if ('' == this.pathToStyles) return this.runDialog()
-        if (!this.run(false)) return false
+        const success = this.run(false)
 
         UI.message(this._getResultSummary())
 
-        return true
+        return success
     }
 
     runDialog() {
         if (!this._showDialog()) return false
-        if (!this.run(this.showCheck)) return false
+        const success = this.run(this.showCheck)
 
         this._showMessages()
-        return true
+        return success
     }
 
     run(showCheck = true) {
