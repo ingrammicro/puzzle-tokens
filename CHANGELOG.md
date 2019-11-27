@@ -1,7 +1,7 @@
 # Change Log
 
 ##  Version 6.3.1 (27 Nov 2019)
-- Border-style: dotted OR dashed now uses border-width (if exists) (by Make Bronner)
+- Border-style: dotted OR dashed now uses border-width (if exists) (by @mikebronner)
 - Show error if found multiple styles with the same name
 
 ##  Version 6.3.0 (25 Nov 2019)
@@ -10,7 +10,7 @@
 ##  Version 6.2.2 (21 Nov 2019)
 - Always reset borders, fills and shadows for style on the fist apply
 - Set line-height on first font-size definition
-- Specified homepage parameter in manifest (by abynim@)
+- Specified homepage parameter in manifest (by @abynim)
 
 ##  Version 6.2.1 (21 Nov 2019)
 - Removed label borders in Preview
