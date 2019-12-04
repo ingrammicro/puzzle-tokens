@@ -165,13 +165,15 @@ class DSApp {
         var msg = ""
         if (this.result.createdStyles) msg += "Created " + this.result.createdStyles + " style(s). "
         if (this.result.updatedStyles) msg += "Updated " + this.result.updatedStyles + " style(s). "
+        if (!this.result.createdStyles && !this.result.updatedStyles) msg += "No any styles applied "
         return msg
     }
 
     _showCheck() {
         const dialog = new UIDialog("Review changes before you apply it", NSMakeRect(0, 0, 800, 400), "Apply", "")
         dialog.removeLeftColumn()
-        dialog.addTextViewBox("messages", "The following changes will be made in Sketch file:", this.messages, 400)
+        const text = this.messages != '' ? this.messages : "None "
+        dialog.addTextViewBox("messages", "The following changes will be made in Sketch file:", text, 400)
 
         const result = dialog.run()
         dialog.finish()

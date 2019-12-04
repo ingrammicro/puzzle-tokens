@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 6.3.2 (4 Dec 2019)
+- Don't show error if empty content come from styles fule
+
 ##  Version 6.3.1 (27 Nov 2019)
 - Border-style: dotted OR dashed now uses border-width (if exists) (by @mikebronner)
 - Show error if found multiple styles with the same name

@@ -183,12 +183,14 @@ function parseSketchRule(rule, elements, path) {
         }
     }
     ///
-    if (rule.rules && !(rule.rules[0].rules)) {
-        saveSketchRule(rule, path)
-    } else if (rule.rules) {
-        rule.rules.forEach(function (oneRule) {
-            parseSketchRule(oneRule, null, path)
-        })
+    if (rule.rules && rule.rules.length > 0) {
+        if (!(rule.rules[0].rules)) {
+            saveSketchRule(rule, path)
+        } else {
+            rule.rules.forEach(function (oneRule) {
+                parseSketchRule(oneRule, null, path)
+            })
+        }
     }
 }
 
