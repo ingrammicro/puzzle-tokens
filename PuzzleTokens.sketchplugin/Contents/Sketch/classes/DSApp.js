@@ -146,17 +146,15 @@ class DSApp {
             //sStyle.name = sStyle.name.replace(" ",'')
             if (sStyle.name in this.sTextStyles) {
                 this.logError("Found multiply text styles with name '" + sStyle.name + "'")
-            } else {
-                this.sTextStyles[sStyle.name] = sStyle
             }
+            this.sTextStyles[sStyle.name] = sStyle
         }, this)
         this.sLayerStyles = {}
         this.sDoc.sharedLayerStyles.forEach(function (sStyle) {
             if (sStyle.name in this.sLayerStyles) {
                 this.logError("Found multiply layer styles with name '" + sStyle.name + "'")
-            } else {
-                this.sLayerStyles[sStyle.name] = sStyle
             }
+            this.sLayerStyles[sStyle.name] = sStyle
 
         }, this)
     }
