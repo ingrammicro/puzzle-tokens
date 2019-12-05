@@ -2,7 +2,7 @@
 .Controls .Buttons .Submit {
   .Ok__Button {
     Text{
-        color :              @color-white;
+        color :             #FFFFFF 50%;
         font-size:          @font-size-normal;
         font-family:        Verdana;
         font-style:         normal;
@@ -12,8 +12,8 @@
         kerning:            2.5;
     }  
     Back{
-        background-color:   @color-primary;
-        border-color:     #f56565;
+        background-color:   linear-gradient(134deg, #004B3A 0%, #2D8B61 51%, #9BD77E 100%);
+        border-color:      #f56565 10%;
         border-radius:      5px 5px 0 0;   
         border-width:       4px;
         box-shadow:         @shadow-large;
@@ -22,7 +22,7 @@
   }
   .Cancel{
     Text {
-        color:              @color-white;
+        color:              transparent;
         font-size:          @font-size-normal;
         font-family:        "Verdana";
         font-style:         italic;
@@ -30,7 +30,7 @@
         text-decoration:    underline;
         text-transform:     uppercase;        
         letter-spacing:     normal;
-      }  
+      } 
       Back {
         border-width: 3px;
         border-color: #f56565;
@@ -49,8 +49,6 @@
   }
 }
 
-#button__ #__03__tertiary__ #__medium__ #__01__text__ #__01__enabled {.Background{ background-color: red; }}
-
 
 #Artboard__1 .Logo{
     image:               ~"images/new-logo.jpg";
@@ -62,4 +60,4 @@
     bottom:             22px;
     left:               2px;
     right:              33px;
-}  
+} 

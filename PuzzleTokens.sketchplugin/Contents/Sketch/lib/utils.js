@@ -198,6 +198,25 @@ class Utils {
         return '#' + hex.match(/[a-f0-9]{2}/ig).map(e => (255 - parseInt(e, 16) | 0).toString(16).replace(/^([a-f0-9])$/, '0$1')).join('')
     }
 
+
+    // str: white or #32333 or #12345678 or #112233 %10
+    // opacity: see opacityToHex()
+    static strToHEXColor(str, opacity = undefined) {
+        // process #112233 %10
+        if (str.includes("transparent")) {
+            return "#FFFFFF" + Utils.opacityToHex(1)
+        }
+        if (str.includes(" ") && str.includes("%")) {
+            const list = str.split(" ")
+            str = Utils.stripStr(list[0]) + Utils.opacityToHex(list[1])
+        }
+        if (undefined != opacity) {
+            str = Utils.stripStr(str) + Utils.opacityToHex(opacity)
+        }
+        log(str)
+        return str
+    }
+
     // opacity: 0 .. 1.0(transparent) or 0(transparent)..100%
     static opacityToHex(opacity) {
         if (typeof opacity == 'string' && opacity.indexOf("%") >= 0) {

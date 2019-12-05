@@ -710,7 +710,7 @@ class DSApp {
 
         aValues.forEach(function (sColor, index) {
             fill.gradient.stops.push({
-                color: sColor,
+                color: Utils.strToHEXColor(sColor),
                 position: index * delta
             })
         })
@@ -805,7 +805,7 @@ class DSApp {
             var color = borderColor
             var opacity = token['border-color-opacity']
             if (null != opacity) color = color + Utils.opacityToHex(opacity)
-            border.color = color
+            border.color = Utils.strToHEXColor(color)
         }
 
         // process position
@@ -889,15 +889,9 @@ class DSApp {
         var backColor = token['background-color']
         if (backColor != null) {
             if (backColor.indexOf("gradient") > 0) {
-                return this._applyFillGradient(rule, sStyle, backColor)
+                this._applyFillGradient(rule, sStyle, backColor)
             } else if (backColor != "" && backColor != "none") {
-                if ('transparent' == backColor) {
-                    var opacity = "0%"
-                    backColor = "#FFFFFF" + Utils.opacityToHex(opacity)
-                } if (backColor.startsWith("#")) {
-                    var opacity = token['opacity']
-                    if (undefined != opacity) backColor = backColor + Utils.opacityToHex(opacity)
-                }
+                backColor = Utils.strToHEXColor(backColor, token['opacity'])
                 var fill = {
                     color: backColor,
                     fill: Style.FillType.Color
@@ -915,7 +909,7 @@ class DSApp {
         // SET SHADOW 
         this._applyShadow(rule, sStyle, 'box-shadow')
 
-        // SET BORDER
+        // SET BORDER       
         if (('border-color' in token) || ('border-width' in token) || ('border-position' in token))
             this._applyBorderStyle(rule, sStyle)
 
@@ -1022,7 +1016,7 @@ class DSApp {
             let opacity = token['opacity']
             let opacityHEX = undefined != opacity ? Utils.opacityToHex(opacity) : ''
 
-            sStyle.textColor = color + opacityHEX
+            sStyle.textColor = Utils.strToHEXColor(color + opacityHEX)
         }
         // SET TEXT TRANSFORM
         if (undefined != transform) {

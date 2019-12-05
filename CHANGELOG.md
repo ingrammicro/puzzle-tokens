@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 6.4.0 (5 Dec 2019)
+- Supported colors in "#AABBCC 50%" format
+
 ##  Version 6.3.2 (4 Dec 2019)
 - Don't show error if empty content come from styles fule
 
