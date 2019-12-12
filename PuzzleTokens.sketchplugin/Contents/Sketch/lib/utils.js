@@ -213,7 +213,6 @@ class Utils {
         if (undefined != opacity) {
             str = Utils.stripStr(str) + Utils.opacityToHex(opacity)
         }
-        log(str)
         return str
     }
 

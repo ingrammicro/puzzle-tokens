@@ -4,6 +4,8 @@ var nodePath = require('path');
 const args = process.argv.slice(2)
 var pathToLess = args[0]
 var pathToJSON = args[1]
+var pathToResultCSS = args[2]
+var pathToResultVars = args[3]
 var lessPath = ''
 var lessVars = {}
 var sketchRules = []
@@ -25,6 +27,9 @@ var strLess = injectTokensIntoLess(strSrcLess)
 
 // RENDER LESS TO JSON
 transformLESStoJSON(strLess)
+
+// RENDER CUSTOM LESS TO RAW CSS
+transformCustomLESStoCSS(pathToLess, pathToResultCSS)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -123,12 +128,12 @@ function transformLESStoJSON(data) {
                     return
                 } else if (rule.variable === true) {
                     //  var name;
-                    //name = rule.name.substr(1);					
+                    name = rule.name.substr(1);
 
-                    //  var value = rule.value;
-                    //lessVars[name] = value.toCSS(options);				
+                    var value = rule.value;
+                    lessVars[name] = value.toCSS(options);
 
-                    //console.log(name+" : "+value.toCSS(options))
+                    console.log(name + " : " + value.toCSS(options))
                 } else {
                     parseSketchRule(rule, null, [])
                 }
@@ -136,11 +141,13 @@ function transformLESStoJSON(data) {
             //console.log("----------------------------------------")
             //console.log(lessVars)
 
-            // completed
-            //saveData(lessVars,pathToJSON)
+            // completed            
             console.log("Completed")
             saveData(sketchRules, pathToJSON)
-            console.log("Saved")
+            console.log("Saved JSON")
+            if (pathToResultVars != '') {
+                saveData(lessVars, pathToResultVars)
+            }
         });
     } catch (e) {
         console.log("Failed to parse LESS with error message:\n")
@@ -248,4 +255,19 @@ function _getPathToLessModules() {
     var result = require('child_process').execSync("node /usr/local/bin/npm -g root", { env: process.env.PATH })
     var path = result.toString().replace("\n", "")
     return path + "/less"
+}
+
+
+function transformCustomLESStoCSS(pathToOrgLess, pathToCSS) {
+    const pathToCustomLess = pathToOrgLess.replace(".less", ".css.less")
+
+    // Check file existing
+    if (!fs.existsSync(pathToCustomLess)) {
+        // no file with name <LESS_FILE>.css.less
+        return true
+    }
+
+    // Convert LESS to pure CSS and save it to CSS file
+    const result = require('child_process').execSync("node /usr/local/bin/lessc " + pathToCustomLess + " > " + pathToCSS, { env: process.env.PATH })
+    console.log("Rendered CSS LESS to CSS: " + pathToCSS)
 }

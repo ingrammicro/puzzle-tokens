@@ -67,6 +67,8 @@ class DSApp {
         this.pathToStylesList = this.pathToStylesList || []
         if (this.pathToStylesList.length == 0 && this.pathToStyles != '') this.pathToStylesList.push(this.pathToStyles)
 
+        this.pathToDoc = ""
+
         this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS) == 1
         this.showDebug = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DEBUG) == 1
         this.showCheck = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_CHECK) == 1
@@ -115,6 +117,15 @@ class DSApp {
 
     run(showCheck = true) {
         this.pathToTokens = this.pathToStyles.substring(0, this.pathToStyles.lastIndexOf("/"));
+
+        if (this.genSymbTokens) {
+            if (!this.sDoc.path) {
+                return this.logError("Can't create symbols & style file for unsaved Sketch file. Save it befor or disable symbols & style file generation in Settings.")
+            } else {
+                const pathDetails = path.parse(this.sDoc.path)
+                this.pathToDoc = pathDetails.dir + "/" + pathDetails.name
+            }
+        }
 
         var applied = false
         while (true) {
@@ -212,11 +223,7 @@ class DSApp {
     }
 
     _saveElements() {
-        if (!this.sDoc.path) {
-            return this.logError("Can't create symbols & style file for unsaved Sketch file. Save it befor or disable symbols & style file generation in Settings.")
-        }
-        const pathDetails = path.parse(this.sDoc.path)
-        const pathToRules = pathDetails.dir + "/" + pathDetails.name + Constants.SYMBOLTOKENFILE_POSTFIX
+        const pathToRules = this.pathToDoc + Constants.SYMBOLTOKENFILE_POSTFIX
         const json = JSON.stringify(this.elements, null, null)
         this.logMsg("Save elements info into: " + pathToRules)
         Utils.writeToFile(json, pathToRules)
@@ -445,9 +452,13 @@ class DSApp {
 
         // Run script 
         const pathToRulesJSON = tempFolder + "/nsdata.json"
+        const pathToCSS = this.pathToDoc != '' ? (this.pathToDoc + Constants.CSSFILE_POSTFIX) : ""
+        const pathToVars = this.pathToDoc != '' ? (this.pathToDoc + Constants.VARSFILE_POSTFIX) : ""
         var args = [scriptPath]
         args.push(this.pathToStyles)
         args.push(pathToRulesJSON)
+        args.push(pathToCSS)
+        args.push(pathToVars)
 
         const runResult = Utils.runCommand("/usr/local/bin/node", args)
         if (!runResult.result) {
