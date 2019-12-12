@@ -1,10 +1,14 @@
 # Change Log
 
+##  Version 6.5.0 (5 Dec 2019)
+- Checking for style name duplicates is disabled in default configuration
+- Added support for Puzzle Publisher page transition animations
+
 ##  Version 6.4.0 (5 Dec 2019)
 - Supported colors in "#AABBCC 50%" format
 
 ##  Version 6.3.2 (4 Dec 2019)
-- Don't show error if empty content come from styles fule
+- Don't show error if empty content come from styles rule
 
 ##  Version 6.3.1 (27 Nov 2019)
 - Border-style: dotted OR dashed now uses border-width (if exists) (by @mikebronner)
