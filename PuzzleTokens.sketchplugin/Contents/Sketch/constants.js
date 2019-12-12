@@ -18,4 +18,5 @@ var SettingKeys = {
     PLUGIN_GENERATE_SYMBOLTOKENS: "pluginGenSymbTokens",
     PLUGIN_SHOW_CHECK: "pluginPreview",
     PLUGIN_SHOW_DEBUG: "pluginDebug",
+    PLUGIN_SHOW_DOUBLESTYLES: "pluginDoubleStyles",
 };

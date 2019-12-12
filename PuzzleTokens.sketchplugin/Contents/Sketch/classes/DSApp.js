@@ -72,6 +72,7 @@ class DSApp {
         this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS) == 1
         this.showDebug = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DEBUG) == 1
         this.showCheck = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_CHECK) == 1
+        this.showDoubleStyleError = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DOUBLESTYLES) == 1
 
         this._initStyles()
     }
@@ -152,17 +153,19 @@ class DSApp {
     // Internal
 
     _initStyles() {
+        const showError = Settings.PLUGIN_SHOW_DOUBLESTYLES
+
         this.sTextStyles = {}
         this.sDoc.sharedTextStyles.forEach(function (sStyle) {
             //sStyle.name = sStyle.name.replace(" ",'')
-            if (sStyle.name in this.sTextStyles) {
+            if (this.showDoubleStyleError && sStyle.name in this.sTextStyles) {
                 this.logError("Found multiply text styles with name '" + sStyle.name + "'")
             }
             this.sTextStyles[sStyle.name] = sStyle
         }, this)
         this.sLayerStyles = {}
         this.sDoc.sharedLayerStyles.forEach(function (sStyle) {
-            if (sStyle.name in this.sLayerStyles) {
+            if (this.showDoubleStyleError && sStyle.name in this.sLayerStyles) {
                 this.logError("Found multiply layer styles with name '" + sStyle.name + "'")
             }
             this.sLayerStyles[sStyle.name] = sStyle
