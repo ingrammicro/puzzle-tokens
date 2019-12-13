@@ -1,6 +1,9 @@
 # Change Log
 
-##  Version 6.5.0 (5 Dec 2019)
+##  Version 6.5.1 (13 Dec 2019)
+- Fixed typo
+
+##  Version 6.5.0 (12 Dec 2019)
 - Checking for style name duplicates is disabled in default configuration
 - Added support for Puzzle Publisher page transition animations
 
