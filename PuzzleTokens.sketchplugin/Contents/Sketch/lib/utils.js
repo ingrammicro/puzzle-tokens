@@ -204,7 +204,7 @@ class Utils {
     static strToHEXColor(str, opacity = undefined) {
         // process #112233 %10
         if (str.includes("transparent")) {
-            return "#FFFFFF" + Utils.opacityToHex(1)
+            return "#FFFFFF" + Utils.opacityToHex(0)
         }
         if (str.includes(" ") && str.includes("%")) {
             const list = str.split(" ")

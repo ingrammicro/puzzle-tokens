@@ -454,14 +454,18 @@ class DSApp {
         if (undefined == scriptPath) return false
 
         // Run script 
-        const pathToRulesJSON = tempFolder + "/nsdata.json"
-        const pathToCSS = this.pathToDoc != '' ? (this.pathToDoc + Constants.CSSFILE_POSTFIX) : ""
-        const pathToVars = this.pathToDoc != '' ? (this.pathToDoc + Constants.VARSFILE_POSTFIX) : ""
         var args = [scriptPath]
-        args.push(this.pathToStyles)
-        args.push(pathToRulesJSON)
-        args.push(pathToCSS)
-        args.push(pathToVars)
+        args.push("-styles=" + this.pathToStyles)
+
+        const pathToRulesJSON = tempFolder + " / nsdata.json"
+        args.push("-json=" + pathToRulesJSON)
+
+        if (this.pathToDoc != "") {
+            const pathToCSS = this.pathToDoc + Constants.CSSFILE_POSTFIX
+            args.push("-css=" + pathToCSS)
+            const pathToVars = this.pathToDoc + Constants.VARSFILE_POSTFIX
+            args.push("-vars=" + pathToVars)
+        }
 
         const runResult = Utils.runCommand("/usr/local/bin/node", args)
         if (!runResult.result) {

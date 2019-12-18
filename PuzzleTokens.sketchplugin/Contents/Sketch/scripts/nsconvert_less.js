@@ -1,11 +1,13 @@
 var fs = require('fs');
 var nodePath = require('path');
 
-const args = process.argv.slice(2)
-var pathToLess = args[0]
-var pathToJSON = args[1]
-var pathToResultCSS = args[2]
-var pathToResultVars = args[3]
+const args = parseArgs(process.argv.slice(2))
+var pathToLess = args['-styles']
+var pathToJSON = args['-json']
+var pathToResultCSS = args['-css']
+var pathToResultVars = args['-vars']
+var pluginNamesSrc = args['-plugins']
+var pluginNames = pluginNamesSrc != undefined ? pluginNamesSrc.split(',') : undefined
 var lessPath = ''
 var lessVars = {}
 var sketchRules = []
@@ -29,14 +31,23 @@ var strLess = injectTokensIntoLess(strSrcLess)
 transformLESStoJSON(strLess)
 
 // RENDER CUSTOM LESS TO RAW CSS
-transformCustomLESStoCSS(pathToLess, pathToResultCSS)
+if (undefined != pathToResultCSS)
+    transformCustomLESStoCSS(pathToLess, pathToResultCSS)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+function parseArgs(args) {
+    let list = []
+    args.forEach(function (arg) {
+        const v = arg.split("=")
+        if (0 == v.length) return
+        list[v[0]] = v[1]
+    })
+    return list
+}
 
 function initPaths() {
     if (undefined == pathToLess) {
-        console.log("nsconvert_less.js PATH_TO_LESS_FILE1 PATH_TO_JSON_FILE")
+        console.log("nsconvert_less.js -styles=<PATH_TO_LESS_FILE> -json=<PATH_TO_JSON_FILE> -css=<pathToResultCSS> -vars=<pathToResultVars> -plugins=[plugin1,plugin2]")
         return false
     }
 
@@ -96,15 +107,22 @@ function loadLessFromFiles(fileName1, fileName2) {
 
 function transformLESStoJSON(data) {
 
-    var passToLessModules = _getPathToLessModules()
-    console.log(passToLessModules)
-    var less = require(passToLessModules)
+    var passToNodeModules = _getPathToNodeModules()
+    var less = require(passToNodeModules + "/less")
+
+    var pluginModules = []
+    if (undefined != pluginNames) {
+        pluginNames.forEach(function (pluginName) {
+            const pluginModule = require(passToNodeModules + "/" + pluginName);
+            pluginModules.push(pluginModule)
+        })
+    }
 
     var options1 = {
         async: false,
-        fileAsync: false
+        fileAsync: false,
+        plugins: pluginModules,
     }
-
 
     process.on('unhandledRejection', error => {
         // Will print "unhandledRejection err is not defined"
@@ -145,7 +163,7 @@ function transformLESStoJSON(data) {
             console.log("Completed")
             saveData(sketchRules, pathToJSON)
             console.log("Saved JSON")
-            if (pathToResultVars != '') {
+            if (pathToResultVars != undefined) {
                 saveData(lessVars, pathToResultVars)
             }
         });
@@ -251,10 +269,10 @@ function saveData(data, pathToJSON) {
     return true
 }
 
-function _getPathToLessModules() {
+function _getPathToNodeModules() {
     var result = require('child_process').execSync("node /usr/local/bin/npm -g root", { env: process.env.PATH })
     var path = result.toString().replace("\n", "")
-    return path + "/less"
+    return path
 }
 
 
