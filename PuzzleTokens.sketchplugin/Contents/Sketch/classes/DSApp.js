@@ -503,25 +503,28 @@ class DSApp {
         // get 'Controls / Buttons' name of symbol master
         const symbolPaths = path.filter(s => s.startsWith('#')).map(n => n.replace(/^[\.#]/, '').replace(/(_{2})/g, ' '))
         let symbolName = symbolPaths.join(' / ')
-        let sFoundLayers = this.sDoc.getLayersNamed(symbolName)
+        let sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => l.type != 'SymbolInstance')
         if (!sFoundLayers.length) {
             symbolName = symbolPaths.join('/')
-            sFoundLayers = this.sDoc.getLayersNamed(symbolName)
+            sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => l.type != 'SymbolInstance')
         }
         if (!sFoundLayers.length) {
             this.logError("Can not find a Symbol Master or Artboard by name '" + symbolName + "'")
             return null
         }
-
         const layerPath = path.filter(s => !s.startsWith('#')).map(n => n.replace(/^[\.#]/, '').replace(/(\s+)/g, ''))
         const sLayer = this._findLayerChildByPath(sFoundLayers[0], layerPath)
         if (!sLayer) {
             this.logError("Can not find a layer '" + layerPath.join(' / ') + "' in symbol master or artboard'" + symbolName + "'")
+            log(sFoundLayers)
         }
         return sLayer
     }
 
     _findLayerChildByPath(sLayerParent, path) {
+        if (undefined == sLayerParent.layers) {
+            return null
+        }
         const pathNode = path[0]
         for (var sLayer of sLayerParent.layers) {
             if (sLayer.name.replace(/(\s+)/g, "") == pathNode) {
