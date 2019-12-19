@@ -457,7 +457,7 @@ class DSApp {
         var args = [scriptPath]
         args.push("-styles=" + this.pathToStyles)
 
-        const pathToRulesJSON = tempFolder + " / nsdata.json"
+        const pathToRulesJSON = tempFolder + "/nsdata.json"
         args.push("-json=" + pathToRulesJSON)
 
         if (this.pathToDoc != "") {

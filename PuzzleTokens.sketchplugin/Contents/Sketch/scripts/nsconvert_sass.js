@@ -1,16 +1,12 @@
 var fs = require('fs');
 var nodePath = require('path');
 
-const args = process.argv.slice(2)
-var pathToSass = args[0]
-var pathToJSON = args[1]
-var pathToResultCSS = args[2] // is not using for SASS currently
-var pathToResultVars = args[3] // is not using for SASS currently
+
+const args = parseArgs(process.argv.slice(2))
+var pathToSass = args['-styles']
+var pathToJSON = args['-json']
 var sassPath = ''
-var lessVars = {}
 var sketchRules = []
-var parseOptions = null
-var _lookups = {}
 
 /////////////////////////////////////////////
 console.log("Started")
@@ -30,6 +26,15 @@ transformSASStoJSON(strSass)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+function parseArgs(args) {
+    let list = []
+    args.forEach(function (arg) {
+        const v = arg.split("=")
+        if (0 == v.length) return
+        list[v[0]] = v[1]
+    })
+    return list
+}
 
 function initPaths() {
     if (undefined == pathToSass) {
