@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 6.6.0 (19 Dec 2019)
+- Added sklayer-style: and sktext-style: CSS properties
+
 ##  Version 6.5.2 (19 Dec 2019)
 - Fixed issue with the identical name for symbol instance and symbol master
 - Changed command line API for internal scrips (working on less plugins support)
