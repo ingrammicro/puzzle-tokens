@@ -12,6 +12,8 @@ var SharedStyle = require('sketch/dom').SharedStyle
 var UI = require('sketch/ui')
 const path = require('path');
 const Text = require('sketch/dom').Text
+const SKLAYER_STYLE = "sklayer-style"
+const SKTEXT_STYLE = "sktext-style"
 
 
 const alignMap = {
@@ -140,6 +142,8 @@ class DSApp {
             this.logMsg("Finished")
             break
         }
+
+        this.nDoc.reloadInspector();
 
         // show final message
         if (this.errors.length > 0) {
@@ -333,11 +337,10 @@ class DSApp {
         return true
     }
 
-
     _applyRules(justCheck) {
         this.logMsg("Started")
         for (const rule of this.rules) {
-            const ruleType = this._getRulePropsType(rule.props)
+            const ruleType = rule.type
             const sStyleName = rule.name // spcified in  _checkRules()
             //
             //this.logMsg("_applyRules: process style  " + sStyleName)
@@ -353,7 +356,18 @@ class DSApp {
                 var sSharedStyle = null
                 var sStyle = null
 
+
                 if (rule.isStandalone) {
+                    // assign existing style
+                    log(rule.type)
+                    const sExistingStyle = this._getFindSharedStyleByRule(rule)
+                    log(sExistingStyle)
+                    if (undefined != sExistingStyle) {
+                        rule.sLayer.sharedStyle = sExistingStyle
+                        rule.sLayer.style.syncWithSharedStyle(sExistingStyle)
+                        log("APPLIED")
+                    }
+                    //
                     sStyle = rule.sLayer.style
                 } else {
                     sSharedStyle = isText ? this.sTextStyles[sStyleName] : this.sLayerStyles[sStyleName]
@@ -417,6 +431,25 @@ class DSApp {
         sStyle.borderOptions = undefined
     }
 
+
+    _getFindSharedStyleByRule(rule) {
+        let sStyleNameSrc = ""
+        let isText = false
+        if (rule.type.indexOf(SKTEXT_STYLE) >= 0) {
+            sStyleNameSrc = rule.props[SKTEXT_STYLE]
+            isText = true
+        } else if (rule.type.indexOf(SKLAYER_STYLE) >= 0) {
+            sStyleNameSrc = rule.props[SKLAYER_STYLE]
+        } else {
+            return undefined
+        }
+
+        let sStyleName = sStyleNameSrc.replace(/(\s\/\s)/g, '\/').replace(/^(")/g, '').replace(/(")$/g, '')
+        const sSharedStyle = isText ? this.sTextStyles[sStyleName] : this.sLayerStyles[sStyleName]
+        return sSharedStyle
+    }
+
+
     _getRulePropsType(props) {
         var res = ""
         if (null != props['color'] || null != props['font-family'] || null != props['font-style'] || null != props['font-size']
@@ -434,6 +467,10 @@ class DSApp {
                 res += "single_opacity"
             else
                 res += "opacity"
+        if (null != props['sklayer-style'])
+            res += "sklayer-style"
+        else if (null != props['sktext-tyle'])
+            res += "sktext-style"
 
         return res
     }

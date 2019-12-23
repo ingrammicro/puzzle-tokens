@@ -1,0 +1,10 @@
+{
+    "color-white": "#FFFFFF",
+    "color-primary": "#0071ba",
+    "color-secondary": "#4A4A4A",
+    "color-text-primary": "#47485a",
+    "shadow-large": "0px 5px 10px rgba(0, 0, 0, 0.5)",
+    "inner-shadow-1": "inset -1 0px 0px #DFE4EA",
+    "radius-medium": "5px",
+    "font-size-normal": "12px"
+}
