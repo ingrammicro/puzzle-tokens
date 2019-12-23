@@ -351,6 +351,7 @@ class DSApp {
             } else {
 
                 const isText = ruleType.indexOf("text") >= 0
+                const isLayer = ruleType.indexOf("layer") >= 0
 
                 // Find or create new style
                 var sSharedStyle = null
@@ -367,6 +368,7 @@ class DSApp {
                         rule.sLayer.style.syncWithSharedStyle(sExistingStyle)
                         log("APPLIED")
                     }
+
                     //
                     sStyle = rule.sLayer.style
                 } else {
@@ -379,7 +381,7 @@ class DSApp {
                 }
 
                 // drop existing (or new) style properties before first apply
-                if (!this.sAppliedStyles[sStyleName]) this._resetStyle(sStyle, isText)
+                if (!this.sAppliedStyles[sStyleName] && (isText || isLayer) && !rule.isStandalone) this._resetStyle(sStyle, isText)
 
                 // Apply rule properties
                 // drop commented property
@@ -387,7 +389,7 @@ class DSApp {
 
                 if (isText)
                     this._applyRuleToTextStyle(rule, sSharedStyle, sStyle)
-                else
+                else if (isLayer)
                     this._applyRuleToLayerStyle(rule, sSharedStyle, sStyle)
 
                 if (rule.isStandalone) {
