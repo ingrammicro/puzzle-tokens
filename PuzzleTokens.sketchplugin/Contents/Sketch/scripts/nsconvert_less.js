@@ -149,7 +149,7 @@ function transformLESStoJSON(data) {
                     name = rule.name.substr(1);
 
                     var value = rule.value;
-                    lessVars[name] = value.toCSS(options);
+                    lessVars["@" + name] = value.toCSS(options);
 
                     console.log(name + " : " + value.toCSS(options))
                 } else {
