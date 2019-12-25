@@ -1,6 +1,9 @@
 # Change Log
 
-##  Version 6.6.0 (19 Dec 2019)
+##  Version 6.6.1 (25 Dec 2019)
+- Updated saving of LESS token values
+
+##  Version 6.6.0 (21 Dec 2019)
 - Added sklayer-style: and sktext-style: CSS properties
 
 ##  Version 6.5.2 (19 Dec 2019)
