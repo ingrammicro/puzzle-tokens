@@ -181,6 +181,11 @@ class DSApp {
     // return Sketch native object
     _findStyleByName(styleName, isLayerStyle) {
         this.logMsg("_findStyleByName running...  styleName:" + styleName)
+
+
+        const sLocalStyle = !isLayerStyle ? this.sTextStyles[styleName] : this.sLayerStyles[styleName]
+        if (sLocalStyle) return sLocalStyle
+
         // find Sketch Artboard
         var sStyle = undefined
         var lib = undefined
@@ -191,7 +196,7 @@ class DSApp {
         }
         // check artboard existing
         if (!sStyle) {
-            exporter.logMsg("_findStyleByName FAILED")
+            this.logMsg("_findStyleByName FAILED")
             return false
         }
         return sStyle

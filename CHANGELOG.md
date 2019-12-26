@@ -1,6 +1,6 @@
 # Change Log
 
-##  Version 6.6.2 (26 Dec 2019)
+##  Version 6.6.3 (26 Dec 2019)
 - Fixed assignment of text styles
 - Now shared style from any enabled library can be assigned
 
