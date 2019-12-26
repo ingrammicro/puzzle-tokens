@@ -3,7 +3,7 @@ var Constants = {
     TAB_SIZE: 2,
     HOTSPOT_PADDING: 0,
     LAYER_LOGGING: true,
-    LOGGING: true,
+    LOGGING: false,
     RESOURCES_FOLDER: "scripts",
     SYMBOLTOKENFILE_POSTFIX: "-inspector.json",
     CSSFILE_POSTFIX: "-viewer.css",

@@ -1,5 +1,9 @@
 # Change Log
 
+##  Version 6.6.2 (26 Dec 2019)
+- Fixed assignment of text styles
+- Now shared style from any enabled library can be assigned
+
 ##  Version 6.6.1 (25 Dec 2019)
 - Updated saving of LESS token values
 

@@ -51,7 +51,8 @@ class DSApp {
 
         this.result = {
             createdStyles: 0,
-            updatedStyles: 0
+            updatedStyles: 0,
+            assignedStyles: 0
         }
 
         this.messages = ""
@@ -177,11 +178,71 @@ class DSApp {
         }, this)
     }
 
+    // return Sketch native object
+    _findStyleByName(styleName, isLayerStyle) {
+        this.logMsg("_findStyleByName running...  styleName:" + styleName)
+        // find Sketch Artboard
+        var sStyle = undefined
+        var lib = undefined
+        for (lib of this._getLibraries()) {
+            this.logMsg("_findStyleByName for lib " + lib.sLib.name)
+            sStyle = this._findStyleByNameInLibrary(styleName, isLayerStyle, lib)
+            if (sStyle) break
+        }
+        // check artboard existing
+        if (!sStyle) {
+            exporter.logMsg("_findStyleByName FAILED")
+            return false
+        }
+        return sStyle
+    }
+
+    _findStyleByNameInLibrary(styleName, isLayerStyle, jsLib) {
+        let sFoundStyle = undefined
+        const sStyleRefs = isLayerStyle ?
+            jsLib.sLib.getImportableLayerStyleReferencesForDocument(this.sDoc)
+            : jsLib.sLib.getImportableTextStyleReferencesForDocument(this.sDoc)
+
+        sStyleRefs.forEach(function (sStyleRef) {
+            if (sStyleRef.name == styleName) {
+                sFoundStyle = sStyleRef.import()
+                return
+            }
+        }, this)
+        return sFoundStyle
+    }
+
+    _getLibraries() {
+        if (undefined != this.jsLibs) return this.jsLibs
+
+        log("_getLibraries: start")
+        this.jsLibs = []
+
+        var sLibraries = require('sketch/dom').getLibraries()
+        for (const sLib of sLibraries) {
+            if (!sLib.valid || !sLib.enabled) continue
+            log("_getLibraries: try to load document for library " + sLib.name + "")
+
+            const sDoc = sLib.getDocument()
+            if (!sDoc) {
+                log("_getLibraries: can't load document for library " + sDoc.path + "")
+                continue
+            }
+            this.jsLibs.push({
+                sLib: sLib,
+                sDoc: sDoc
+            })
+        }
+        log("_getLibraries: finish")
+        return this.jsLibs
+    }
+
     _getResultSummary() {
         var msg = ""
         if (this.result.createdStyles) msg += "Created " + this.result.createdStyles + " style(s). "
         if (this.result.updatedStyles) msg += "Updated " + this.result.updatedStyles + " style(s). "
-        if (!this.result.createdStyles && !this.result.updatedStyles) msg += "No any styles applied "
+        if (this.result.assignedStyles) msg += "Assigned " + this.result.assignedStyles + " style(s). "
+        if (!(this.result.createdStyles + this.result.updatedStyles + this.result.assignedStyles)) msg = "No any styles applied or assigned "
         return msg
     }
 
@@ -360,15 +421,15 @@ class DSApp {
 
                 if (rule.isStandalone) {
                     // assign existing style
-                    log(rule.type)
                     const sExistingStyle = this._getFindSharedStyleByRule(rule)
-                    log(sExistingStyle)
                     if (undefined != sExistingStyle) {
-                        rule.sLayer.sharedStyle = sExistingStyle
-                        rule.sLayer.style.syncWithSharedStyle(sExistingStyle)
-                        log("APPLIED")
+                        const l = rule.sLayer
+                        l.style = {}
+                        l.sharedStyle = sExistingStyle
+                        l.style.syncWithSharedStyle(sExistingStyle)
+                        this.result.assignedStyles++
+                        log(this.result.assignedStyles)
                     }
-
                     //
                     sStyle = rule.sLayer.style
                 } else {
@@ -447,7 +508,10 @@ class DSApp {
         }
 
         let sStyleName = sStyleNameSrc.replace(/(\s\/\s)/g, '\/').replace(/^(")/g, '').replace(/(")$/g, '')
-        const sSharedStyle = isText ? this.sTextStyles[sStyleName] : this.sLayerStyles[sStyleName]
+        const sSharedStyle = this._findStyleByName(sStyleName, !isText)
+        if (undefined == sSharedStyle) {
+            this.logError("Can't find shared style by name " + sStyleName)
+        }
         return sSharedStyle
     }
 
@@ -469,10 +533,11 @@ class DSApp {
                 res += "single_opacity"
             else
                 res += "opacity"
-        if (null != props['sklayer-style'])
-            res += "sklayer-style"
-        else if (null != props['sktext-tyle'])
-            res += "sktext-style"
+
+        if (null != props[SKLAYER_STYLE])
+            res += SKLAYER_STYLE
+        else if (null != props[SKTEXT_STYLE])
+            res += SKTEXT_STYLE
 
         return res
     }
