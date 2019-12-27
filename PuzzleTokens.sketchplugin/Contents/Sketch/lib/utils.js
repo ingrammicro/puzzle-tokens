@@ -149,12 +149,21 @@ class Utils {
         return "#" + r + g + b + a;
     }
 
+    // tries to split >> 0 7px 40px 0 rgba(0,0,0,0.13), 0 2px 8px 0 rgba(0,0,0,0.24) <<
+    // return array of {}
+    static splitCSSShadows(src) {
+        // replace 0 7px 40px 0 black, 0 7px 40px 0 rgba(1, 2, 3, 0.13) 
+        //   to 
+        //  0 7px 40px 0 black, 0 7px 40px 0 rgba(1,2,3,0.13)
+        //  to prepare it to split
+        src = src.replace(/(\d)(, )/g, '$1,')
+        return src.split(", ").map(s => Utils.splitCSSShadow(s))
+    }
 
     // s:  "0 4px 16px 0 #000000"
     //  or 
     // s:  "inset 0 4px 16px #000000"
     static splitCSSShadow(src) {
-
         var inset = false
         if (src.indexOf("inset") >= 0) {
             inset = true
@@ -174,6 +183,8 @@ class Utils {
         var color = Utils.RGBAToHexA(items[items.length - 1])
 
         return {
+            'enabled': true,
+            'type': 'Shadow',
             'inset': inset,
             'x': pxFunc(items[0]),
             'y': pxFunc(items[1]),

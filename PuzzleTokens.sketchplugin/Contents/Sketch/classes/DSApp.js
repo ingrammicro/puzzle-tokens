@@ -864,37 +864,38 @@ class DSApp {
     }
 
     _applyShadow(rule, sStyle, shadowPropName) {
-        var shadow = null
+        var shadows = null
 
         var shadowCSS = rule.props[shadowPropName]
 
-        //log('shadowCSS='+shadowCSS)
         if (shadowCSS != null && shadowCSS != "" && shadowCSS != "none") {
-            shadow = Utils.splitCSSShadow(shadowCSS)
-            shadow.enabled = true
-            shadow.type = 'Shadow'
+            shadows = Utils.splitCSSShadows(shadowCSS)
         } else {
-            //sLayer.style.shadows = []
         }
 
-        if (!shadow) {
+        if (!shadows || !shadows.length) {
             return false
         }
 
-        const reset = !this.sAppliedStyles[rule.name]
+        let reset = !this.sAppliedStyles[rule.name]
+        let resetInset
 
-        if (shadow.inset) {
-            if (reset || null == sStyle.innerShadows)
-                sStyle.innerShadows = [shadow]
-            else
-                sStyle.innerShadows.push(shadow)
-        } else {
-            if (reset || null == sStyle.shadows)
-                sStyle.shadows = [shadow]
-            else
-                sStyle.shadows.push(shadow)
-        }
 
+        shadows.forEach(function (shadow) {
+            if (shadow.inset) {
+                if (resetInset || null == sStyle.innerShadows) {
+                    sStyle.innerShadows = [shadow]
+                    resetInset = false
+                } else
+                    sStyle.innerShadows.push(shadow)
+            } else {
+                if (reset || null == sStyle.shadows) {
+                    sStyle.shadows = [shadow]
+                    reset = false
+                } else
+                    sStyle.shadows.push(shadow)
+            }
+        })
     }
 
     _applyShapeRadius(rule, sSharedStyle, sStyle) {
