@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 6.7.1 (27 Dec 2019)
+- Fixed issue with multiply shadows
+
 ##  Version 6.7.0 (27 Dec 2019)
 - Support for multiply shadows. Example: box-shadow: 0 3px 20px 0 rgba(0,0,0,0.12), 0 2px 7px 0 rgba(0,0,0,0.20);
 

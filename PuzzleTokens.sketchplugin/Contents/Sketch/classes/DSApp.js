@@ -878,7 +878,7 @@ class DSApp {
         }
 
         let reset = !this.sAppliedStyles[rule.name]
-        let resetInset
+        let resetInset = true
 
 
         shadows.forEach(function (shadow) {
