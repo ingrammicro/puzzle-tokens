@@ -380,6 +380,8 @@ class DSPreviewer {
     }
 
 
+
+
     _showStyles(sStyles, name) {
         this._resetArtboards()
 
@@ -396,6 +398,11 @@ class DSPreviewer {
             }
             y = this._showGroupHead(groupName, y)
             y = this._showTextStyleGroup(styles, y)
+        }
+
+        if (y < this.sArtboard.frame.height) {
+            this.sArtboard.frame.height = y
+            this.artboardY = y + this.def.gen.pageVSpace
         }
     }
 

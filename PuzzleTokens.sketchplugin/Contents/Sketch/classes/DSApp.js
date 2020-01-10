@@ -27,6 +27,17 @@ const vertAlignMap = {
     "middle": Text.VerticalAlignment.center,
     "bottom": Text.VerticalAlignment.bottom
 }
+const bordedLineEndMap = {
+    "butt": Style.LineEnd.Butt,
+    "round": Style.LineEnd.Round,
+    "projecting": Style.LineEnd.Projecting
+}
+
+const bordedLineJoinMap = {
+    "miter": Style.LineJoin.Miter,
+    "round": Style.LineJoin.Round,
+    "bevel": Style.LineJoin.Bevel
+}
 
 function degToRad(deg) {
     return deg * Math.PI / 180;
@@ -928,6 +939,8 @@ class DSApp {
         const borderWidth = token['border-width']
         const borderColor = token['border-color']
         const borderStyle = token['border-style']
+        const borderLineEnd = token['border-line-end']
+        const borderLineJoin = token['border-line-join']
 
         var border = {}
 
@@ -968,6 +981,21 @@ class DSApp {
             } else if ("dotted" == borderStyle) {
                 sStyle.borderOptions.dashPattern = [1 * width, 1 * width]
             }
+        }
+
+        if (null != borderLineEnd) {
+            if (undefined == sStyle.borderOptions) sStyle.borderOptions = {}
+            if (!(borderLineEnd) in bordedLineEndMap) {
+                return this.logError('Wrong border-line-end value: ' + borderLineEnd)
+            }
+            sStyle.borderOptions.lineEnd = bordedLineEndMap[borderLineEnd]
+        }
+        if (null != borderLineJoin) {
+            if (undefined == sStyle.borderOptions) sStyle.borderOptions = {}
+            if (!(borderLineJoin) in bordedLineJoinMap) {
+                return this.logError('Wrong border-line-join value: ' + borderLineJoin)
+            }
+            sStyle.borderOptions.lineJoin = bordedLineEndMap[borderLineJoin]
         }
 
 
