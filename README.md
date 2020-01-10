@@ -1,4 +1,4 @@
-# puzzle-tokens
+# Puzzle Tokens
 Sketch.app plugin to apply design tokens (specified in LESS OR SASS format) to Sketch layers (with shared styles).
 Also Puzzle Tokens can generate Styles Overview.
 
@@ -73,9 +73,24 @@ The following CSS styles are supporting.
     border-radius:         5px;
     border-radius:         5px 5px 0 0;
 
-    box-shadow:            0 10px 20px 2 #FF00FF);
+    box-shadow:            0 10px 20px 2 #FF00FF;
     box-shadow:            inset 0 10px 20px 2 rgba(0,0,0,0.1);
     box-shadow:            0 10px 20px 2 rgba(0,0,0,0.1), inset 0 10px 20px 2 rgba(0,0,0,0.1);
+}
+
+#Image{
+    // Required Properties
+    image:                 ~"images/new-logo.jpg";  // OR transparent
+    // Optional Properties
+    border-color:          white;
+    border-width:          3px;
+    box-shadow:            0 10px 20px 2 #FF00FF;
+    width:                 100px;  // OR 50 %
+    height:                100px;  // OR 50 %
+    top:                   11px;
+    bottom:                22px;
+    left:                  2px;
+    right:                 33px;
 }
 ```
 
