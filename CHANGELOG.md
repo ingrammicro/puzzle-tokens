@@ -1,5 +1,11 @@
 # Change Log
 
+##  Version 6.8.0 (10 Jan 2020)
+- Added new line styles:
+border-line-end:       butt;      // butt OR round OR projecting
+border-line-join:      miter;     // miter OR round OR bevel
+- Fixed minor layout issue in Styles Overview Generator
+
 ##  Version 6.7.1 (27 Dec 2019)
 - Fixed issue with multiply shadows
 

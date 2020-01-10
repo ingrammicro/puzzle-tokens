@@ -50,6 +50,11 @@ The following CSS styles are supporting.
 // Shape layers
 
 .ShapeStyle {
+    // SKETCH only properties
+    border-line-end:       butt;      // butt OR round OR projecting
+    border-line-join:      miter;     // miter OR round OR bevel
+
+    /// CSS native properties
     background-color:      #B0AFB1;
     background-color:      linear-gradient(45deg, #000000,#B0AFB4);
     opacity:               63%;       // "63%" or "0.42"
