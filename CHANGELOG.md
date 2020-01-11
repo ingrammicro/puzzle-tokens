@@ -1,5 +1,10 @@
 # Change Log
 
+##  Version 6.9.0 (11 Jan 2020)
+- Added new line styles:
+border-start-arrowhead:     openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare
+border-end-arrowhead:       openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare                  
+
 ##  Version 6.8.0 (10 Jan 2020)
 - Added new line styles:
 border-line-end:       butt;      // butt OR round OR projecting

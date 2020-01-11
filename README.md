@@ -51,8 +51,10 @@ The following CSS styles are supporting.
 
 .ShapeStyle {
     // SKETCH only properties
-    border-line-end:       butt;      // butt OR round OR projecting
-    border-line-join:      miter;     // miter OR round OR bevel
+    border-line-end:            butt;      // butt / round / projecting
+    border-line-join:           miter;     // miter / round / bevel
+    border-start-arrowhead:     openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare
+    border-end-arrowhead:       openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare                  
 
     /// CSS native properties
     background-color:      #B0AFB1;
