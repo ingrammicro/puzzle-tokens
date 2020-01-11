@@ -39,6 +39,17 @@ const bordedLineJoinMap = {
     "bevel": Style.LineJoin.Bevel
 }
 
+
+const bordedArrowheadMap = {
+    "none": Style.Arrowhead.None,
+    "openarrow": Style.Arrowhead.OpenArrow,
+    "filledarrow": Style.Arrowhead.FilledArrow,
+    "opencircle": Style.Arrowhead.OpenCircle,
+    "filledcircle": Style.Arrowhead.FilledCircle,
+    "opensquare": Style.Arrowhead.OpenSquare,
+    "filledsquare": Style.Arrowhead.FilledSquare,
+}
+
 function degToRad(deg) {
     return deg * Math.PI / 180;
 }
@@ -941,6 +952,8 @@ class DSApp {
         const borderStyle = token['border-style']
         const borderLineEnd = token['border-line-end']
         const borderLineJoin = token['border-line-join']
+        const borderStartArrowhead = token['border-start-arrowhead']
+        const borderEndArrowhead = token['border-end-arrowhead']
 
         var border = {}
 
@@ -996,6 +1009,20 @@ class DSApp {
                 return this.logError('Wrong border-line-join value: ' + borderLineJoin)
             }
             sStyle.borderOptions.lineJoin = bordedLineEndMap[borderLineJoin]
+        }
+        if (null != borderStartArrowhead) {
+            if (undefined == sStyle.borderOptions) sStyle.borderOptions = {}
+            if (!(borderStartArrowhead) in bordedArrowheadMap) {
+                return this.logError('Wrong border-start-arrowhead value: ' + borderStartArrowhead)
+            }
+            sStyle.borderOptions.startArrowhead = bordedArrowheadMap[borderStartArrowhead]
+        }
+        if (null != borderEndArrowhead) {
+            if (undefined == sStyle.borderOptions) sStyle.borderOptions = {}
+            if (!(borderEndArrowhead) in bordedArrowheadMap) {
+                return this.logError('Wrong border-end-arrowhead value: ' + borderEndArrowhead)
+            }
+            sStyle.borderOptions.endArrowhead = bordedArrowheadMap[borderEndArrowhead]
         }
 
 
