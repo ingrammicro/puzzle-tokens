@@ -64,7 +64,11 @@ The following CSS styles are supporting.
     border-width:          2px;
     border-style:          dotted;    // dotted OR dashed
     border-position:       center;    // center OR inside OR outside
-    
+
+    box-shadow:            0 10px 20px 2 #FF00FF;
+    box-shadow:            inset 0 10px 20px 2 rgba(0,0,0,0.1);
+    box-shadow:            0 10px 20px 2 rgba(0,0,0,0.1), inset 0 10px 20px 2 rgba(0,0,0,0.1);
+     
     // !!ATTENTION!!
     // Shared styles don't include radius property,
     // still you can set the radius-border for a style.
@@ -74,11 +78,22 @@ The following CSS styles are supporting.
 
     border-radius:         5px;
     border-radius:         5px 5px 0 0;
-
-    box-shadow:            0 10px 20px 2 #FF00FF;
-    box-shadow:            inset 0 10px 20px 2 rgba(0,0,0,0.1);
-    box-shadow:            0 10px 20px 2 rgba(0,0,0,0.1), inset 0 10px 20px 2 rgba(0,0,0,0.1);
 }
+
+// Text & Shape Layer Common Properties
+.Style{
+    // The following properties are not a part of shared styles.
+    // Bu you can set these properties for a shared style.
+    // These properties will be reapplied to layers
+    // through style assigned to it. You can also
+    // apply it to the layers or symbols directly.
+
+    margin-top:             10px;
+    margin-left:            10px;
+    width:                  100px;
+    height:                 100px;        
+}
+
 
 #Image{
     // Required Properties

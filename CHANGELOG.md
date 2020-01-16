@@ -1,5 +1,13 @@
 # Change Log
 
+##  Version 6.10.0 (16 Jan 2020)
+Added new layer/style properties:
+
+margin-top:             10px;
+margin-left:            10px;
+width:                  100px;
+height:                 100px;        
+
 ##  Version 6.9.0 (11 Jan 2020)
 - Added new line styles:
 border-start-arrowhead:     openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare

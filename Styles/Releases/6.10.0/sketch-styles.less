@@ -1,0 +1,48 @@
+@font-x-small:                              10.7px;
+@font-x-small-spacing:                      40 * @font-x-small / 1000;
+@font-medium:                               13.3px;
+@font-medium-spacing:                       40 * @font-medium / 1000;
+
+@font-face-regular:                         "Arial";
+@font-face-icons:                           "Font Awesome 5 Free";
+
+@color-text-success:                        green;
+@color-text-warning:                        orange;
+@color-text-primary:                        #32272F;
+
+
+.Views .Status{
+    .Icon{
+        .Success,  .Warning{
+            letter-spacing:                 @font-x-small-spacing;
+            font-family:                    @font-face-icons;
+            font-size:                      9px;
+            line-height:                    20px;
+            font-weight:                    bold;
+            margin-top:                     0px;
+            margin-left:                    0px;
+            height:                         20px;
+        }
+        .Success{
+            color:                          @color-text-success;
+        }
+        .Warning{
+            color:                          @color-text-warning;
+        }      
+    }
+    Text{
+        color:                              @color-text-primary;
+        font-size:                          @font-medium;
+        letter-spacing:                     @font-medium-spacing;
+        font-family:                        @font-face-regular;
+        line-height:                        20px;
+    }       
+    .Tile .Text{
+        color:                              @color-text-primary;
+        font-size:                          @font-x-small;
+        letter-spacing:                     @font-x-small-spacing;
+        font-family:                        @font-face-regular;
+        line-height:                        20px;
+        margin-top:                         0px;
+    }    
+}

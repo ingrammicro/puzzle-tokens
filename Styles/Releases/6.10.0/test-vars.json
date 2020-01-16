@@ -1,1 +1,11 @@
-{}
+{
+    "@font-x-small": "10.7px",
+    "@font-x-small-spacing": "0.428px",
+    "@font-medium": "13.3px",
+    "@font-medium-spacing": "0.532px",
+    "@font-face-regular": "\"Arial\"",
+    "@font-face-icons": "\"Font Awesome 5 Free\"",
+    "@color-text-success": "green",
+    "@color-text-warning": "orange",
+    "@color-text-primary": "#32272F"
+}
