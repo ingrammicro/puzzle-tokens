@@ -1095,6 +1095,9 @@ class DSApp {
         // SET SHADOW 
         this._applyShadow(rule, sStyle, 'box-shadow')
 
+        // SET MARGINS
+        this._applyMargins(rule, sSharedStyle)
+
         // SET BORDER       
         if (('border-color' in token) || ('border-width' in token) || ('border-position' in token))
             this._applyBorderStyle(rule, sStyle)
@@ -1150,6 +1153,7 @@ class DSApp {
         var lineHeight = token['line-height']
         var align = token['text-align']
         var verticalAlign = token['vertical-align']
+
 
         //// SET FONT SIZE
         if (undefined != fontSize) {
@@ -1260,6 +1264,43 @@ class DSApp {
 
         // SET TEXT SHADOW
         this._applyShadow(rule, sStyle, "text-shadow")
+
+        // SET MARGINS
+        this._applyMargins(rule, sSharedStyle)
+    }
+
+    _applyMargins(rule, sSharedStyle) {
+        const token = rule.props
+
+        var marginTop = token['margin-top']
+        var marginLeft = token['margin-left']
+        var height = token['height']
+        var width = token['width']
+
+        if (null == marginTop && null == marginLeft && null == height && null == width) return true
+        if (null == sSharedStyle && null == rule.sLayer) return true
+
+        const layers = rule.sLayer ? [rule.sLayer] : sSharedStyle.getAllInstancesLayers()
+
+
+        for (var l of layers) {
+
+            let parentFrame = l.parent.frame
+            if (null != marginTop) {
+                l.frame.y = parseInt(marginTop.replace('px', ""))
+            }
+            if (null != marginLeft) {
+                l.frame.x = parseInt(marginLeft.replace('px', ""))
+            }
+            if (null != height) {
+                l.frame.height = parseInt(height.replace('px', ""))
+            }
+            if (null != width) {
+                l.frame.width = parseInt(width.replace('px', ""))
+            }
+        }
+
+        return true
     }
 
     _applyOpacityToLayer(rule) {
@@ -1371,6 +1412,7 @@ class DSApp {
 
                 // apply additional styles
                 this._applyShadow(rule, sStyle, 'box-shadow')
+                //this._applyMargins(rule, null)
                 this._applyBorderStyle(rule, sStyle)
 
             }
