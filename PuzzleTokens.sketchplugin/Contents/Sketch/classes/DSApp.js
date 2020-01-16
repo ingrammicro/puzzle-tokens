@@ -553,7 +553,7 @@ class DSApp {
         if (null != props['image'])
             res += "image"
         if (null != props['background-color'] || null != props['border-color'] || null != props['box-shadow']
-            || null != props['border-radius']
+            || null != props['border-radius'] || null != props['padding']
         ) res += "layer"
         if (null != props['opacity'])
             if ("" == res)
@@ -1103,7 +1103,34 @@ class DSApp {
         if ('border-radius' in token)
             this._applyShapeRadius(rule, sSharedStyle, sStyle)
 
+        // SET PADDING
+        const paddingSrc = token['padding']
+        if (null != paddingSrc) {
+            this._applyPaddingToLayer(rule, paddingSrc)
+        }
 
+    }
+
+    _applyPaddingToLayer(rule, paddingSrc) {
+
+        let paddingValues = paddingSrc.spit(" ")
+
+        let ptop = 10
+        let pleft = 10
+        let pbottom = 10
+        let pright = 10
+
+        const sCurrLayer = rule.sLayer
+        const sParent = sCurrLayer.parent
+        const parentFrame = new Rectangle(sParent.frame)
+
+        sParent.layers.forEach(function (sLayer) {
+            if (sLayer.id == sCurrLayer.id) return
+            sLayer.frame.x = pleft
+            sLayer.frame.y = ptop
+            sLayer.frame.height = parentFrame.height - ptop - pbottom
+            sLayer.frame.width = parentFrame.width - pleft - pright
+        }, this)
     }
 
 
