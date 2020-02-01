@@ -8,7 +8,7 @@ margin-left:            10px;
 width:                  100px;
 height:                 100px;  
 
-(Example|https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Releases/6.9.0)[Example]
+(https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Releases/6.9.0)[Example]
 
 ##  Version 6.9.0 (11 Jan 2020)
 - Added new line styles:
