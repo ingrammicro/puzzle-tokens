@@ -8,12 +8,14 @@ margin-left:            10px;
 width:                  100px;
 height:                 100px;  
 
-(https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Releases/6.9.0)[Example]
+Example: https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Releases/6.9.0
 
 ##  Version 6.9.0 (11 Jan 2020)
 - Added new line styles:
 border-start-arrowhead:     openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare
 border-end-arrowhead:       openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare                  
+
+Example: https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Releases/6.8.0
 
 ##  Version 6.8.0 (10 Jan 2020)
 - Added new line styles:
