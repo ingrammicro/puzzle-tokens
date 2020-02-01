@@ -29,6 +29,8 @@ border-line-join:      miter;     // miter OR round OR bevel
 ##  Version 6.7.0 (27 Dec 2019)
 - Support for multiply shadows. Example: box-shadow: 0 3px 20px 0 rgba(0,0,0,0.12), 0 2px 7px 0 rgba(0,0,0,0.20);
 
+Example: https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Releases/6.7.0
+
 ##  Version 6.6.3 (26 Dec 2019)
 - Fixed assignment of text styles
 - Now shared style from any enabled library can be assigned
