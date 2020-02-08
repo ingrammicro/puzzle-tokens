@@ -8,6 +8,7 @@ var Constants = {
     SYMBOLTOKENFILE_POSTFIX: "-inspector.json",
     CSSFILE_POSTFIX: "-viewer.css",
     VARSFILE_POSTFIX: "-vars.json",
+    SYMBOLPAGE_NAME: "Symbols",
 };
 
 var SettingKeys = {

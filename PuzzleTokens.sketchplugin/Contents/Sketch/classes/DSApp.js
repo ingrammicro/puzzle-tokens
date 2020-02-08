@@ -12,8 +12,15 @@ var SharedStyle = require('sketch/dom').SharedStyle
 var UI = require('sketch/ui')
 const path = require('path');
 const Text = require('sketch/dom').Text
+const Shape = require('sketch/dom').Shape
+const Page = require('sketch/dom').Page
+
+
 const SKLAYER_STYLE = "sklayer-style"
 const SKTEXT_STYLE = "sktext-style"
+const PT_TEXT = "pt-text"
+
+const THIS_NAME = "_This"
 
 
 const alignMap = {
@@ -68,6 +75,8 @@ class DSApp {
         this.sTextStyles = {}
         this.sLayerStyles = {}
         this.sAppliedStyles = {}
+
+        this._symbolPage = undefined
 
         this.rules = undefined
 
@@ -383,7 +392,7 @@ class DSApp {
                 rule.isStandalone = true
                 rule.sLayer = this._findSymbolChildByPath(rule.path)
                 if (!rule.sLayer) {
-                    return
+                    this.messages += "Will create new symbol " + rule.path + " of " + ruleType + " type \n"
                 }
             }
             if (ruleType.indexOf("image") >= 0) {
@@ -395,14 +404,15 @@ class DSApp {
                 this.logError("Rule \"" + sStyleName + "\" has properties for both Text and Layer styles.")
                 return
             }
-            if ("" == ruleType) {
+            /*if ("" == ruleType) {
                 this.logError("Rule \"" + sStyleName + "\" has no valid properties")
                 this.logError(JSON.stringify(rule, null, "\n"))
                 return
-            }
+            }*/
             //     
             const isText = ruleType.indexOf("text") >= 0
-            const strType = isText ? "Text" : "Layer"
+            const isLayer = ruleType.indexOf("layer") >= 0
+            const strType = isText ? "Text" : (isLayer ? "Layer" : "Uknown")
 
             if (rule.isStandalone) {
                 this.messages += "Will update " + strType + " style of standalone layer " + sStyleName + "\n"
@@ -447,6 +457,11 @@ class DSApp {
 
 
                 if (rule.isStandalone) {
+
+                    if (!rule.sLayer) {
+                        rule.sLayer = this._createSymbolMasterChild(rule)
+                    }
+
                     // assign existing style
                     const sExistingStyle = this._getFindSharedStyleByRule(rule)
                     if (undefined != sExistingStyle) {
@@ -455,7 +470,6 @@ class DSApp {
                         l.sharedStyle = sExistingStyle
                         l.style.syncWithSharedStyle(sExistingStyle)
                         this.result.assignedStyles++
-                        log(this.result.assignedStyles)
                     }
                     //
                     sStyle = rule.sLayer.style
@@ -514,6 +528,63 @@ class DSApp {
         return true
     }
 
+
+    // Find or create a symbol master and place new layer inside
+    _createSymbolMasterChild(rule) {
+        let master = this._findSymbolMasterByPath(rule.path)
+        if (!master) {
+            const symbolPath = this._buildSymbolPathFromPath(rule.path)
+            let symbolName = symbolPath.join(' / ')
+
+            // Create new symbol master
+            master = this._createNewSymbolMaster(symbolName)
+        }
+
+        // Get a name for the layer
+        const layerPath = this._buildSymbolChildPathFromPath(rule.path)
+        const layerName = layerPath[0]
+
+        // Return ref to found master symbol itself
+        if (THIS_NAME == layerPath) return master
+
+        ///
+        const isText = rule.type.indexOf("text") >= 0
+        const isLayer = rule.type.indexOf("layer") >= 0
+        let sLayer = null
+        if (isLayer) {
+            sLayer = new Shape({
+                name: layerName,
+                parent: master,
+                style: {},
+                frame: new Rectangle(
+                    0, 0, 100, 100
+                ),
+                //sharedStyleId: isTextStyle ? undefined : sSharedStyle.id
+            })
+            if (sLayer.layers) { // remove group which Sketch creates for Shape
+                const realShape = sLayer.layers[0]
+                realShape.parent = master
+                realShape.name = layerName
+                sLayer.remove()
+                sLayer = realShape
+            }
+        } else if (isText) {
+            sLayer = new Text({
+                name: layerName,
+                parent: master,
+                frame: new Rectangle(
+                    0, 0, 100, 100
+                ),
+                style: {
+                    borders: [],
+                }
+            })
+            sLayer.name = layerName
+        }
+        return sLayer
+
+    }
+
     _resetStyle(sStyle, isText) {
         sStyle.borders = []
         sStyle.fills = []
@@ -566,7 +637,7 @@ class DSApp {
         else if (null != props[SKTEXT_STYLE])
             res += SKTEXT_STYLE
 
-        return res
+        return res != "" ? res : "layer"
     }
 
     loadRules() {
@@ -632,25 +703,86 @@ class DSApp {
     // objPath: [#Controls,#Buttons,Text]
     _findSymbolChildByPath(path) {
         // get 'Controls / Buttons' name of symbol master
-        const symbolPaths = path.filter(s => s.startsWith('#')).map(n => n.replace(/^[\.#]/, '').replace(/(_{2})/g, ' '))
+        const symbolPaths = this._buildSymbolPathFromPath(path)
         let symbolName = symbolPaths.join(' / ')
-        let sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => l.type != 'SymbolInstance')
+        let sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => l.type == 'SymbolMaster')
         if (!sFoundLayers.length) {
             symbolName = symbolPaths.join('/')
-            sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => l.type != 'SymbolInstance')
+            sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => l.type == 'SymbolMaster')
         }
         if (!sFoundLayers.length) {
-            this.logError("Can not find a Symbol Master or Artboard by name '" + symbolName + "'")
             return null
         }
         const layerPath = path.filter(s => !s.startsWith('#')).map(n => n.replace(/^[\.#]/, '').replace(/(\s+)/g, ''))
+
+        // return ref to found master symbol itself
+        if (layerPath.length && THIS_NAME == layerPath[0]) {
+            return sFoundLayers[0]
+        }
+
+        // find a symbol child
         const sLayer = this._findLayerChildByPath(sFoundLayers[0], layerPath)
         if (!sLayer) {
             this.logError("Can not find a layer '" + layerPath.join(' / ') + "' in symbol master or artboard'" + symbolName + "'")
-            log(sFoundLayers)
         }
         return sLayer
     }
+
+    // objPath: [#Controls,#Buttons]
+    _findSymbolMasterByPath(path) {
+        // get 'Controls / Buttons' name of symbol master
+        const symbolPaths = this._buildSymbolPathFromPath(path)
+        let symbolName = symbolPaths.join(' / ')
+        let sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => "SymbolMaster" == l.type)
+        if (!sFoundLayers.length) {
+            symbolName = symbolPaths.join('/')
+            sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => "SymbolMaster" == l.type)
+        }
+        return sFoundLayers.length ? sFoundLayers[0] : null
+    }
+
+    // get existing or just create new Page with Symbols
+    _getSymbolPage() {
+        if (this._symbolPage) return this._symbolPage
+
+        // try to find existing
+        this.sDoc.pages.forEach(function (sPage) {
+            if (Constants.SYMBOLPAGE_NAME == sPage.name) this._symbolPage = sPage
+            return
+        }, this)
+        if (this._symbolPage) return this._symbolPage
+
+
+        // create new
+        this._symbolPage = new Page({
+            name: Constants.SYMBOLPAGE_NAME,
+            parent: this.sDoc,
+            selected: true
+        })
+
+        return this._symbolPage
+    }
+
+    _createNewSymbolMaster(name) {
+        const page = this._getSymbolPage()
+
+        var SymbolMaster = require('sketch/dom').SymbolMaster
+        var master = new SymbolMaster({
+            name: name,
+            parent: page
+        })
+
+        return master
+    }
+
+
+    _buildSymbolPathFromPath(path) {
+        return path.filter(s => s.startsWith('#')).map(n => n.replace(/^[\.#]/, '').replace(/(_{2})/g, ' '))
+    }
+    _buildSymbolChildPathFromPath(path) {
+        return path.filter(s => s.startsWith('.')).map(n => n.replace(/^[\.#]/, '').replace(/(_{2})/g, ' '))
+    }
+
 
     _findLayerChildByPath(sLayerParent, path) {
         if (undefined == sLayerParent.layers) {
@@ -1153,7 +1285,14 @@ class DSApp {
         var lineHeight = token['line-height']
         var align = token['text-align']
         var verticalAlign = token['vertical-align']
+        var text = token[PT_TEXT]
 
+        // SET LAYER TEXT 
+        if (undefined != text && rule.sLayer) {
+            const layerName = rule.sLayer.name
+            rule.sLayer.text = text
+            rule.sLayer.name = layerName
+        }
 
         //// SET FONT SIZE
         if (undefined != fontSize) {
@@ -1284,7 +1423,6 @@ class DSApp {
 
 
         for (var l of layers) {
-
             let parentFrame = l.parent.frame
             if (null != marginTop) {
                 l.frame.y = parseInt(marginTop.replace('px', ""))

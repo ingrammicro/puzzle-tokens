@@ -1,5 +1,7 @@
 # Change Log
 
+##  Version 6.11.0 (16 Jan 2020)
+
 ##  Version 6.10.0 (16 Jan 2020)
 Added new layer/style properties:
 
