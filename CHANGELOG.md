@@ -2,6 +2,7 @@
 
 ##  Version 6.12.0 (9 Feb 2020)
 Added "pt-paragraph-spacing" style property to setup Paragraph Spacing
+Example: https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Releases/6.12.0
 
 ##  Version 6.11.0 (9 Feb 2020)
 Added experimental support for symbols creation.
