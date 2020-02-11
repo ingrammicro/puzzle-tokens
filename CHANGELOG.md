@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 6.12.0 (9 Feb 2020)
+Added "pt-paragraph-spacing" style property to setup Paragraph Spacing
+
 ##  Version 6.11.0 (9 Feb 2020)
 Added experimental support for symbols creation.
 More details here: - https://spectrum.chat/puzzle-tokens/general/6-11-0-released~b1d89588-290b-4c5f-93e0-4993e3cf45eb

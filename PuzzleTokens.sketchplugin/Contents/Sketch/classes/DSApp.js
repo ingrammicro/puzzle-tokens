@@ -618,7 +618,7 @@ class DSApp {
         var res = ""
         if (null != props['color'] || null != props['font-family'] || null != props['font-style'] || null != props['font-size']
             || null != props['font-weight'] || null != props['text-transform'] || null != props['text-align'] || null != props['vertical-align']
-            || null != props['text-decoration'] || null != props['letter-spacing']
+            || null != props['text-decoration'] || null != props['letter-spacing'] || null != props['pt-paragraph-spacing']
         )
             res += "text"
         if (null != props['image'])
@@ -1286,6 +1286,7 @@ class DSApp {
         var align = token['text-align']
         var verticalAlign = token['vertical-align']
         var text = token[PT_TEXT]
+        var paragraphSpacing = token["pt-paragraph-spacing"]
 
         // SET LAYER TEXT 
         if (undefined != text && rule.sLayer) {
@@ -1313,6 +1314,10 @@ class DSApp {
                 }
                 sStyle.lineHeight = Math.round(parseFloat(lineHeight) * sStyle.fontSize)
             }
+        }
+
+        if (undefined != paragraphSpacing) {
+            sStyle.paragraphSpacing = parseFloat(paragraphSpacing)
         }
 
         if (sStyle.fontVariant != "") sStyle.fontVariant = ""
