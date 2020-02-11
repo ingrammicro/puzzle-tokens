@@ -33,6 +33,9 @@ The following CSS styles are supporting.
 // Text Layers
 
 .TextStyle {
+    // Sketch only styles
+    pt-paragraph-spacing:  23.33;
+    // CSS native styles
     font-size:             12px;   
     font-family:           "Open Sans";     // or "Open Sans","Times New Roman"
     font-weight:           bold;            // or extra-light, light, regular, medium, semibold, bold
@@ -158,6 +161,7 @@ To apply _text_ style you need to defined at least one of the following properit
 - text-transform
 - text-align
 - vertical-align
+- pt-paragraph-spacing
 
 For _layer_ style:
 - background-color
