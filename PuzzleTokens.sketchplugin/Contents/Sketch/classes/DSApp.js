@@ -1199,6 +1199,11 @@ class DSApp {
         }
     }
 
+    _setTextStyleParagraph(sStyle, value) {
+        sStyle.paragraphSpacing = value
+        sStyle.lineHeight = sStyle.lineHeight
+    }
+
     ////////////////////////////////////////////////////////////////////////////
 
     _applyRuleToLayerStyle(rule, sSharedStyle, sStyle) {
@@ -1301,12 +1306,14 @@ class DSApp {
 
             // If applied font size at first time then drop line-height
             if (!this.sAppliedStyles[rule.name]) {
-                sStyle.lineHeight = 0
+                sStyle.lineHeight = null
             }
         }
         //// SET LINE HEIGHT
         if (undefined != lineHeight) {
-            if (lineHeight.indexOf("px") > 0) {
+            if (0 == lineHeight) {
+                sStyle.lineHeight = null
+            } else if (lineHeight.indexOf("px") > 0) {
                 sStyle.lineHeight = lineHeight.replace("px", "")
             } else {
                 if (null == sStyle.fontSize) {
@@ -1317,7 +1324,7 @@ class DSApp {
         }
 
         if (undefined != paragraphSpacing) {
-            sStyle.paragraphSpacing = parseFloat(paragraphSpacing)
+            this._setTextStyleParagraph(sStyle, parseFloat(paragraphSpacing))
         }
 
         if (sStyle.fontVariant != "") sStyle.fontVariant = ""

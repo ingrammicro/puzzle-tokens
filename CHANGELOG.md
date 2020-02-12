@@ -1,5 +1,8 @@
 # Change Log
 
+##  Version 6.12.1 (12 Feb 2020)
+Fixed wrong behaviour of pt-paragraph-spacing
+
 ##  Version 6.12.0 (9 Feb 2020)
 Added "pt-paragraph-spacing" style property to setup Paragraph Spacing
 Example: https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Releases/6.12.0
