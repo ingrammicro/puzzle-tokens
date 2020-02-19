@@ -11,6 +11,12 @@
     "icon": "icon.png",
     "commands": [
         {
+            "script": "cmdline-functions.js",
+            "handler": "cmdRun",
+            "name": "Run from command line",
+            "identifier": "cmdRun"
+        },
+        {
             "script": "cmd-apply-less.js",
             "handler": "onRunDialog",
             "name": "Apply Design Tokens",

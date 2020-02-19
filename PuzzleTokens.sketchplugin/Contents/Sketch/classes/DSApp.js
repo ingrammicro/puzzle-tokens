@@ -64,8 +64,14 @@ function degToRad(deg) {
 
 class DSApp {
     constructor(context) {
-        this.nDoc = context.document
-        this.sDoc = Sketch.fromNative(context.document)
+        if (context.fromCmd) {
+            this.fromCmd = true
+            this.nDoc = context.nDoc
+            this.sDoc = context.sDoc
+        } else {
+            this.nDoc = context.document
+            this.sDoc = Sketch.fromNative(context.document)
+        }
         this.context = context
         this.UI = require('sketch/ui')
 
@@ -132,6 +138,14 @@ class DSApp {
 
     // Public methods
 
+
+    runFromCmd(pathToStyles) {
+        this.pathToStyles = pathToStyles
+        if ('' == this.pathToStyles) return false
+        const success = this.run(false)
+        //UI.message(this._getResultSummary())        
+        return success
+    }
 
     runQuick() {
         if ('' == this.pathToStyles) return this.runDialog()
@@ -319,11 +333,15 @@ class DSApp {
     _showErrors() {
         var errorsText = this.errors.join("\n\n")
 
-        const dialog = new UIDialog("Found errors", NSMakeRect(0, 0, 600, 600), "Who cares!", "", "")
-        dialog.removeLeftColumn()
-        dialog.addTextViewBox("debug", "", errorsText, 600)
-        const result = dialog.run()
-        dialog.finish()
+        if (this.fromCmd) {
+
+        } else {
+            const dialog = new UIDialog("Found errors", NSMakeRect(0, 0, 600, 600), "Who cares!", "", "")
+            dialog.removeLeftColumn()
+            dialog.addTextViewBox("debug", "", errorsText, 600)
+            const result = dialog.run()
+            dialog.finish()
+        }
     }
 
     _saveElements() {
@@ -674,6 +692,7 @@ class DSApp {
             this.logError(runResult.output)
             return false
         }
+
         this.convertorOuput = runResult.output
 
         // load json file
