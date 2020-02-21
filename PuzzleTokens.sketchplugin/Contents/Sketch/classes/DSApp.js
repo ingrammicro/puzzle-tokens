@@ -140,6 +140,7 @@ class DSApp {
 
 
     runFromCmd(pathToStyles) {
+        this.runFromCmd = true
         this.pathToStyles = pathToStyles
         if ('' == this.pathToStyles) return false
         const success = this.run(false)

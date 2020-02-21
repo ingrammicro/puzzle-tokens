@@ -1,5 +1,6 @@
-
+@import "classes/DSApp.js";
 @import "classes/DSApp.js"
+var Document = require('sketch/dom').Document
 
 // osascript -e 'quit app "Sketch"'
 const example = `
@@ -27,6 +28,18 @@ function saveDocument(document) {
         }
     })
 }
+
+function saveDocumentAs(document, filePath) {
+    log(" SAVING DOCUMENT TO " + filePath)
+    /*document.save(filePath, {
+        saveMode: Document.SaveMode.SaveTo,
+    })*/
+
+    var newFileURL = NSURL.fileURLWithPath(filePath)
+    document.sketchObject.writeToURL_ofType_forSaveOperation_originalContentsURL_error_(newFileURL, "com.bohemiancoding.sketch.drawing",
+        NSSaveOperation, nil, nil);
+}
+
 
 function closeDocument(document) {
     log(" CLOSING DOCUMENT...")
@@ -74,8 +87,13 @@ var cmdRun = function (context) {
         }
         context.document = document.sketchObject
         if (cmds.apply) applyStyles(context, runOptions)
-        //if (cmds.save) saveDocument(document)
-        //if (cmds.close) closeDocument(document)
+        if (cmds.save) {
+            if (context.saveAs)
+                saveDocumentAs(document, context.saveAs)
+            else
+                saveDocument(document)
+        }
+        if (cmds.close) closeDocument(document)
     })
 
 };

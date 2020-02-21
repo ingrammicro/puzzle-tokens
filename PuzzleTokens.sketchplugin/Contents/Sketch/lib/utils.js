@@ -319,7 +319,7 @@ class Utils {
         var pipe = NSPipe.alloc().init()
         task.setStandardOutput_(pipe);
         task.setStandardError_(pipe);
-        task.setLaunchPath_(command);
+        task.setLaunchPath(command);
         task.arguments = args;
         task.launch();
         task.waitUntilExit();
@@ -350,12 +350,13 @@ class Utils {
         // delete old copy
         Utils.deleteFile(targetPath)
 
-        const sourcePath = app.context.plugin.url().URLByAppendingPathComponent("Contents").URLByAppendingPathComponent("Sketch").URLByAppendingPathComponent(resFolder).path() + "/" + scriptName
+        const sourcePath = app.context.plugin.url().URLByAppendingPathComponent("Contents").URLByAppendingPathComponent("Sketch").URLByAppendingPathComponent(resFolder).URLByAppendingPathComponent(scriptName)
 
         let error = MOPointer.alloc().init()
 
+
         if (!fileManager.copyItemAtPath_toPath_error(sourcePath, targetPath, error)) {
-            app.UI.alert('Can`t copy script', error.value().localizedDescription())
+            app.logError('Can`t copy script', error.value().localizedDescription())
             return undefined
         }
 
