@@ -2,6 +2,8 @@
 
 ##  Version 6.13.0 (21 Feb 2020)
 Added command line API
+Details: https://spectrum.chat/puzzle-tokens/general/6-13-0-released~913b6a70-b532-4a83-9bea-f2588427d22d
+
 
 ##  Version 6.12.1 (12 Feb 2020)
 Fixed wrong behaviour of pt-paragraph-spacing
