@@ -41,6 +41,13 @@
             "handler": "onRun",
             "name": "Configure",
             "identifier": "cmConfig"
+        },
+        {
+            "script": "cmd-other.js",
+            "handler": "showChangeLog",
+            "shortcut": "",
+            "name": "Show Change Log",
+            "identifier": "showChangeLog"
         }
     ],
     "menu": {
@@ -51,7 +58,9 @@
             "-",
             "cmdGeneratePreview",
             "-",
-            "cmConfig"
+            "cmConfig",
+            "-",
+            "showChangeLog"
         ]
     }
 }

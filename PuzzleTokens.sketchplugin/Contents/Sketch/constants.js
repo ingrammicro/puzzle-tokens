@@ -9,6 +9,8 @@ var Constants = {
     CSSFILE_POSTFIX: "-viewer.css",
     VARSFILE_POSTFIX: "-vars.json",
     SYMBOLPAGE_NAME: "Symbols",
+
+    SITE_CHANGELOG_URL: "https://github.com/ingrammicro/puzzle-tokens/blob/master/CHANGELOG.md",
 };
 
 var SettingKeys = {
