@@ -1,4 +1,5 @@
 # Change Log
+See discussions on https://spectrum.chat/puzzle-tokens site
 
 ##  Version 6.13.0 (21 Feb 2020)
 Added command line API
