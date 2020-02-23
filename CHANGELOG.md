@@ -3,6 +3,7 @@ See discussions on https://spectrum.chat/puzzle-tokens site
 
 ##  Version 6.14.0 (23 Feb 2020)
 Added support for hsl() and hsla() colors
+Example: https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Releases/6.14.0
 
 ##  Version 6.13.0 (21 Feb 2020)
 Added command line API
