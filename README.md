@@ -11,8 +11,8 @@ Puzzle Tokens is a Sketch plugin to specify and apply design tokens (in LESS or 
 4. Instal _less_ or _sass_ using the following Terminal commands:
 ```
 sudo -s
-npm i less -g 
-npm i sass -g 
+npm i less -g
+npm i sass -g
 ```
 5. Now you're good to go!
 
