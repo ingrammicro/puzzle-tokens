@@ -10,7 +10,7 @@ Puzzle Tokens is a Sketch plugin to specify and apply design tokens (in LESS or 
 3. Download and install [Node.js](https://nodejs.org/en/download/)
 4. Instal _less_ or _sass_ using the following Terminal commands:
 ```
-sudo -s  
+sudo -s
 npm i less -g 
 npm i sass -g 
 ```
