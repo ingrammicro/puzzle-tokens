@@ -62,6 +62,7 @@ The following CSS styles are supporting.
     /// CSS native properties
     background-color:      #B0AFB1;
     background-color:      linear-gradient(45deg, #000000,#B0AFB4);
+    background-color:      linear-gradient(134deg, #004B3A 0%, #2D8B61 51%, #9BD77E 100%);
     opacity:               63%;       // "63%" or "0.42"
     border-color:          #000000;
     border-width:          2px;
