@@ -1,0 +1,8 @@
+{
+    "@btn-back-color": "#0071ba",
+    "@btn-text-color": "white",
+    "@btn-shadow": "0px 5px 10px rgba(0, 0, 0, 0.5)",
+    "@btn-radius": "5px",
+    "@btn-border-style": "dashed",
+    "@btn-font-size": "12px"
+}
