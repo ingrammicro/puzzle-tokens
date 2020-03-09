@@ -1,54 +1,48 @@
-$color-white:                           #FFFFFF;
-$color-primary:                         #0071ba;
-$color-secondary:                       #4A4A4A;
-$color-text-primary:                    #47485a;
-$shadow-large:                          0px 5px 10px rgba(0,0,0,0.5);
-$inner-shadow-1:                        inset -1 0px 0px #DFE4EA;
-
-$radius-medium:                         5px; //Regular tiles, buttons, input fields
-
-$font-size-normal:                      12px;
+// Test styles 
 
 .Controls .Buttons .Submit {
-  .Ok__Button {
-    Text {
-        color:              $color-white;
-        font-size:          $font-size-normal;
-        font-family:        Verdana;
-        text-align:         center;
-        vertical-align:     bottom;        
-    }  
-    Back{
-        background-color:   $color-primary;
-        border-color:       none;
-        border-radius:      10px;   
-        border-width:       1px;
-        box-shadow:         $shadow-large;
-    }
-  }
-  .Cancel{
-    Text {
-        color:              $color-white;
-        font-size:          $font-size-normal;
-        font-family:        "Verdana";
-        text-align:         center;
+    .Ok__Button {
+      Text{
+          color :             $btn-text-color;
+          font-size:          $btn-font-size;
+          font-family:        Verdana;
+          font-style:         normal;
+          text-align:         center;
+          vertical-align:     bottom;
+          line-height:        30px;        
+          kerning:            2.5;
       }  
       Back{
-        background-color:   $color-secondary;
-        border-color:       $color-secondary;
-        border-radius:      2px;
-        border-width:       4px;
-        border-position:    inside;
-        box-shadow:         $shadow-large;
+          background-color:   $btn-back-color;
+          border-color:       grey;
+          border-radius:      $btn-radius;
+          border-width:       1px;
+          box-shadow:         $btn-shadow;
+          border-style:       $btn-border-style;
       }
-      Back{
-        border-color:       $color-primary;
-        border-width:       4px;
-        border-position:    outside;
-        box-shadow:         $shadow-large;
+    } 
+}
+  /// Other technics
+  
+  
+  .Buttons{
+      .Disabled{
+          background-color: red;
+      }
+      .Lined{
+          border-width:        10px;
+          border-color:      white;
+          border-line-end:            round;
+          border-line-join:            miter;
       }
   }
-}
-
-
-#button__ #__03__tertiary__ #__medium__ #__01__text__ #__01__enabled {.Background{ background-color: red; }}
+  
+  #Buttons{
+      #Disabled{
+          Rectangle{
+              border-radius:  2px;  
+              sklayer-style:   "Buttons/Disabled";
+              //sklayer-style:   "Controls/Buttons/Raised/Default/Back";
+          }
+      }
+  }
