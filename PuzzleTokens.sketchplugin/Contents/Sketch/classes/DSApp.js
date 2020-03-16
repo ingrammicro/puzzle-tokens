@@ -637,7 +637,7 @@ class DSApp {
         var res = ""
         if (null != props['color'] || null != props['font-family'] || null != props['font-style'] || null != props['font-size']
             || null != props['font-weight'] || null != props['text-transform'] || null != props['text-align'] || null != props['vertical-align']
-            || null != props['text-decoration'] || null != props['letter-spacing'] || null != props['pt-paragraph-spacing']
+            || null != props['text-decoration'] || null != props['letter-spacing'] || null != props['pt-paragraph-spacing'] || null != props['line-height']
         )
             res += "text"
         if (null != props['image'])
