@@ -180,3 +180,7 @@ To assign shared style to layer:
 
 ## Sketch versions supported
 Some styles, such as text font/transformation/etc require Sketch 53 or later. You're safe using the latest stable Sketch version to get the plugin working.
+
+
+## Demos 
+https://www.dropbox.com/s/f25cfsm26vgeu62/Recording1.mov?dl=0
