@@ -22,7 +22,6 @@ const PT_TEXT = "pt-text"
 
 const THIS_NAME = "_This"
 
-
 const alignMap = {
     left: Text.Alignment.left,
     center: Text.Alignment.center,
@@ -659,8 +658,11 @@ class DSApp {
         return res != "" ? res : "layer"
     }
 
+
+
     loadRules() {
         const tempFolder = Utils.getPathToTempFolder()
+        const pathToRulesJSON = tempFolder + "/nsdata.json"
 
         // check files
         if (!Utils.fileExistsAtPath(this.pathToStyles)) {
@@ -668,28 +670,36 @@ class DSApp {
             return false
         }
 
-        const stylesType = this.pathToStyles.endsWith(".less") ? "less" : "sass"
+        let runResult = null
+        try {
+            const stylesType = this.pathToStyles.endsWith(".less") ? "less" : "sass"
 
-        // Copy  conversion script
-        const scriptPath = Utils.copyScript('nsconvert_' + stylesType + '.js', tempFolder)
-        if (undefined == scriptPath) return false
+            // Copy  conversion script
+            const scriptPath = Utils.copyScript('nsconvert_' + stylesType + '.js', tempFolder)
+            if (undefined == scriptPath) return false
 
-        // Run script 
-        var args = [scriptPath]
-        args.push("-styles=" + this.pathToStyles)
+            // Run script 
+            var args = [scriptPath]
+            args.push("-styles=" + this.pathToStyles)
 
-        const pathToRulesJSON = tempFolder + "/nsdata.json"
-        args.push("-json=" + pathToRulesJSON)
+            args.push("-json=" + pathToRulesJSON)
 
-        if (this.pathToDoc != "") {
-            const pathToCSS = this.pathToDoc + Constants.CSSFILE_POSTFIX
-            args.push("-css=" + pathToCSS)
-            const pathToVars = this.pathToDoc + Constants.VARSFILE_POSTFIX
-            args.push("-vars=" + pathToVars)
+            if (this.pathToDoc != "") {
+                const pathToCSS = this.pathToDoc + Constants.CSSFILE_POSTFIX
+                args.push("-css=" + pathToCSS)
+                const pathToVars = this.pathToDoc + Constants.VARSFILE_POSTFIX
+                args.push("-vars=" + pathToVars)
+                const pathToSASS = this.pathToDoc + Constants.SASSFILE_POSTFIX
+                args.push("-sass=" + pathToSASS)
+            }
+
+            runResult = Utils.runCommand("/usr/local/bin/node", args)
+        } catch (error) {
+            this.logError(error)
+            return false
         }
 
-        const runResult = Utils.runCommand("/usr/local/bin/node", args)
-        if (!runResult.result) {
+        if (!runResult) {
             this.logError(runResult.output)
             return false
         }
