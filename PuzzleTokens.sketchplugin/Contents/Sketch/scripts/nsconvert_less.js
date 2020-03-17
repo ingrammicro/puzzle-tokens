@@ -4,6 +4,7 @@ var nodePath = require('path');
 const args = parseArgs(process.argv.slice(2))
 var pathToLess = args['-styles']
 var pathToJSON = args['-json']
+var pathToResultSASS = args['-sass']
 var pathToResultCSS = args['-css']
 var pathToResultVars = args['-vars']
 var pluginNamesSrc = args['-plugins']
@@ -163,6 +164,10 @@ function transformLESStoJSON(data) {
             console.log("Completed")
             saveData(sketchRules, pathToJSON)
             console.log("Saved JSON")
+            if (pathToResultSASS != null) {
+                saveVarsToSASS(lessVars, pathToResultSASS)
+                console.log("Saved SASS")
+            }
             if (pathToResultVars != undefined) {
                 saveData(lessVars, pathToResultVars)
             }
@@ -268,6 +273,27 @@ function saveData(data, pathToJSON) {
 
     return true
 }
+
+function saveVarsToSASS(data, pathToSASS) {
+    var json = ""
+    for (let propName in data) {
+        let value = data[propName]
+        if (value.indexOf("/") >= 0) {
+            // quote file name
+            value = '"' + value + '"'
+        }
+        json += '$' + propName.slice(1) + ": " + value + ";\n"
+    }
+
+    if (pathToSASS && pathToSASS != '') {
+        fs.writeFileSync(pathToSASS, json, 'utf8');
+    } else {
+        console.log(json)
+    }
+
+    return true
+}
+
 
 function _getPathToNodeModules() {
     var result = require('child_process').execSync("node /usr/local/bin/npm -g root", { env: process.env.PATH })
