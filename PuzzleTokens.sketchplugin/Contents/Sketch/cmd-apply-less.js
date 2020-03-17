@@ -4,15 +4,21 @@
 @import "constants.js";
 
 
-var onRunDialog = function (context) {
+function runApp(context, isQuick = false) {
     UIDialog.setUp(context);
     var myless = new DSApp(context)
-    myless.runDialog()
+
+    if (isQuick)
+        myless.runQuick()
+    else
+        myless.runDialog()
+}
+
+var onRunDialog = function (context) {
+    runApp(context)
 };
 
 var onRunQuick = function (context) {
-    UIDialog.setUp(context);
-    var myless = new DSApp(context)
-    myless.runQuick()
+    runApp(context, true)
 
 };
