@@ -699,7 +699,7 @@ class DSApp {
             return false
         }
 
-        if (!runResult) {
+        if (!runResult.result) {
             this.logError(runResult.output)
             return false
         }
