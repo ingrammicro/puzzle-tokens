@@ -1117,7 +1117,17 @@ class DSApp {
         const borderStartArrowhead = token['border-start-arrowhead']
         const borderEndArrowhead = token['border-end-arrowhead']
 
+        const updateBorder = token['pt-border-update'] == 'true'
+
         var border = {}
+        if (updateBorder) {
+            // get existing border to update it
+            if (sStyle.borders != null && sStyle.borders.length > 0) {
+                border = sStyle.borders[sStyle.borders.length - 1]
+            } else {
+                updateBorder = false
+            }
+        }
 
         // process color
         if (null != borderColor) {
@@ -1188,19 +1198,21 @@ class DSApp {
         }
 
 
-        // save new border in style                
-        if (Object.keys(border) == 0 || !(border && (borderColor == null || borderColor != 'none') && (borderWidth == null || borderWidth != '0px'))) {
-            border = null
-        }
-
-        if (this.sAppliedStyles[rule.name] != undefined && sStyle.borders != null) {
-            // already added border, now add one more
-            if (border) {
-                sStyle.borders.push(border)
+        if (!updateBorder) {
+            // save new border in style                
+            if (Object.keys(border) == 0 || !(border && (borderColor == null || borderColor != 'none') && (borderWidth == null || borderWidth != '0px'))) {
+                border = null
             }
-        } else {
-            // drop existing borders
-            sStyle.borders = border ? [border] : []
+
+            if (this.sAppliedStyles[rule.name] != undefined && sStyle.borders != null) {
+                // already added border, now add one more
+                if (border) {
+                    sStyle.borders.push(border)
+                }
+            } else {
+                // drop existing borders
+                sStyle.borders = border ? [border] : []
+            }
         }
     }
 
