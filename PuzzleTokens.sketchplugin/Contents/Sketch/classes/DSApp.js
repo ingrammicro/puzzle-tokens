@@ -1512,6 +1512,11 @@ class DSApp {
         var sLayer = rule.sLayer
 
 
+        if (null == sLayer) {
+            log(rule)
+            return this.logError("Can't find layer by path " + rule.name)
+        }
+
         if (imageName != "") {
             if ('transparent' == imageName) {
                 sLayer.style.opacity = 0
@@ -1525,6 +1530,7 @@ class DSApp {
 
                 // create new image
                 let parent = sLayer.parent
+
                 let frame = new Rectangle(sLayer.frame)
                 let oldConstraints = sLayer.sketchObject.resizingConstraint()
 
