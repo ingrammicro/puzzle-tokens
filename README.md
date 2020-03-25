@@ -86,6 +86,9 @@ The following CSS styles are supporting.
 
 // Text & Shape Layer Common Properties
 .Style{
+    // Sketch only styles
+    pt-layer-type:         text; // "layer" or "text" // Usefull to help PT to understnand the type of the layer
+
     // The following properties are not a part of shared styles.
     // Bu you can set these properties for a shared style.
     // These properties will be reapplied to layers

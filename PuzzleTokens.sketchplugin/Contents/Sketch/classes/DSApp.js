@@ -19,6 +19,7 @@ const Page = require('sketch/dom').Page
 const SKLAYER_STYLE = "sklayer-style"
 const SKTEXT_STYLE = "sktext-style"
 const PT_TEXT = "pt-text"
+const PT_LAYER_TYPE = "pt-layer-type"
 
 const THIS_NAME = "_This"
 
@@ -406,6 +407,8 @@ class DSApp {
             rule.name = sStyleName
             rule.type = ruleType
 
+            if ("" == ruleType) continue;
+
             if (rule.path[0].startsWith('#')) {
                 rule.isStandalone = true
                 rule.sLayer = this._findSymbolChildByPath(rule.path)
@@ -459,8 +462,8 @@ class DSApp {
             const ruleType = rule.type
             const sStyleName = rule.name // spcified in  _checkRules()
             //
-            //this.logMsg("_applyRules: process style  " + sStyleName)
 
+            if ("" == ruleType) continue;
 
             if (ruleType.indexOf("image") >= 0) {
                 this._applyPropsToImage(rule)
@@ -655,7 +658,16 @@ class DSApp {
         else if (null != props[SKTEXT_STYLE])
             res += SKTEXT_STYLE
 
-        return res != "" ? res : "layer"
+
+        if ("" == res) {
+            const layerType = props[PT_LAYER_TYPE]
+            if (null != layerType) {
+                res = layerType
+            }
+        }
+
+
+        return res;
     }
 
 
@@ -1475,9 +1487,9 @@ class DSApp {
 
         const layers = rule.sLayer ? [rule.sLayer] : sSharedStyle.getAllInstancesLayers()
 
-
         for (var l of layers) {
             let parentFrame = l.parent.frame
+
             if (null != marginTop) {
                 l.frame.y = parseInt(marginTop.replace('px', ""))
             }
