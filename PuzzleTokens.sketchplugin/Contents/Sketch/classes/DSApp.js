@@ -14,14 +14,32 @@ const path = require('path');
 const Text = require('sketch/dom').Text
 const Shape = require('sketch/dom').Shape
 const Page = require('sketch/dom').Page
-
+const SmartLayout = require('sketch').SmartLayout
 
 const SKLAYER_STYLE = "sklayer-style"
 const SKTEXT_STYLE = "sktext-style"
 const PT_TEXT = "pt-text"
-const PT_LAYER_TYPE = "pt-layer-type"
+const PT_LAYER_TYPE = "-pt-layer-type"
+const PT_SMARTLAYOUT = "-pt-smartlayout"
+const PT_FIX_SIZE_HEIGHT = "-pt-fix-size-height"
+const PT_FIX_SIZE_WIDTH = "-pt-fix-size-width"
+const PT_PIN_LEFT = "-pt-pin-left"
+const PT_PIN_RIGHT = "-pt-pin-right"
+const PT_PIN_TOP = "-pt-pin-top"
+const PT_PIN_BOTTOM = "-pt-pin-bottom"
 
 const THIS_NAME = "_This"
+
+
+// source: https://sketchplugins.com/d/956-set-fix-height-layer-property
+const edgeFixdMap = {
+    '-pt-pin-right': 1,
+    '-pt-fix-size-width': 2,
+    '-pt-pin-left': 4,
+    '-pt-pin-bottom': 8,
+    '-pt-fix-size-height': 16,
+    '-pt-pin-top': 32,
+}
 
 const alignMap = {
     left: Text.Alignment.left,
@@ -46,6 +64,14 @@ const bordedLineJoinMap = {
     "bevel": Style.LineJoin.Bevel
 }
 
+const smartLayoutMap = {
+    "LeftToRight": SmartLayout.LeftToRight,
+    "HorizontallyCenter": SmartLayout.HorizontallyCenter,
+    "RightToLeft": SmartLayout.RightToLeft,
+    "TopToBottom": SmartLayout.TopToBottom,
+    "VerticallyCenter": SmartLayout.VerticallyCenter,
+    "BottomToTop": SmartLayout.BottomToTop,
+}
 
 const bordedArrowheadMap = {
     "none": Style.Arrowhead.None,
@@ -89,7 +115,8 @@ class DSApp {
         this.result = {
             createdStyles: 0,
             updatedStyles: 0,
-            assignedStyles: 0
+            assignedStyles: 0,
+            updatedLayers: 0,
         }
 
         this.messages = ""
@@ -113,6 +140,8 @@ class DSApp {
         this.showDebug = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DEBUG) == 1
         this.showCheck = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_CHECK) == 1
         this.showDoubleStyleError = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DOUBLESTYLES) == 1
+        this.confCreateSymbols = Settings.settingForKey(SettingKeys.PLUGIN_CREATE_SYMBOLS) == 1
+
 
         this._initStyles()
     }
@@ -293,7 +322,8 @@ class DSApp {
         if (this.result.createdStyles) msg += "Created " + this.result.createdStyles + " style(s). "
         if (this.result.updatedStyles) msg += "Updated " + this.result.updatedStyles + " style(s). "
         if (this.result.assignedStyles) msg += "Assigned " + this.result.assignedStyles + " style(s). "
-        if (!(this.result.createdStyles + this.result.updatedStyles + this.result.assignedStyles)) msg = "No any styles applied or assigned "
+        if (this.result.updatedLayers) msg += "Updated " + this.result.updatedLayers + " layer(s). "
+        if ("" == msg) msg = "No any styles applied or assigned "
         return msg
     }
 
@@ -367,6 +397,8 @@ class DSApp {
         })
         dialog.addDivider()
         dialog.addCheckbox("showCheck", "Review style changes before apply", this.showCheck)
+        dialog.addCheckbox("confCreateSymbols", "Create missed master symbols", this.confCreateSymbols)
+
 
         while (true) {
             const result = dialog.run()
@@ -386,6 +418,7 @@ class DSApp {
 
             ///
             this.showCheck = dialog.views['showCheck'].state() == 1
+            this.confCreateSymbols = dialog.views['confCreateSymbols'].state() == 1
             break
         }
 
@@ -394,6 +427,8 @@ class DSApp {
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS_LIST, this.pathToStylesList)
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToStyles)
         Settings.setSettingForKey(SettingKeys.PLUGIN_SHOW_CHECK, this.showCheck)
+        Settings.setSettingForKey(SettingKeys.PLUGIN_CREATE_SYMBOLS, this.confCreateSymbols)
+
 
         return true
     }
@@ -413,7 +448,10 @@ class DSApp {
                 rule.isStandalone = true
                 rule.sLayer = this._findSymbolChildByPath(rule.path)
                 if (!rule.sLayer) {
-                    this.messages += "Will create new symbol " + rule.path + " of " + ruleType + " type \n"
+                    if (this.confCreateSymbols)
+                        this.messages += "Will create new symbol " + rule.path + " of " + ruleType + " type \n"
+                    else
+                        return this.logError("Can't find symbol mast style by path " + rule.path)
                 }
             }
             if (ruleType.indexOf("image") >= 0) {
@@ -433,7 +471,8 @@ class DSApp {
             //     
             const isText = ruleType.indexOf("text") >= 0
             const isLayer = ruleType.indexOf("layer") >= 0
-            const strType = isText ? "Text" : (isLayer ? "Layer" : "Uknown")
+            const isGroup = ruleType.indexOf("group") >= 0
+            const strType = isText ? "Text" : (isLayer ? "Layer" : (isGroup ? "Group" : "Uknown"))
 
             if (rule.isStandalone) {
                 this.messages += "Will update " + strType + " style of standalone layer " + sStyleName + "\n"
@@ -471,6 +510,7 @@ class DSApp {
 
                 const isText = ruleType.indexOf("text") >= 0
                 const isLayer = ruleType.indexOf("layer") >= 0
+                const isGroup = ruleType.indexOf("group") >= 0
 
                 // Find or create new style
                 var sSharedStyle = null
@@ -515,6 +555,11 @@ class DSApp {
                 else if (isLayer)
                     this._applyRuleToLayerStyle(rule, sSharedStyle, sStyle)
 
+                if (isGroup) {
+                    this._applyRuleToGroup(rule)
+                    this.result.updatedLayers++
+                }
+
                 if (rule.isStandalone) {
                     this.logMsg("[Updated] style for standalone layer " + sStyleName)
                 } else {
@@ -554,6 +599,9 @@ class DSApp {
     _createSymbolMasterChild(rule) {
         let master = this._findSymbolMasterByPath(rule.path)
         if (!master) {
+            if (!this.confCreateSymbols) {
+                return this.logError("Can't find symbol mast style by path " + rule.path)
+            }
             const symbolPath = this._buildSymbolPathFromPath(rule.path)
             let symbolName = symbolPath.join(' / ')
 
@@ -658,6 +706,8 @@ class DSApp {
         else if (null != props[SKTEXT_STYLE])
             res += SKTEXT_STYLE
 
+        if (null != props[PT_SMARTLAYOUT])
+            res += "group"
 
         if ("" == res) {
             const layerType = props[PT_LAYER_TYPE]
@@ -1287,7 +1337,7 @@ class DSApp {
         this._applyShadow(rule, sStyle, 'box-shadow')
 
         // SET MARGINS
-        this._applyMargins(rule, sSharedStyle)
+        this._applyCommonRules(rule, sSharedStyle)
 
         // SET BORDER       
         if (('border-color' in token) || ('border-width' in token) || ('border-position' in token))
@@ -1303,6 +1353,25 @@ class DSApp {
             this._applyPaddingToLayer(rule, paddingSrc)
         }
 
+    }
+
+
+    _applyRuleToGroup(rule) {
+        const token = rule.props
+        const l = rule.sLayer
+
+        // SET SMART LAYOUT
+        var smartLayout = token[PT_SMARTLAYOUT]
+        if (smartLayout != null) {
+            const value = smartLayoutMap[smartLayout]
+            if (null == value) {
+                return this.logError("Can not understand rule " + PT_SMARTLAYOUT + ": " + smartLayout)
+            }
+            l.smartLayout = value
+        }
+
+
+        this._applyCommonRules(rule)
     }
 
     _applyPaddingToLayer(rule, paddingSrc) {
@@ -1471,40 +1540,96 @@ class DSApp {
         this._applyShadow(rule, sStyle, "text-shadow")
 
         // SET MARGINS
-        this._applyMargins(rule, sSharedStyle)
+        this._applyCommonRules(rule, sSharedStyle)
     }
 
-    _applyMargins(rule, sSharedStyle) {
+    _applyCommonRules(rule, sSharedStyle) {
         const token = rule.props
+        const nLayer = rule.sLayer.sketchObject
 
-        var marginTop = token['margin-top']
-        var marginLeft = token['margin-left']
-        var height = token['height']
-        var width = token['width']
+        // SET MARGINS
+        while (true) {
+            var marginTop = token['margin-top']
+            var marginLeft = token['margin-left']
+            var height = token['height']
+            var width = token['width']
 
-        if (null == marginTop && null == marginLeft && null == height && null == width) return true
-        if (null == sSharedStyle && null == rule.sLayer) return true
+            if (null == marginTop && null == marginLeft && null == height && null == width) break
+            if (null == sSharedStyle && null == rule.sLayer) break
 
-        const layers = rule.sLayer ? [rule.sLayer] : sSharedStyle.getAllInstancesLayers()
+            const layers = rule.sLayer ? [rule.sLayer] : sSharedStyle.getAllInstancesLayers()
 
-        for (var l of layers) {
-            let parentFrame = l.parent.frame
+            for (var l of layers) {
+                const topParent = this._findLayerTopParent(l)
+                const parentFrame = topParent.frame
+                const moveTop = topParent != l.parent;
 
-            if (null != marginTop) {
-                l.frame.y = parseInt(marginTop.replace('px', ""))
+                let nRect = Utils.copyRect(topParent.sketchObject.absoluteRect())
+                let x = null
+                let y = null
+
+                if (null != marginTop) {
+                    y = parseInt(marginTop.replace('px', ""))
+                }
+                if (null != marginLeft) {
+                    x = parseInt(marginLeft.replace('px', ""))
+                }
+                if (null != height) {
+                    l.frame.height = parseInt(height.replace('px', ""))
+                }
+                if (null != width) {
+                    l.frame.width = parseInt(width.replace('px', ""))
+                }
+
+                if (x != null || y != null) this.positionInArtboard(l, x, y)
+
             }
-            if (null != marginLeft) {
-                l.frame.x = parseInt(marginLeft.replace('px', ""))
-            }
-            if (null != height) {
-                l.frame.height = parseInt(height.replace('px', ""))
-            }
-            if (null != width) {
-                l.frame.width = parseInt(width.replace('px', ""))
-            }
+            break
+        }
+
+        // SET FIX SIZE AND PIN CORNERS
+        for (let k in edgeFixdMap) {
+            if (null == token[k]) continue
+            nLayer.setFixed_forEdge_('true' == token[k], edgeFixdMap[k])
         }
 
         return true
+    }
+
+
+    parentOffsetInArtboard(layer) {
+        var offset = { x: 0, y: 0 };
+        var parent = layer.parent;
+        while (parent.name && (parent.type !== 'Artboard' && parent.type !== 'SymbolMaster')) {
+            offset.x += parent.frame.x;
+            offset.y += parent.frame.y;
+            parent = parent.parent;
+        }
+        return offset;
+    }
+
+    positionInArtboard(layer, x, y) {
+        var parentOffset = this.parentOffsetInArtboard(layer);
+        var newFrame = new Rectangle(layer.frame);
+        if (x != null) newFrame.x = x - parentOffset.x;
+        if (y != null) newFrame.y = y - parentOffset.y;
+        layer.frame = newFrame;
+        this.updateParentFrames(layer);
+    }
+
+    updateParentFrames(layer) {
+        var parent = layer.parent;
+        while (parent && parent.name && (parent.type !== 'Artboard' && parent.type !== 'SymbolMaster')) {
+            parent.adjustToFit();
+            parent = parent.parent;
+        }
+    }
+
+
+    _findLayerTopParent(l) {
+        if (!l.parent) return l
+        if ('Group' == l.parent.type) return this._findLayerTopParent(l.parent)
+        return l.parent
     }
 
     _applyOpacityToLayer(rule) {
@@ -1622,7 +1747,7 @@ class DSApp {
 
                 // apply additional styles
                 this._applyShadow(rule, sStyle, 'box-shadow')
-                //this._applyMargins(rule, null)
+                //this._applyCommonRules(rule, null)
                 this._applyBorderStyle(rule, sStyle)
 
             }
