@@ -1545,7 +1545,15 @@ class DSApp {
 
     _applyCommonRules(rule, sSharedStyle) {
         const token = rule.props
-        const nLayer = rule.sLayer.sketchObject
+        const sLayer = rule.sLayer
+        const nLayer = rule.sLayer ? rule.sLayer.sketchObject : null
+        let currentResizesContent = null
+
+        // Switch "Adjust Content on resize" off before resizing
+        if (sLayer && "SymbolMaster" == sLayer.type) {
+            currentResizesContent = nLayer.resizesContent()
+            nLayer.setResizesContent(false)
+        }
 
         // SET MARGINS
         while (true) {
@@ -1588,9 +1596,16 @@ class DSApp {
         }
 
         // SET FIX SIZE AND PIN CORNERS
-        for (let k in edgeFixdMap) {
-            if (null == token[k]) continue
-            nLayer.setFixed_forEdge_('true' == token[k], edgeFixdMap[k])
+        if (nLayer) {
+            for (let k in edgeFixdMap) {
+                if (null == token[k]) continue
+                nLayer.setFixed_forEdge_('true' == token[k], edgeFixdMap[k])
+            }
+        }
+
+        // Switch "Adjust Content on resize" to old state
+        if (null != currentResizesContent) {
+            nLayer.setResizesContent(currentResizesContent)
         }
 
         return true
