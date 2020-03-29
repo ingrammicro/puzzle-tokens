@@ -442,7 +442,10 @@ class DSApp {
             rule.name = sStyleName
             rule.type = ruleType
 
-            if ("" == ruleType) continue;
+            if ("" == ruleType) {
+                this.logError("Can't understand a type of rule " + rule.name)
+                continue
+            }
 
             if (rule.path[0].startsWith('#')) {
                 rule.isStandalone = true
@@ -450,8 +453,10 @@ class DSApp {
                 if (!rule.sLayer) {
                     if (this.confCreateSymbols)
                         this.messages += "Will create new symbol " + rule.path + " of " + ruleType + " type \n"
-                    else
-                        return this.logError("Can't find symbol mast style by path " + rule.path)
+                    else {
+                        this.logError("Can't find symbol mast style by path " + rule.path)
+                        continue
+                    }
                 }
             }
             if (ruleType.indexOf("image") >= 0) {
@@ -1179,7 +1184,7 @@ class DSApp {
         const borderStartArrowhead = token['border-start-arrowhead']
         const borderEndArrowhead = token['border-end-arrowhead']
 
-        const updateBorder = token['pt-border-update'] == 'true'
+        const updateBorder = token['-pt-border-update'] == 'true'
 
         var border = {}
         if (updateBorder) {

@@ -1,6 +1,20 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 7.0.0 (29 Mar 2020)
+- Idenify object as Text Layer by single "line-height" property 
+- Create SCSS file with list of plain tokens automatically (enabling in Settings)
+- Added "-pt-border-update: true" property. Use it if you want to update the last border, but not create the new
+- Fixed error handling
+- Added "-pt-layer-type: text/layer" property. Use it if you need to specify a layer type manually
+- Added "-pt-smartlayout: LeftToRight/HorizontallyCenter/RightToLeft/TopToBottom/VerticallyCenter/BottomToTop" propery to control Smart Layout settings from LESS/SASS
+- Added "-pt-fix-size-height: true/false" to control "Fix Size" settings
+- Added "-pt-fix-size-width: true/false" to control "Fix Size" settings
+- Added "-pt-pin-left: true/false" to control "Pin to Edge" settings
+- Added "-pt-pin-right: true/false" to control "Pin to Edge" settings
+- Added "-pt-pin-top: true/false" to control "Pin to Edge" settings
+- Added "-pt-pin-botom: true/false" to control "Pin to Edge" settings
+
 ##  Version 6.14.0 (23 Feb 2020)
 Added support for hsl() and hsla() colors
 Example: https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Releases/6.14.0
