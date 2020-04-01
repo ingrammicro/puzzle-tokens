@@ -435,6 +435,11 @@ class DSApp {
 
     ////////////////////////////////////////////////////////////////
 
+    _isStylePropExisting(props) {
+        let styles = Object.keys(props).filter(name => !(name.startsWith("@") || name.startsWith("__")))
+        return styles.length > 0
+    }
+
     _checkRules() {
         for (const rule of this.rules) {
             const ruleType = this._getRulePropsType(rule.props)
@@ -443,7 +448,9 @@ class DSApp {
             rule.type = ruleType
 
             if ("" == ruleType) {
-                this.logError("Can't understand a type of rule " + rule.name)
+                if (this._isStylePropExisting(rule.props)) {
+                    this.logError("Can't understand a type of rule " + rule.name)
+                }
                 continue
             }
 
@@ -525,7 +532,10 @@ class DSApp {
                 if (rule.isStandalone) {
 
                     if (!rule.sLayer) {
-                        rule.sLayer = this._createSymbolMasterChild(rule)
+                        rule.sLayer = this._findOrCreateSymbolMasterChild(rule)
+                        if (!rule.sLayer) {
+                            return this.logError("Can't find a symbol master layer by name " + rule.name)
+                        }
                     }
 
                     // assign existing style
@@ -537,7 +547,7 @@ class DSApp {
                         l.style.syncWithSharedStyle(sExistingStyle)
                         this.result.assignedStyles++
                     }
-                    //
+                    //                
                     sStyle = rule.sLayer.style
                 } else {
                     sSharedStyle = isText ? this.sTextStyles[sStyleName] : this.sLayerStyles[sStyleName]
@@ -601,11 +611,12 @@ class DSApp {
 
 
     // Find or create a symbol master and place new layer inside
-    _createSymbolMasterChild(rule) {
+    _findOrCreateSymbolMasterChild(rule) {
         let master = this._findSymbolMasterByPath(rule.path)
         if (!master) {
             if (!this.confCreateSymbols) {
-                return this.logError("Can't find symbol mast style by path " + rule.path)
+                this.logError("Can't find symbol mast style by path " + rule.path)
+                return null
             }
             const symbolPath = this._buildSymbolPathFromPath(rule.path)
             let symbolName = symbolPath.join(' / ')
@@ -1563,11 +1574,14 @@ class DSApp {
         // SET MARGINS
         while (true) {
             var marginTop = token['margin-top']
+            var marginBottom = token['margin-bottom']
             var marginLeft = token['margin-left']
+            var marginRight = token['margin-right']
             var height = token['height']
             var width = token['width']
 
-            if (null == marginTop && null == marginLeft && null == height && null == width) break
+            if (null == marginTop && null == marginBottom
+                && null == marginLeft && null == marginRight && null == height && null == width) break
             if (null == sSharedStyle && null == rule.sLayer) break
 
             const layers = rule.sLayer ? [rule.sLayer] : sSharedStyle.getAllInstancesLayers()
@@ -1584,8 +1598,16 @@ class DSApp {
                 if (null != marginTop) {
                     y = parseInt(marginTop.replace('px', ""))
                 }
+                if (null != marginBottom) {
+                    y = parentFrame.height - (parseInt(marginBottom.replace('px', "")) + l.frame.height)
+                    log(y)
+                }
                 if (null != marginLeft) {
                     x = parseInt(marginLeft.replace('px', ""))
+                }
+                if (null != marginRight) {
+                    y = parentFrame.width - (parseInt(marginRight.replace('px', "")) + l.frame.width)
+                    log(y)
                 }
                 if (null != height) {
                     l.frame.height = parseInt(height.replace('px', ""))
