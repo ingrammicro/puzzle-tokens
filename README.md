@@ -110,8 +110,9 @@ The following CSS styles are supporting.
 }
 
 // Group & SymbolMaster Properties
-.Style{
-    -pt-smartlayout:          
+.Group{
+    -pt-smartlayout:         LeftToRight; // LeftToRight OR HorizontallyCenter OR RightToLeft OR TopToBottom 
+                                          // OR VerticallyCenter OR BottomToTop
 }
 
 #Image{
