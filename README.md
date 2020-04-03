@@ -87,7 +87,13 @@ The following CSS styles are supporting.
 // Text & Shape Layer Common Properties
 .Style{
     // Sketch only styles
-    pt-layer-type:         text; // "layer" or "text" // Usefull to help PT to understnand the type of the layer
+    -pt-layer-type:          text; // "layer" or "text" // Usefull to help PT to understnand the type of the layer
+    -pt-pin-left:            true; // "true" or "false
+    -pt-pin-right:           true; // "true" or "false          
+    -pt-pin-top:             true; // "true" or "false
+    -pt-pin-bottom:          true; // "true" or "false
+    -pt-fix-size-height:     true; // "true" or "false
+    -pt-fix-size-width:      true; // "true" or "false
 
     // The following properties are not a part of shared styles.
     // Bu you can set these properties for a shared style.
@@ -97,10 +103,17 @@ The following CSS styles are supporting.
 
     margin-top:             10px;
     margin-left:            10px;
+    margin-right:           10px;
+    margin-bottom:          10px;
     width:                  100px;
     height:                 100px;        
 }
 
+// Group & SymbolMaster Properties
+.Group{
+    -pt-smartlayout:         LeftToRight; // LeftToRight OR HorizontallyCenter OR RightToLeft OR TopToBottom 
+                                          // OR VerticallyCenter OR BottomToTop
+}
 
 #Image{
     // Required Properties
