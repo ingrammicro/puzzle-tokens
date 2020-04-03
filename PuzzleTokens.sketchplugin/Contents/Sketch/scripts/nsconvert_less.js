@@ -228,6 +228,9 @@ function saveSketchRule(rule, path) {
     var sketchPath = path.join("/")
     //sketchPath = sketchPath.replace(/(\.)/g, '').replace(/^\./,'')    
 
+    // detect mixin by keyword and skip it
+    if (path.length > 0 && path[0].startsWith(".mixin-")) return
+
     const sketchRule = {
         path: path,
         props: {
@@ -236,6 +239,7 @@ function saveSketchRule(rule, path) {
     }
     rule.rules.forEach(function (oneRule, index) {
         if (oneRule.isLineComment) return
+
         if (null != oneRule.selectors) {
             parseSketchRule(oneRule, null, path)
             return
