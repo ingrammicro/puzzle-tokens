@@ -1,6 +1,14 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.0.1 (8 Apr 2020)
+Added new feature:
+- Export text styles to LESS or SCSS file (thanks to @josh1111 for idea and sponsorship)
+Added new styles:
+-pt-resize-symbol: true; // if you use "height" or "width" styles to resize some layer then you can also resize a symbol which is a parent for affected layer
+Fixed issues:
+- Wrong parsing of gradient with "white 10%" text included
+
 ##  Version 7.0.0 (29 Mar 2020)
 - Idenify object as Text Layer by single "line-height" property 
 - Create SCSS file with list of plain tokens automatically (enabling in Settings)

@@ -16,7 +16,8 @@ class DSExporter {
         this.errors = []
 
         this.docName = this._clearCloudName(this.nDoc.cloudName())
-        this.pathTo = ""
+        this.pathTo = undefined
+        this.format = undefined
 
         this._init()
 
@@ -27,6 +28,8 @@ class DSExporter {
     _init() {
         this.pathTo = Settings.settingForKey(SettingKeys.PLUGIN_EXPORT_PATH_TO)
         if (undefined == this.pathTo) this.pathTo = ""
+        this.format = Settings.settingForKey(SettingKeys.PLUGIN_EXPORT_FORMAT)
+        if (undefined == this.format) this.format = Constants.EXPORT_FORMAT_LESS
     }
 
     // Tools
@@ -101,15 +104,21 @@ class DSExporter {
     }
 
     _showDialog() {
-        const dialog = new UIDialog("Export Styles & Symbols", NSMakeRect(0, 0, 600, 420), "Export",
-            "", "Cancel")
-        dialog.removeLeftColumn()
+        const dialog = new UIDialog("Export Styles", NSMakeRect(0, 0, 800, 120), "Export",
+            "Export all text styles to a text file")
+        //dialog.removeLeftColumn()
+        dialog.leftColWidth = 200
 
+        dialog.addLeftLabel("", "Destination")
         dialog.addPathInput({
-            id: "pathTo", label: "Destination folder", labelSelect: "Select Folder",
+            id: "pathTo", label: "", labelSelect: "Select Folder",
             textValue: this.pathTo,
-            inlineHint: 'e.g. ~/HTML', width: 450
+            inlineHint: 'e.g. ~/Temp', width: 520
         })
+
+        dialog.addLeftLabel("", "File Format")
+        dialog.addRadioButtons("format", "", this.format, ["LESS", "SCSS"], 250)
+
 
         while (true) {
             dialog.run()
@@ -121,9 +130,13 @@ class DSExporter {
             // Check data
             this.pathTo = dialog.views['pathTo'].stringValue() + ""
             if ("" == this.pathTo) continue
+            this.format = dialog.views['format'].selectedIndex
+            this.less = this.format == Constants.EXPORT_FORMAT_LESS
+            this.scss = this.format == Constants.EXPORT_FORMAT_SCSS
             // Save data
 
             Settings.setSettingForKey(SettingKeys.PLUGIN_EXPORT_PATH_TO, this.pathTo)
+            Settings.setSettingForKey(SettingKeys.PLUGIN_EXPORT_FORMAT, this.format)
             break
         }
 
@@ -136,7 +149,12 @@ class DSExporter {
         let res = ""
         res += this._getStylesAsText()
 
-        const fullPathTo = this.pathTo + "/" + this.docName + ".scss"
+        const formatExts = {
+            [Constants.EXPORT_FORMAT_LESS]: ".less",
+            [Constants.EXPORT_FORMAT_SCSS]: ".scss",
+        }
+
+        const fullPathTo = this.pathTo + "/" + this.docName + formatExts[this.format]
         Utils.writeToFile(res, fullPathTo);
         log(res)
 
@@ -200,7 +218,7 @@ class DSExporter {
 
 
     _parseStyleName(name) {
-        const path = name.split("/").map(s => s.replace(/\ /g, '__'))
+        const path = name.split("/").map(s => s.replace(/\ /g, '__').replace(/\./g, '-DOT-'))
         let si = {
             openTags: "." + path.join(" .") + "{\n",
             spaces: " ",

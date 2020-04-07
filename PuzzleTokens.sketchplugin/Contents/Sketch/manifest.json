@@ -7,7 +7,7 @@
     "appcast": "https://raw.githubusercontent.com/ingrammicro/puzzle-tokens/master/appcast.xml",
     "compatibleVersion": 3,
     "bundleVersion": 1,
-    "version": "8.0.0.devel-export.02",
+    "version": "8.0.1",
     "icon": "icon.png",
     "commands": [
         {
@@ -39,7 +39,7 @@
         {
             "script": "cmd-export.js",
             "handler": "onRun",
-            "name": "Export Styles & Symbols",
+            "name": "Export Styles",
             "identifier": "cmdExport"
         },
         {

@@ -10,6 +10,8 @@ var Constants = {
     VARSFILE_POSTFIX: "-vars.json",
     SASSFILE_POSTFIX: "-vars.scss",
     SYMBOLPAGE_NAME: "Symbols",
+    EXPORT_FORMAT_LESS: 0,
+    EXPORT_FORMAT_SCSS: 1,
 
     SITE_CHANGELOG_URL: "https://github.com/ingrammicro/puzzle-tokens/blob/master/CHANGELOG.md",
 };
@@ -23,7 +25,8 @@ var SettingKeys = {
     PLUGIN_SHOW_DEBUG: "pluginDebug",
     PLUGIN_SHOW_DOUBLESTYLES: "pluginDoubleStyles",
     PLUGIN_CREATE_SYMBOLS: "pluginCreateSymbols",
-    PLUGIN_EXPORT_PATH_TO: "pluginExportPathTo"
+    PLUGIN_EXPORT_PATH_TO: "pluginExportPathTo",
+    PLUGIN_EXPORT_FORMAT: "pluginExportFormat",
 };
 
 
