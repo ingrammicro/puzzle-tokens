@@ -42,6 +42,7 @@ const SmartLayout = require('sketch').SmartLayout
 const SKLAYER_STYLE = "sklayer-style"
 const SKTEXT_STYLE = "sktext-style"
 const PT_TEXT = "pt-text"
+const PT_RESIZE_SYMBOL = "-pt-resize-symbol"
 const PT_PARAGRAPH_SPACING = "pt-paragraph-spacing"
 const PT_LAYER_TYPE = "-pt-layer-type"
 const PT_SMARTLAYOUT = "-pt-smartlayout"
@@ -81,6 +82,11 @@ const vertAlignMap = {
     "top": Text.VerticalAlignment.top,
     "middle": Text.VerticalAlignment.center,
     "bottom": Text.VerticalAlignment.bottom
+}
+const vertAlignMap2 = {
+    [Text.VerticalAlignment.top]: "top",
+    [Text.VerticalAlignment.center]: "middle",
+    [Text.VerticalAlignment.bottom]: "bottom",
 }
 const bordedLineEndMap = {
     "butt": Style.LineEnd.Butt,

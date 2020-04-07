@@ -1499,6 +1499,7 @@ class DSApp {
             var marginRight = token['margin-right']
             var height = token['height']
             var width = token['width']
+            const resizeSymbol = token[PT_RESIZE_SYMBOL]
 
             if (null == marginTop && null == marginBottom
                 && null == marginLeft && null == marginRight && null == height && null == width) break
@@ -1527,7 +1528,6 @@ class DSApp {
                 }
                 if (null != marginRight) {
                     y = parentFrame.width - (parseInt(marginRight.replace('px', "")) + l.frame.width)
-                    log(y)
                 }
                 if (null != height) {
                     l.frame.height = parseInt(height.replace('px', ""))
@@ -1537,6 +1537,11 @@ class DSApp {
                 }
 
                 if (x != null || y != null) this.positionInArtboard(l, x, y)
+
+                if (resizeSymbol != null && "true" == resizeSymbol) {
+                    if (null != height) parentFrame.height = l.frame.height
+                    if (null != width) parentFrame.width = l.frame.width
+                }
 
             }
             break
