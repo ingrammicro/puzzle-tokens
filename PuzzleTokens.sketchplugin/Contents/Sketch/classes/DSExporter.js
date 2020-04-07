@@ -138,6 +138,7 @@ class DSExporter {
 
         const fullPathTo = this.pathTo + "/" + this.docName + ".scss"
         Utils.writeToFile(res, fullPathTo);
+        log(res)
 
         return true
 
@@ -161,11 +162,13 @@ class DSExporter {
     _getTextStylePropsAsText(sStyle, spaces) {
         let res = ""
         const eol = ";\n"
+        const pxeol = "px" + eol
 
         res += spaces + "font-family" + ": " + sStyle.fontFamily + eol
-        res += spaces + "font-size" + ": " + sStyle.fontSize + "px" + eol
+        res += spaces + "font-size" + ": " + sStyle.fontSize + pxeol
         res += spaces + "color" + ": " + sStyle.textColor + eol
         res += spaces + "text-align" + ": " + alignMap2[sStyle.alignment] + eol
+        res += spaces + "vertical-align" + ": " + vertAlignMap2[sStyle.verticalAlignment] + eol
         {
             var cssWeights = weights.filter(w => w.sketch == sStyle.fontWeight)
             if (cssWeights.length == 0)
@@ -176,7 +179,8 @@ class DSExporter {
         if (undefined != sStyle.fontStyle) {
             res += spaces + "font-style" + ": " + sStyle.fontStyle + eol
         }
-        res += spaces + "line-height" + ": " + sStyle.lineHeight + eol
+        if (null != sStyle.lineHeight)
+            res += spaces + "line-height" + ": " + sStyle.lineHeight + pxeol
         if (undefined != sStyle.textTransform) {
             res += spaces + "text-transform" + ": " + sStyle.textTransform + eol
         }
@@ -186,25 +190,17 @@ class DSExporter {
         if (undefined != sStyle.textStrikethrough) {
             res += spaces + "text-decoration" + ": " + "line-through" + eol
         }
-
+        if (null != sStyle.kerning) {
+            res += spaces + "letter-spacing" + ": " + sStyle.kerning + pxeol
+        }
         res += spaces + PT_PARAGRAPH_SPACING + ": " + sStyle.paragraphSpacing + eol
-
-        /*
-            opacity: 63 %;             // supported "63%" or "0.42"
-            text-transform: uppercase;       // "uppercase", "lowercase", "none"
-            text-decoration: underline;       // "underline", "line-through"
-            text-align: left;            // "left", center", "right", "justify"
-            vertical-align: top;             // "top", "middle", "bottom"
-            letter-spacing: 10px;            // <value>px OR "normal"
-        */
-
 
         return res
     }
 
 
     _parseStyleName(name) {
-        const path = name.split("/")
+        const path = name.split("/").map(s => s.replace(/\ /g, '__'))
         let si = {
             openTags: "." + path.join(" .") + "{\n",
             spaces: " ",
