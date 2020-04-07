@@ -342,10 +342,22 @@ class Utils {
         }
         if (str.includes(" ") && str.includes("%")) {
             const list = str.split(" ")
-            str = Utils.stripStr(list[0]) + Utils.opacityToHex(list[1])
+            let color = Utils.stripStr(list[0])
+            // convert color from "white" to "#ffffff"
+            if (!color.startsWith("#")) {
+                if (color in COLOR_NAMES)
+                    color = COLOR_NAMES[color]
+            }
+            str = color + Utils.opacityToHex(list[1])
         }
         if (undefined != opacity) {
-            str = Utils.stripStr(str) + Utils.opacityToHex(opacity)
+            str = Utils.stripStr(str);
+            // convert color from "white" to "#ffffff"
+            if (!str.startsWith("#")) {
+                if (str in COLOR_NAMES)
+                    str = COLOR_NAMES[str]
+            }
+            str = str + Utils.opacityToHex(opacity)
         }
         return str
     }
