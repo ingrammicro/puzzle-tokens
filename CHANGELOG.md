@@ -1,6 +1,12 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.1.0 (9 Apr 2020)
+Export improved:
+-  Color, font sized, family and weight values replaced by tokens
+Fixed issues:
+-  Generate Preview failed with error
+
 ##  Version 8.0.1 (8 Apr 2020)
 Added new feature:
 - Export text styles to LESS or SCSS file (thanks to @josh1111 for idea and sponsorship)
