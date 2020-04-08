@@ -1,7 +1,21 @@
 {
-    "@colors": "",
-    "@font-size": "",
-    "@text-align": "left, right, center",
-    "@module": "4px",
-    "@shadow": ""
+    "@color-000": "#db0482ff",
+    "@color-001": "#8925f5ff",
+    "@color-002": "#923f7bff",
+    "@color-003": "#17062bff",
+    "@color-004": "#ffffffff",
+    "@color-005": "#d83a3aff",
+    "@color-006": "#f7a436ff",
+    "@color-007": "#0ec988ff",
+    "@color-008": "#fff79cff",
+    "@color-009": "#000000ff",
+    "@font-size006": "10px",
+    "@font-size005": "12px",
+    "@font-size004": "14px",
+    "@font-size003": "16px",
+    "@font-size002": "24px",
+    "@font-size001": "36px",
+    "@font-size000": "56px",
+    "@font-weight000": "700",
+    "@font-family000": "Graphik"
 }
