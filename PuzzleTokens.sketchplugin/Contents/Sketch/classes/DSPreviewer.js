@@ -3,17 +3,6 @@
 @import("lib/uidialog.js")
 
 var app = undefined
-const Sketch = require('sketch/dom')
-const Settings = require('sketch/settings')
-const Style = require('sketch/dom').Style
-const Image = require('sketch/dom').Image
-const path = require('path');
-const Text = require('sketch/dom').Text
-const Shape = require('sketch/dom').Shape
-const Group = require('sketch/dom').Group
-const Page = require('sketch/dom').Page
-const Artboard = require('sketch/dom').Artboard
-const SharedStyle = require('sketch/dom').SharedStyle
 
 const defSettings = {
     gen: {

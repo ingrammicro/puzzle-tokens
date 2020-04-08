@@ -794,7 +794,6 @@ class DSApp {
     _createNewSymbolMaster(name) {
         const page = this._getSymbolPage()
 
-        var SymbolMaster = require('sketch/dom').SymbolMaster
         var master = new SymbolMaster({
             name: name,
             parent: page

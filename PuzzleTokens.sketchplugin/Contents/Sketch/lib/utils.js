@@ -1,5 +1,4 @@
 @import "constants.js";
-const Rectangle = require('sketch/dom').Rectangle
 
 Rectangle.prototype.round = function () {
     this.x = Math.round(this.x)

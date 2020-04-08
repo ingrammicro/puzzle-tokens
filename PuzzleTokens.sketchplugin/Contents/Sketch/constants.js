@@ -34,6 +34,7 @@ var Sketch = require('sketch/dom')
 var Settings = require('sketch/settings')
 var Style = require('sketch/dom').Style
 var Image = require('sketch/dom').Image
+const Group = require('sketch/dom').Group
 var SharedStyle = require('sketch/dom').SharedStyle
 var UI = require('sketch/ui')
 const path = require('path');
@@ -41,6 +42,11 @@ const Text = require('sketch/dom').Text
 const Shape = require('sketch/dom').Shape
 const Page = require('sketch/dom').Page
 const SmartLayout = require('sketch').SmartLayout
+const Artboard = require('sketch/dom').Artboard
+const Document = require('sketch/dom').Document
+const SymbolMaster = require('sketch/dom').SymbolMaster
+const Rectangle = require('sketch/dom').Rectangle
+
 
 const SKLAYER_STYLE = "sklayer-style"
 const SKTEXT_STYLE = "sktext-style"

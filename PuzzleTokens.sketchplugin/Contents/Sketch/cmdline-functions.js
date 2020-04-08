@@ -1,6 +1,5 @@
 @import "classes/DSApp.js";
 @import "classes/DSApp.js"
-var Document = require('sketch/dom').Document
 
 // osascript -e 'quit app "Sketch"'
 const example = `
@@ -47,7 +46,6 @@ function closeDocument(document) {
 }
 
 var cmdRun = function (context) {
-    let Document = require('sketch/dom').Document
 
     // Parse command line arguments    
     let path = context.file + ""
