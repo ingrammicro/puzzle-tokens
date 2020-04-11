@@ -22,7 +22,7 @@ npm i sass -g
 3. Run Plugins > Puzzle Tokens > Apply Design Tokens menu command
 4. Specify LESS file according to screenshot
 
-<img width="755" height="538" src="https://raw.githubusercontent.com/ingrammicro/puzzle-tokens/master/Styles/Tests/Buttons/Illustration.png"/>
+<img width="755" src="https://raw.githubusercontent.com/ingrammicro/puzzle-tokens/master/Styles/Tests/Buttons/Illustration.png"/>
 
 5. Repeat the same operation, but select "tokens-blue.less" file. See how styles and widgets look now.
 
@@ -54,10 +54,12 @@ The following CSS styles are supporting.
 
 .ShapeStyle {
     // SKETCH only properties
+    border-position:       center;    // center OR inside OR outside
     border-line-end:            butt;      // butt / round / projecting
     border-line-join:           miter;     // miter / round / bevel
     border-start-arrowhead:     openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare
     border-end-arrowhead:       openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare                  
+
 
     /// CSS native properties
     background-color:      #B0AFB1;
@@ -67,7 +69,6 @@ The following CSS styles are supporting.
     border-color:          #000000;
     border-width:          2px;
     border-style:          dotted;    // dotted OR dashed
-    border-position:       center;    // center OR inside OR outside
 
     box-shadow:            0 10px 20px 2 #FF00FF;
     box-shadow:            inset 0 10px 20px 2 rgba(0,0,0,0.1);
