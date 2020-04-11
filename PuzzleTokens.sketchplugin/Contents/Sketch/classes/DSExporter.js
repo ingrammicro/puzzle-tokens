@@ -2,6 +2,8 @@
 @import("lib/utils.js")
 @import("lib/uidialog.js")
 
+const eol = ";\n"
+const pxeol = "px" + eol
 var app = undefined
 
 const formatDefs = {
@@ -34,13 +36,13 @@ class DSExporter {
                 tokens: {}, index: 0, name: "color-", comment: "COLOR TOKENS", postix: "",
             },
             fontSizes: {
-                tokens: {}, index: 0, name: "font-size", comment: "FONT SIZE TOKENS", postix: "px",
+                tokens: {}, index: 0, name: "font-size-", comment: "FONT SIZE TOKENS", postix: "px",
             },
             fontWeights: {
-                tokens: {}, index: 0, name: "font-weight", comment: "FONT WEIGHTS TOKENS", postix: "",
+                tokens: {}, index: 0, name: "font-weight-", comment: "FONT WEIGHTS TOKENS", postix: "",
             },
             fontFamilies: {
-                tokens: {}, index: 0, name: "font-family", comment: "FONTS", postix: "",
+                tokens: {}, index: 0, name: "font-family-", comment: "FONTS", postix: "",
             },
         }
 
@@ -222,6 +224,18 @@ class DSExporter {
             ///
             res += si.closeTags
         }, this)
+
+        res += "///////////////// Layer Styles /////////////////\n"
+        this.sDoc.sharedLayerStyles.forEach(function (sStyle) {
+            res += "///////////////" + sStyle.name + "\n"
+            let si = this._parseStyleName(sStyle.name)
+            res += si.openTags
+            ///
+            res += this._getLayerStylePropsAsText(sStyle, sStyle.style, si.spaces)
+            ///
+            res += si.closeTags
+        }, this)
+
         return res
     }
 
@@ -282,8 +296,6 @@ class DSExporter {
 
     _getTextStylePropsAsText(sStyle, spaces) {
         let res = ""
-        const eol = ";\n"
-        const pxeol = "px" + eol
 
         res += spaces + "font-family" + ": " + this._getFontFamilyToken(sStyle.fontFamily) + eol
         res += spaces + "font-size" + ": " + this._getFontSizeToken(sStyle.fontSize) + eol
@@ -320,6 +332,145 @@ class DSExporter {
     }
 
 
+    _getLayerStylePropsAsText(sSharedStyle, sStyle, spaces) {
+        let res = ""
+
+        // process the first fill, other will be processed later
+        res += this._getLayerFillByIndexAsText(sStyle, 0, spaces)
+
+        // process the first border, other will be processed later
+        res += this._getLayerBorderByIndexAsText(sStyle, 0, spaces)
+
+        // try to find and save border radius(es)
+        while (true) {
+            const layers = sSharedStyle.getAllInstancesLayers()
+            if (0 == layers.length) break
+            const l = layers[0] // take the first
+            let str = ""
+            let radiusesHash = {}
+            l.points.forEach(function (point, index) {
+                radiusesHash[point.cornerRadius] = true
+            })
+            if (Object.keys(radiusesHash).length == 1) {
+                // all points have the same radius
+                str = l.points[0].cornerRadius + "px"
+            } else {
+
+                str = l.points.map(p => p.cornerRadius).join("px ") + "px"
+            }
+            //
+            res += spaces + "border-radius" + ": " + str + eol
+            break
+        }
+
+        if (sStyle.opacity < 1) {
+            res += spaces + "opacity" + ": " + sStyle.opacity + eol
+        }
+
+        return res
+    }
+
+
+    _getLayerBorderByIndexAsText(sStyle, index, spaces) {
+        const border = sStyle.borders && (sStyle.borders.length > index) ? sStyle.borders[index] : null
+        if (null == border) return ""
+        let res = ""
+
+        res += spaces + "border-color" + ": " + this._getColorToken(border.color) + eol
+        //
+        if (border.position != Style.BorderPosition.Center) {
+            // save non-default position
+            const conversion = {
+                [Style.BorderPosition.Inside]: 'inside',
+                [Style.BorderPosition.Outside]: 'outside'
+            }
+            res += spaces + "border-position" + ": " + conversion[border.position] + eol
+        }
+        //
+        res += spaces + "border-width" + ": " + border.thickness + pxeol
+
+        // Process styles common for all borders
+        if (0 == index) {
+            if (sStyle.borderOptions != null) {
+                let bs = ""
+                const dash = sStyle.borderOptions.dashPattern
+                if (null != dash && dash.length) {
+                    bs = dash[0] == border.thickness ? "dotted" : "dashed"
+                }
+                if (bs != "") res += spaces + "border-style" + ": " + bs + eol
+            }
+            //
+            if (sStyle.borderOptions != null) {
+                if (sStyle.borderOptions.lineEnd != Style.LineEnd.Butt) {
+                    // save non-default line end
+                    const borderLineEnd = bordedLineEndMap2[sStyle.borderOptions.lineEnd]
+                    res += spaces + "border-line-end" + ": " + borderLineEnd + eol
+                }
+                if (sStyle.borderOptions.lineJoin != Style.LineJoin.Miter) {
+                    // save non-default join
+                    const borderLineJoin = bordedLineJoinMap2[sStyle.borderOptions.lineJoin]
+                    if (undefined != borderLineJoin)
+                        res += spaces + "border-line-join" + ": " + borderLineJoin + eol
+                }
+                const borderStartArrowHead = bordedArrowheadMap2[sStyle.borderOptions.startArrowhead]
+                if ("none" != borderStartArrowHead)
+                    res += spaces + "border-start-arrowhead" + ": " + borderStartArrowHead + eol
+                const borderEndArrowHead = bordedArrowheadMap2[sStyle.borderOptions.endArrowhead]
+                if ("none" != borderEndArrowHead)
+                    res += spaces + "border-end-arrowhead" + ": " + borderEndArrowHead + eol
+            }
+        }
+        //    
+
+        return res
+    }
+
+    _getLayerFillByIndexAsText(sStyle, index, spaces) {
+        const fill = sStyle.fills && (sStyle.fills.length > index) ? sStyle.fills[index] : null
+        if (null == fill) return ""
+
+        let res = spaces + "background-color" + ": "
+        if (Style.FillType.Color == fill.fill) {
+            res += this._getColorToken(fill.color) + eol
+        } else if (Style.FillType.Gradient == fill.fill) {
+            const g = fill.gradient
+            // fight with gradients
+            if (Style.GradientType.Linear == g.gradientType) {
+                //linear-gradient(134deg, #004B3A 0%, #2D8B61 51%, #9BD77E 100%);
+                const deg = this._calcGradientDeg(g)
+                res += "linear-gradient("
+                if (180 != deg) {
+                    // 180 is default, we can omit it
+                    res += deg + "deg,"
+                }
+                g.stops.forEach(function (s, index) {
+                    res += (index > 0 ? " ," : "") + s.color
+                }, this)
+                res += ")" + eol
+            }
+        } else {
+            return ""
+        }
+        return res
+    }
+
+    // g: style.fills[0].gradient
+    _calcGradientDeg(g) {
+        const from = g.from
+        const to = g.to
+
+        let deg = Math.atan2(to.y - from.y, to.x - from.x) * 180 / Math.PI;
+
+        // rotate for CSS 
+        deg += 90
+        // check for last 90
+        if (deg < 0) deg = 360 + deg
+
+        return Number.parseFloat(deg).toPrecision(6);
+    }
+
+
+
     _parseStyleName(name) {
         const path = name.split("/").map(s => s.replace(/\ /g, '__').replace(/\./g, '-DOT-'))
         let si = {
@@ -327,19 +478,6 @@ class DSExporter {
             spaces: "    ",
             closeTags: "}\n"
         }
-
-        /*
-        let spaceIncr = ""
-        path.forEach(function (name, index) {
-            res.openTags += "." + name + "{\n"
-            res.closeTags = spaceIncr + "}\n" + res.closeTags
-            // complete iteration
-            spaceIncr += " "
-        })
-        res.openTags += "{\n"
-        res.spaces = spaceIncr
-        */
-
         return si
     }
 

@@ -899,7 +899,6 @@ class DSApp {
 
     _applyFillGradient(rule, sStyle, colorsRaw) {
         const token = rule.props
-        // parse string in format: linear-gradient(#00000,#F0000);
 
         // CHECK GRADIENT TYPE
         const gradientTypes = {
@@ -1177,7 +1176,7 @@ class DSApp {
             if (!(borderLineJoin) in bordedLineJoinMap) {
                 return this.logError('Wrong border-line-join value: ' + borderLineJoin)
             }
-            sStyle.borderOptions.lineJoin = bordedLineEndMap[borderLineJoin]
+            sStyle.borderOptions.lineJoin = bordedLineJoinMap[borderLineJoin]
         }
         if (null != borderStartArrowhead) {
             if (undefined == sStyle.borderOptions) sStyle.borderOptions = {}

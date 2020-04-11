@@ -110,6 +110,18 @@ const bordedLineJoinMap = {
     "bevel": Style.LineJoin.Bevel
 }
 
+const bordedLineEndMap2 = {
+    [Style.LineEnd.Butt]: "butt",
+    [Style.LineEnd.Round]: "round",
+    [Style.LineEnd.Projecting]: "projecting"
+}
+
+const bordedLineJoinMap2 = {
+    [Style.LineJoin.Miter]: "miter",
+    [Style.LineJoin.Round]: "round",
+    [Style.LineJoin.Bevel]: "bevel"
+}
+
 const smartLayoutMap = {
     "LeftToRight": SmartLayout.LeftToRight,
     "HorizontallyCenter": SmartLayout.HorizontallyCenter,
@@ -128,6 +140,17 @@ const bordedArrowheadMap = {
     "opensquare": Style.Arrowhead.OpenSquare,
     "filledsquare": Style.Arrowhead.FilledSquare,
 }
+
+const bordedArrowheadMap2 = {
+    [Style.Arrowhead.None]: "none",
+    [Style.Arrowhead.OpenArrow]: "openarrow",
+    [Style.Arrowhead.FilledArrow]: "filledarrow",
+    [Style.Arrowhead.OpenCircle]: "opencircle",
+    [Style.Arrowhead.FilledCircle]: "filledcircle",
+    [Style.Arrowhead.OpenSquare]: "opensquare",
+    [Style.Arrowhead.FilledSquare]: "filledsquare",
+}
+
 
 const weights = [
     { label: 'thin', sketch: 2, css: 100, title: "Thin" },
