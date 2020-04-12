@@ -723,7 +723,7 @@ class DSApp {
 
     // stylePath: [str,str]
     _pathToStr(objPath) {
-        objPath = objPath.map(n => n.replace(/^[\.#]/, '').replace(/(_{2})/g, ' ').replace(/(-DOT-)/g, '.'))
+        objPath = objPath.map(n => n.replace(/^[\.#]/, '').replace(/(_{2})/g, ' ').replace(/(-DOT-)/g, '.').replace(/(--PT-)/g, ''))
         var objPathStr = objPath.join("/")
         return objPathStr
     }
