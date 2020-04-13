@@ -1019,9 +1019,12 @@ class DSApp {
         fill.gradient.from = from
 
         aValues.forEach(function (sColor, index) {
+            // detect linear-gradient(134deg, >>>>>#004B3A 0%<<<<<, #2D8B61 80%, #9BD77E 100%);
+            const colorOctets = sColor.split(' ')
+            log(colorOctets)
             fill.gradient.stops.push({
-                color: Utils.strToHEXColor(sColor),
-                position: index * delta
+                color: Utils.strToHEXColor(colorOctets[0]),
+                position: colorOctets.length > 1 ? colorOctets[1].replace("%", "") / 100 : index * delta
             })
         })
 

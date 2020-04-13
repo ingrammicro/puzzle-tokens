@@ -1,6 +1,10 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.1.1 (13 Apr 2020)
+Fixed issues:
+- Wrong handling of stop positions in style - background-color: linear-gradient(134deg, #004B3A 0%, #2D8B61 51%, #9BD77E 100%);
+
 ##  Version 8.1.0 (9 Apr 2020)
 Export improved:
 -  Color, font sized, family and weight values replaced by tokens
