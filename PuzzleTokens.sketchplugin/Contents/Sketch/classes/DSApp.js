@@ -591,6 +591,7 @@ class DSApp {
     }
 
     _resetStyle(sStyle, isText) {
+        log("reset!!!")
         sStyle.borders = []
         sStyle.fills = []
         sStyle.shadows = []
@@ -897,7 +898,7 @@ class DSApp {
         return true
     }
 
-    _applyFillGradient(rule, sStyle, colorsRaw) {
+    _applyFillGradient(rule, sStyle, colorsRaw, fill) {
         const token = rule.props
 
         // CHECK GRADIENT TYPE
@@ -934,12 +935,10 @@ class DSApp {
         var count = aValues.length
         var lenA = 0.5
 
-        var fill = {
-            fill: Style.FillType.Gradient,
-            gradient: {
-                gradientType: gradientTypes[gradientTypeSrc],
-                stops: []
-            }
+        fill.fill = Style.FillType.Gradient
+        fill.gradient = {
+            gradientType: gradientTypes[gradientTypeSrc],
+            stops: []
         }
 
         var delta = 1 / (count - 1)
@@ -1028,8 +1027,6 @@ class DSApp {
             })
         })
 
-        sStyle.fills = [fill]
-
     }
 
     _applyFillGradientProcessColor(rule, sStyle, colorType) {
@@ -1116,7 +1113,7 @@ class DSApp {
         const borderStartArrowhead = token['border-start-arrowhead']
         const borderEndArrowhead = token['border-end-arrowhead']
 
-        const updateBorder = token['-pt-border-update'] == 'true'
+        const updateBorder = token[PT_BORDER_UPDATE] == 'true'
 
         var border = {}
         if (updateBorder) {
@@ -1249,22 +1246,36 @@ class DSApp {
 
     _applyRuleToLayerStyle(rule, sSharedStyle, sStyle) {
         const token = rule.props
-        // SET COLOR
-        var backColor = token['background-color']
+        // SET COLOR        
+        let backColor = token['background-color']
+        const updateFill = token[PT_FILL_UPDATE] == 'true'
         if (backColor != null) {
-            if (backColor.indexOf("gradient") > 0) {
-                this._applyFillGradient(rule, sStyle, backColor)
-            } else if (backColor != "" && backColor != "none") {
-                backColor = Utils.strToHEXColor(backColor, token['opacity'])
-                var fill = {
-                    color: backColor,
-                    fill: Style.FillType.Color
-                }
-                sStyle.fills = [fill]
-            } else {
-                sStyle.fills = []
+            let fill = {
+                fill: Style.FillType.Color
             }
+            if (updateFill) {
+                // get existing fill to update it
+                if (sStyle.fills != null && sStyle.fills.length > 0) {
+                    fill = sStyle.fills[sStyle.fills.length - 1]
+                } else {
+                    updateFill = false
+                }
+            }
+            if (backColor.indexOf("gradient") > 0) {
+                this._applyFillGradient(rule, sStyle, backColor, fill)
+            } else if (backColor != "" && backColor != "none") {
+                fill.color = Utils.strToHEXColor(backColor, token['opacity'])
+            }
+            if (!updateFill) sStyle.fills.push(fill)
+            log(token)
+            log(backColor)
+            log(fill.backColor)
+            log(fill)
+            log(sStyle.fills)
+        } else {
+            //sStyle.fills = []
         }
+
 
         if ("single_opacity" == rule.type) {
             sStyle.opacity = token['opacity']

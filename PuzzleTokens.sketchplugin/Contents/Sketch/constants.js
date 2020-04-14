@@ -62,6 +62,8 @@ const PT_PIN_LEFT = "-pt-pin-left"
 const PT_PIN_RIGHT = "-pt-pin-right"
 const PT_PIN_TOP = "-pt-pin-top"
 const PT_PIN_BOTTOM = "-pt-pin-bottom"
+const PT_BORDER_UPDATE = "-pt-border-update"
+const PT_FILL_UPDATE = "-pt-fill-update"
 
 const THIS_NAME = "_This"
 

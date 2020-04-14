@@ -229,11 +229,27 @@ class DSExporter {
         this.sDoc.sharedLayerStyles.forEach(function (sStyle) {
             res += "///////////////" + sStyle.name + "\n"
             let si = this._parseStyleName(sStyle.name)
+            //
             res += si.openTags
-            ///
             res += this._getLayerStylePropsAsText(sStyle, sStyle.style, si.spaces)
-            ///
             res += si.closeTags
+            // save additional borders
+            for (let i = 1; i < sStyle.style.borders.length; i++) {
+                if (1 == i)
+                    res += "/////// Additional borders for " + sStyle.name + "\n"
+                res += si.openTags
+                res += this._getLayerBorderByIndexAsText(sStyle.style, i, si.spaces)
+                res += si.closeTags
+            }
+            // save additional fills
+            for (let i = 1; i < sStyle.style.fills.length; i++) {
+                if (1 == i)
+                    res += "/////// Additional fills for " + sStyle.name + "\n"
+                res += si.openTags
+                res += this._getLayerFillByIndexAsText(sStyle.style, i, si.spaces)
+                res += si.closeTags
+            }
+
         }, this)
 
         return res
@@ -277,6 +293,10 @@ class DSExporter {
     }
 
     _getColorToken(color) {
+        // drop FF transparency as default
+        if (color.length == 9 && color.substring(7).toUpperCase() == "FF") {
+            color = color.substring(0, 7)
+        }
         if (!this.confOpts.colorTokens) return color
         return this._getAbstractToken(this.opts.colors, color)
     }
@@ -346,6 +366,8 @@ class DSExporter {
             const layers = sSharedStyle.getAllInstancesLayers()
             if (0 == layers.length) break
             const l = layers[0] // take the first
+            if ("Shape" != l.type) break;
+
             let str = ""
             let radiusesHash = {}
             l.points.forEach(function (point, index) {
@@ -444,7 +466,7 @@ class DSExporter {
                     res += deg + "deg,"
                 }
                 g.stops.forEach(function (s, index) {
-                    res += (index > 0 ? " ," : "") + s.color
+                    res += (index > 0 ? " ," : "") + this._getColorToken(s.color)
                 }, this)
                 res += ")" + eol
             }
@@ -453,6 +475,7 @@ class DSExporter {
         }
         return res
     }
+
 
     // g: style.fills[0].gradient
     _calcGradientDeg(g) {
