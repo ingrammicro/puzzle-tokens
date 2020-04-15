@@ -1,8 +1,13 @@
 {
-    "@btn-back-color": "#0071ba",
-    "@btn-text-color": "white",
-    "@btn-shadow": "0px 5px 10px rgba(0, 0, 0, 0.5)",
-    "@btn-radius": "5px",
-    "@btn-border-style": "dashed",
-    "@btn-font-size": "12px"
+    "@color-000": "#ffffff00",
+    "@color-001": "#ffffff",
+    "@color-002": "#f56565",
+    "@color-003": "#0071ba",
+    "@color-004": "#e6121280",
+    "@color-005": "#00000080",
+    "@color-006": "#ff0000",
+    "@font-size-000": "12px",
+    "@font-weight-001": "400",
+    "@font-weight-000": "700",
+    "@font-family-000": "Verdana"
 }

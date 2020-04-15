@@ -361,6 +361,9 @@ class DSExporter {
         // process the first border, other will be processed later
         res += this._getLayerBorderByIndexAsText(sStyle, 0, spaces)
 
+        // process shadows
+        res += this._getLayerShadowsText(sStyle, spaces)
+
         // try to find and save border radius(es)
         while (true) {
             const layers = sSharedStyle.getAllInstancesLayers()
@@ -473,6 +476,46 @@ class DSExporter {
         } else {
             return ""
         }
+        return res
+    }
+
+    _getLayerShadowsText(sStyle, spaces) {
+        let t1 = this._getLayerTypeShadowsText(sStyle, sStyle.shadows, false, spaces)
+        let t2 = this._getLayerTypeShadowsText(sStyle, sStyle.innerShadows, true, spaces)
+        if ("" == t1 && "" == t2) return ""
+
+        let res = spaces + "box-shadow: " + t1 + (t1 != "" && t2 != "" ? ", " : "")
+        res += t2
+        res += eol
+
+        return res
+    }
+
+
+    _getLayerTypeShadowsText(sStyle, shadows, inset, spaces) {
+        if (null == shadows || !shadows.length) return ""
+
+        // to:
+        // box-shadow:  0 10px 20px 2 rgba(0,0,0,0.1), inset 0 10px 20px 2 rgba(0,0,0,0.1);
+        //           offset-x | offset-y | blur-radius | spread-radius | color 
+        let res = ""
+        shadows.filter(s => s.enabled).forEach(function (shadow, index) {
+            if (index) res += ", "
+            if (inset) res += "inset "
+            res += shadow.x + 'px'
+            if (null != shadow.y) {
+                res += " " + shadow.y + "px"
+                if (null != shadow.blur) {
+                    res += " " + shadow.blur + "px"
+                    if (null != shadow.spread) {
+                        res += " " + shadow.spread
+                    }
+                }
+            }
+
+            res += " " + this._getColorToken(shadow.color)
+        }, this)
+
         return res
     }
 

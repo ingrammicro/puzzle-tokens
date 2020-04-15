@@ -141,7 +141,7 @@ class Utils {
         //   to 
         //  0 7px 40px 0 black, 0 7px 40px 0 rgba(1,2,3,0.13)
         //  to prepare it to split
-        src = src.replace(/(\d)(, )/g, '$1,')
+        src = src.replace(/(\d)(,)/g, '$1,')
         return src.split(", ").map(s => Utils.splitCSSShadow(s))
     }
 
