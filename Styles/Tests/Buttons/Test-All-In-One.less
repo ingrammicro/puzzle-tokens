@@ -1,0 +1,113 @@
+//////////// COLOR TOKENS TOKENS //////////
+@color-000:         #ffffff00;
+@color-001:         #ffffff;
+@color-002:         #f56565;
+@color-003:         #0071ba;
+@color-004:         #ffffff80;
+@color-005:         #00000080;
+@color-006:         #ff0000;
+
+//////////// FONT SIZE TOKENS TOKENS //////////
+@font-size-000:         12px;
+
+//////////// FONT WEIGHTS TOKENS TOKENS //////////
+@font-weight-001:         400;
+@font-weight-000:         700;
+
+//////////// FONTS TOKENS //////////
+@font-family-000:         Verdana;
+
+///////////////// Text Styles /////////////////
+///////////////Controls/Buttons/Submit/Cancel/Text
+.Controls .Buttons .Submit .Cancel .Text{
+    font-family: @font-family-000;
+    font-size: @font-size-000;
+    color: @color-000;
+    text-align: center;
+    vertical-align: top;
+    font-weight: @font-weight-000;
+    font-style: italic;
+    text-transform: uppercase;
+    text-decoration: underline;
+    pt-paragraph-spacing: 0;
+}
+///////////////Controls/Buttons/Submit/Ok Button/Text
+.Controls .Buttons .Submit .Ok__Button .Text{
+    font-family: @font-family-000;
+    font-size: @font-size-000;
+    color: @color-001;
+    text-align: center;
+    vertical-align: bottom;
+    font-weight: @font-weight-001;
+    line-height: 30px;
+    text-transform: none;
+    letter-spacing: 5px;
+    pt-paragraph-spacing: 0;
+}
+///////////////Controls/Buttons/Submit/Ok Button/Text/Me
+.Controls .Buttons .Submit .Ok__Button .Text .Me{
+    font-family: @font-family-000;
+    font-size: @font-size-000;
+    color: @color-001;
+    text-align: center;
+    vertical-align: bottom;
+    font-weight: @font-weight-001;
+    line-height: 30px;
+    text-transform: none;
+    pt-paragraph-spacing: 0;
+}
+///////////////// Layer Styles /////////////////
+///////////////Controls/Buttons/Submit/Cancel/Back
+.Controls .Buttons .Submit .Cancel .Back{
+    border-color: @color-002;
+    border-position: inside;
+    border-width: 3px;
+}
+/////// Additional borders for Controls/Buttons/Submit/Cancel/Back
+.Controls .Buttons .Submit .Cancel .Back{
+    border-color: @color-001;
+    border-position: inside;
+    border-width: 5px;
+}
+.Controls .Buttons .Submit .Cancel .Back{
+    border-color: @color-002;
+    border-position: inside;
+    border-width: 8px;
+}
+///////////////Controls/Buttons/Submit/Ok Button/Back
+.Controls .Buttons .Submit .Ok__Button .Back{
+    background-color: @color-003;
+}
+/////// Additional fills for Controls/Buttons/Submit/Ok Button/Back
+.Controls .Buttons .Submit .Ok__Button .Back{
+    background-color: linear-gradient(@color-004 ,@color-005);
+}
+///////////////Opacities/25
+.Opacities .--PT-25{
+    opacity: 0.25;
+}
+///////////////Opacities/0
+.Opacities .--PT-0{
+    opacity: 0;
+}
+///////////////Opacities/50
+.Opacities .--PT-50{
+    opacity: 0.5;
+}
+///////////////Opacities/75
+.Opacities .--PT-75{
+    opacity: 0.75;
+}
+///////////////Opacities/100
+.Opacities .--PT-100{
+}
+///////////////Buttons/Disabled
+.Buttons .Disabled{
+    background-color: @color-006;
+}
+///////////////Buttons/Lined
+.Buttons .Lined{
+    border-color: @color-001;
+    border-width: 10px;
+    border-line-end: round;
+}

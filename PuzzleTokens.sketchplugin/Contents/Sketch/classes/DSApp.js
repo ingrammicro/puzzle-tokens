@@ -591,7 +591,6 @@ class DSApp {
     }
 
     _resetStyle(sStyle, isText) {
-        log("reset!!!")
         sStyle.borders = []
         sStyle.fills = []
         sStyle.shadows = []
@@ -1250,9 +1249,7 @@ class DSApp {
         let backColor = token['background-color']
         const updateFill = token[PT_FILL_UPDATE] == 'true'
         if (backColor != null) {
-            let fill = {
-                fill: Style.FillType.Color
-            }
+            let fill = {}
             if (updateFill) {
                 // get existing fill to update it
                 if (sStyle.fills != null && sStyle.fills.length > 0) {
@@ -1264,14 +1261,17 @@ class DSApp {
             if (backColor.indexOf("gradient") > 0) {
                 this._applyFillGradient(rule, sStyle, backColor, fill)
             } else if (backColor != "" && backColor != "none") {
+                fill.fill = Style.FillType.Color
                 fill.color = Utils.strToHEXColor(backColor, token['opacity'])
             }
-            if (!updateFill) sStyle.fills.push(fill)
-            log(token)
-            log(backColor)
-            log(fill.backColor)
-            log(fill)
-            log(sStyle.fills)
+            if (!updateFill) {
+                if (fill.fill != undefined) sStyle.fills.push(fill)
+            } else {
+                if (fill.fill == undefined) {
+                    //drop the last fill
+                    sStyle.fills.pop()
+                }
+            }
         } else {
             //sStyle.fills = []
         }
