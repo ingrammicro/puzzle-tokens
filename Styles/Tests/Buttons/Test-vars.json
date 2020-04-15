@@ -1,9 +1,8 @@
 {
-    "@color-000": "#ffffff00",
-    "@color-001": "#ffffff",
-    "@color-002": "#f56565",
-    "@color-003": "#0071ba",
-    "@color-004": "#ffffff80",
-    "@color-005": "#00000080",
-    "@color-006": "#ff0000"
+    "@btn-back-color": "#0071ba",
+    "@btn-text-color": "white",
+    "@btn-shadow": "0px 5px 10px rgba(0, 0, 0, 0.5)",
+    "@btn-radius": "5px",
+    "@btn-border-style": "dashed",
+    "@btn-font-size": "12px"
 }

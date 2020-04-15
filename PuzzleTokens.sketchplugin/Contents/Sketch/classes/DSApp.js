@@ -733,10 +733,10 @@ class DSApp {
         // get 'Controls / Buttons' name of symbol master
         const symbolPaths = this._buildSymbolPathFromPath(path)
         let symbolName = symbolPaths.join(' / ')
-        let sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => l.type == 'SymbolMaster')
+        let sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => (l.type == 'SymbolMaster' || l.type == 'Artboard'))
         if (!sFoundLayers.length) {
             symbolName = symbolPaths.join('/')
-            sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => l.type == 'SymbolMaster')
+            sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => (l.type == 'SymbolMaster' || l.type == 'Artboard'))
         }
         if (!sFoundLayers.length) {
             return null
@@ -1498,7 +1498,7 @@ class DSApp {
         let currentResizesContent = null
 
         // Switch "Adjust Content on resize" off before resizing
-        if (sLayer && "SymbolMaster" == sLayer.type) {
+        if (sLayer && ("SymbolMaster" == sLayer.type || "Artboard" == sLayer.type)) {
             currentResizesContent = nLayer.resizesContent()
             nLayer.setResizesContent(false)
         }
