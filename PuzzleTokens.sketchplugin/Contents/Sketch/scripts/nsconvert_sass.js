@@ -142,7 +142,8 @@ function saveData(strCSS, pathToJSON) {
     var node = null
     var inComments = false
     sassLines.forEach(function (line) {
-        if (line.startsWith("/*")) {
+        if (line.startsWith("/*") && line.endsWith("*/")) {
+        } else if (line.startsWith("/*")) {
             inComments = true
         } else if (line.startsWith("*/")) {
             inComments = false
