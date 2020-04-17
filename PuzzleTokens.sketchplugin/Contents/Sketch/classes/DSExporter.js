@@ -27,6 +27,9 @@ class DSExporter {
         this.messages = ""
         this.errors = []
 
+        this.layerStyles = {}
+        this.textStyles = {}
+
         this.docName = this._clearCloudName(this.nDoc.cloudName())
         this.pathTo = undefined
         this.format = undefined
@@ -217,7 +220,7 @@ class DSExporter {
         res += "///////////////// Text Styles /////////////////\n"
         this.sDoc.sharedTextStyles.forEach(function (sStyle) {
             res += "///////////////" + sStyle.name + "\n"
-            let si = this._parseStyleName(sStyle.name)
+            let si = this._parseStyleName(sStyle.name, true)
             res += si.openTags
             ///
             res += this._getTextStylePropsAsText(sStyle.style, si.spaces)
@@ -228,7 +231,7 @@ class DSExporter {
         res += "///////////////// Layer Styles /////////////////\n"
         this.sDoc.sharedLayerStyles.forEach(function (sStyle) {
             res += "///////////////" + sStyle.name + "\n"
-            let si = this._parseStyleName(sStyle.name)
+            let si = this._parseStyleName(sStyle.name, false)
             //
             res += si.openTags
             res += this._getLayerStylePropsAsText(sStyle, sStyle.style, si.spaces)
@@ -541,7 +544,18 @@ class DSExporter {
 
 
 
-    _parseStyleName(name) {
+    _parseStyleName(nameSrc, isText) {
+        /*
+        let styles = isText ? this.textStyles : this.layerStyles
+        let index = 1
+        let name = nameSrc
+        while (name in styles) {
+            name = nameSrc + "--PTD-" + index++
+        }
+        styles[name] = true
+        */
+        const name = nameSrc
+
         const path = name.split("/").map(s => s.replace(/\ /g, '__').replace(/\./g, '-DOT-').replace(/^(\d)/g, '--PT-$1'))
         let si = {
             openTags: "." + path.join(" .") + "{\n",

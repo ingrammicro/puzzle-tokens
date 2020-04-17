@@ -529,6 +529,16 @@ class DSApp {
             this.sAppliedStyles[sStyleName] = true
         }
 
+        // cleam style names
+        {
+            const f = function (sStyle) {
+                const i = sStyle.name.lastIndexOf("--PTD-")
+                if (i < 0) return
+                sStyle.name = sStyle.name.slice(0, i < 0)
+            }
+            this.sDoc.sharedTextStyles.forEach(f)
+            this.sDoc.sharedLayerStyles.forEach(f)
+        }
 
         return true
     }
