@@ -55,13 +55,14 @@ class DSApp {
         if (this.pathToStylesList.length == 0 && this.pathToStyles != '') this.pathToStylesList.push(this.pathToStyles)
 
         this.pathToDoc = ""
+        this.pathToAssets = ""
 
         this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS) == 1
         this.showDebug = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DEBUG) == 1
         this.showCheck = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_CHECK) == 1
         this.showDoubleStyleError = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DOUBLESTYLES) == 1
         this.confCreateSymbols = Settings.settingForKey(SettingKeys.PLUGIN_CREATE_SYMBOLS) == 1
-
+        this.confClear = this.confClean = Settings.settingForKey(SettingKeys.PLUGIN_APPLY_CLEAR) == 1
 
         this._initStyles()
     }
@@ -119,10 +120,14 @@ class DSApp {
 
         if (this.genSymbTokens) {
             if (!this.sDoc.path) {
-                return this.logError("Can't create symbols & style file for unsaved Sketch file. Save it befor or disable symbols & style file generation in Settings.")
+                return this.logError("Can't create symbols & style file for unsaved Sketch file. Save it before or disable symbols & style generation in Settings.")
             } else {
                 const pathDetails = path.parse(this.sDoc.path)
                 this.pathToDoc = pathDetails.dir + "/" + pathDetails.name
+                this.pathToAssets = pathDetails.dir + "/" + Constants.ASSETS_FOLDER_PREFIX + "/" + pathDetails.name
+                if (!Utils.createFolder(this.pathToAssets)) {
+                    return this.logError("Can't create '" + this.pathToAssets + "' folder to store symbols & style information. Save the document in some other place before or disable symbols & style generation in Settings.")
+                }
             }
         }
 
@@ -296,7 +301,7 @@ class DSApp {
     }
 
     _saveElements() {
-        const pathToRules = this.pathToDoc + Constants.SYMBOLTOKENFILE_POSTFIX
+        const pathToRules = this.pathToAssets + "/" + Constants.SYMBOLTOKENFILE_POSTFIX
         const json = JSON.stringify(this.elements, null, null)
         this.logMsg("Save elements info into: " + pathToRules)
         Utils.writeToFile(json, pathToRules)
@@ -318,7 +323,6 @@ class DSApp {
         dialog.addDivider()
         dialog.addCheckbox("showCheck", "Review style changes before apply", this.showCheck)
         dialog.addCheckbox("confCreateSymbols", "Create missed master symbols", this.confCreateSymbols)
-
 
         while (true) {
             const result = dialog.run()
@@ -682,15 +686,14 @@ class DSApp {
 
             args.push("-json=" + pathToRulesJSON)
 
-            if (this.pathToDoc != "") {
-                const pathToCSS = this.pathToDoc + Constants.CSSFILE_POSTFIX
+            if (this.pathToAssets != "") {
+                const pathToCSS = this.pathToAssets + "/" + Constants.CSSFILE_POSTFIX
                 args.push("-css=" + pathToCSS)
-                const pathToVars = this.pathToDoc + Constants.VARSFILE_POSTFIX
+                const pathToVars = this.pathToAssets + "/" + Constants.VARSFILE_POSTFIX
                 args.push("-vars=" + pathToVars)
-                const pathToSASS = this.pathToDoc + Constants.SASSFILE_POSTFIX
+                const pathToSASS = this.pathToAssets + "/" + Constants.SASSFILE_POSTFIX
                 args.push("-sass=" + pathToSASS)
-            }
-
+            })
             runResult = Utils.runCommand("/usr/local/bin/node", args)
         } catch (error) {
             this.logError(error)

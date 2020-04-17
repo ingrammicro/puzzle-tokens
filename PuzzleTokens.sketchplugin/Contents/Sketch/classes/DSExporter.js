@@ -234,7 +234,8 @@ class DSExporter {
             res += this._getLayerStylePropsAsText(sStyle, sStyle.style, si.spaces)
             res += si.closeTags
             // save additional borders
-            for (let i = 1; i < sStyle.style.borders.length; i++) {
+            const borders = sStyle.style.borders.filter(s => s.enabled)
+            for (let i = 1; i < borders.length; i++) {
                 if (1 == i)
                     res += "/////// Additional borders for " + sStyle.name + "\n"
                 res += si.openTags
@@ -242,7 +243,8 @@ class DSExporter {
                 res += si.closeTags
             }
             // save additional fills
-            for (let i = 1; i < sStyle.style.fills.length; i++) {
+            const fills = sStyle.style.fills.filter(s => s.enabled)
+            for (let i = 1; i < fills.length; i++) {
                 if (1 == i)
                     res += "/////// Additional fills for " + sStyle.name + "\n"
                 res += si.openTags
@@ -397,7 +399,8 @@ class DSExporter {
 
 
     _getLayerBorderByIndexAsText(sStyle, index, spaces) {
-        const border = sStyle.borders && (sStyle.borders.length > index) ? sStyle.borders[index] : null
+        const borders = sStyle.borders != null ? sStyle.borders.filter(s => s.enabled) : null
+        const border = borders && (borders.length > index) ? borders[index] : null
         if (null == border) return ""
         let res = ""
 
@@ -451,7 +454,8 @@ class DSExporter {
     }
 
     _getLayerFillByIndexAsText(sStyle, index, spaces) {
-        const fill = sStyle.fills && (sStyle.fills.length > index) ? sStyle.fills[index] : null
+        const fills = sStyle.fills != null ? sStyle.fills.filter(s => s.enabled) : null
+        const fill = fills && (fills.length > index) ? fills[index] : null
         if (null == fill) return ""
 
         let res = spaces + "background-color" + ": "
