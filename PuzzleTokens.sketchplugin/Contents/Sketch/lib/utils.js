@@ -137,47 +137,77 @@ class Utils {
     // tries to split >> 0 7px 40px 0 rgba(0,0,0,0.13), 0 2px 8px 0 rgba(0,0,0,0.24) <<
     // return array of {}
     static splitCSSShadows(src) {
-        // replace 0 7px 40px 0 black, 0 7px 40px 0 rgba(1, 2, 3, 0.13) 
-        //   to 
-        //  0 7px 40px 0 black, 0 7px 40px 0 rgba(1,2,3,0.13)
-        //  to prepare it to split
-        src = src.replace(/(\d)(,)/g, '$1,')
-        return src.split(", ").map(s => Utils.splitCSSShadow(s))
+        const parsed = Utils.parseBoxShadow(src)
+        return parsed.map(s => Utils.splitCSSShadow(s))
     }
 
-    // s:  "0 4px 16px 0 #000000"
-    //  or 
-    // s:  "inset 0 4px 16px #000000"
-    static splitCSSShadow(src) {
-        var inset = false
-        if (src.indexOf("inset") >= 0) {
-            inset = true
-            src = src.replace("inset ", "")
-        }
-
-        src = src.replace(/(,{1}\s+)/g, ',').replace(/(\s+)/g, ' ')
-
-        var pxFunc = function (s) {
-            s = s.replace('px', '')
-            return parseInt(s)
-        }
-
-        var items = src.split(' ')
-
-        var spread = items.length > 4 ? pxFunc(items[3]) : 0
-        var color = Utils.RGBAToHexA(items[items.length - 1])
-
+    // > object from parseBoxShadow()
+    static splitCSSShadow(s) {
         return {
             'enabled': true,
             'type': 'Shadow',
-            'inset': inset,
-            'x': pxFunc(items[0]),
-            'y': pxFunc(items[1]),
-            'blur': pxFunc(items[2]),
-            'spread': spread,
-            'color': color
+            'inset': s.inset,
+            'x': s.offsetX,
+            'y': s.offsetY,
+            'blur': s.blurRadius,
+            'spread': s.spreadRadius,
+            'color': Utils.RGBAToHexA(s.color)
         }
     }
+
+    // thanks to https://github.com/jxnblk/css-box-shadow
+    // [{ inset: false,
+    //   offsetX: 0,
+    //   offsetY: 0,
+    //   blurRadius: 0,
+    //   spreadRadius: 32,
+    //   color: 'tomato' }]
+    static parseBoxShadow(str) {
+        //  do workaround to support invalid REGEXP
+        str = str.replace(/\(/g, "X").replace(/\)/g, "Z")
+
+        const isLength = v => v === '0' || LENGTH_REG.test(v)
+        const toNum = v => {
+            if (!/px$/.test(v) && v !== '0') return v
+            const n = parseFloat(v)
+            return !isNaN(n) ? n : v
+        }
+        const toPx = n => typeof n === 'number' && n !== 0 ? (n + 'px') : n
+
+        const LENGTH_REG = /^[0-9]+[a-zA-Z%]+?$/
+        const VALUES_REG = /,(?![^X]*Z)/
+        const PARTS_REG = /\s(?![^X]*Z)/
+        //const VALUES_REG = /,(?![^\(]*\))/
+        //const PARTS_REG = /\s(?![^(]*\))/
+
+
+        const parseValue = str => {
+            const parts = str.split(PARTS_REG)
+            const inset = parts.includes('inset')
+            const last = parts.slice(-1)[0]
+            let color = !isLength(last) ? last : undefined
+            //  reverse workaround to support invalid REGEXP
+            color = color.replace(/X/g, "(").replace(/Z/g, ")")
+
+            const nums = parts
+                .filter(n => n !== 'inset')
+                .filter(n => n !== color)
+                .map(toNum)
+            const [offsetX, offsetY, blurRadius, spreadRadius] = nums
+
+            return {
+                inset,
+                offsetX,
+                offsetY,
+                blurRadius,
+                spreadRadius,
+                color
+            }
+        }
+
+        return str.split(VALUES_REG).map(s => s.trim()).map(parseValue)
+    }
+
 
     static hexColorToRGBA(hex) {
         return {
@@ -498,5 +528,20 @@ class Utils {
 
     }
 
+
+    static createFolder(path) {
+        let error;
+        const fileManager = NSFileManager.defaultManager();
+
+        if (fileManager.fileExistsAtPath(path)) {
+            return true
+        }
+        error = MOPointer.alloc().init();
+        if (!fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(path, true, null, error)) {
+            log(error.value().localizedDescription());
+        }
+        return true
+
+    }
 }
 
