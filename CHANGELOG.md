@@ -1,6 +1,12 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.3.0 (17 Apr 2020)
+New features:
+- height: and width: are applicable to symbol masters and artboaeds
+Fixed issues:
+- /* comment */ breaks SAAS parsing
+
 ##  Version 8.2.0 (14 Apr 2020)
 PT now generates assets for Puzzle Publisher in "_pt-assets" sub-folder
 Export supports layer shadows
