@@ -110,8 +110,9 @@ class DSApp {
     runDialog() {
         if (!this._showDialog()) return false
         const success = this.run(this.showCheck)
-
-        this._showMessages()
+        if (success) {
+            this._showMessages()
+        }
         return success
     }
 
@@ -134,7 +135,9 @@ class DSApp {
         var applied = false
         while (true) {
             if (!this.loadRules()) break
-            if (!this._checkRules()) break
+            if (!this._checkRules()) {
+                return false
+            }
             if (showCheck && !this._showCheck()) break
             if (!this._applyRules()) break
             if (this.genSymbTokens) this._saveElements()
@@ -366,10 +369,29 @@ class DSApp {
 
     _checkRules() {
         for (const rule of this.rules) {
-            const ruleType = this._getRulePropsType(rule.props)
             const sStyleName = this._pathToStr(rule.path)
             rule.name = sStyleName
-            rule.type = ruleType
+            let ruleType = ""
+
+            if (rule.path[0].startsWith('#')) {
+                rule.isStandalone = true
+                rule.sLayer = this._findSymbolChildByPath(rule.path)
+                if (null == rule.sLayer) {
+                    if (this.confCreateSymbols)
+                        this.messages += "Will create new symbol " + rule.path + " of " + ruleType + " type \n"
+                    else {
+                        this.logError("Can't find symbol master by path " + rule.path)
+                        continue
+                    }
+                }
+                ruleType = this._detectLayerType(rule.sLayer)
+                if (null == ruleType) {
+                    this.logError("_checkRules(): uknown layer type " + rule.sLayer.type)
+                    continue
+                }
+            } else {
+                ruleType = this._getRulePropsType(rule.props)
+            }
 
             if ("" == ruleType) {
                 if (this._isStylePropExisting(rule.props)) {
@@ -377,19 +399,8 @@ class DSApp {
                 }
                 continue
             }
+            rule.type = ruleType
 
-            if (rule.path[0].startsWith('#')) {
-                rule.isStandalone = true
-                rule.sLayer = this._findSymbolChildByPath(rule.path)
-                if (!rule.sLayer) {
-                    if (this.confCreateSymbols)
-                        this.messages += "Will create new symbol " + rule.path + " of " + ruleType + " type \n"
-                    else {
-                        this.logError("Can't find symbol mast style by path " + rule.path)
-                        continue
-                    }
-                }
-            }
             if (ruleType.indexOf("image") >= 0) {
                 this.messages += "Will update image " + sStyleName + "\n"
                 continue
@@ -439,6 +450,8 @@ class DSApp {
             //
 
             if ("" == ruleType) continue;
+
+            log(rule)
 
             if (ruleType.indexOf("image") >= 0) {
                 this._applyPropsToImage(rule)
@@ -541,6 +554,20 @@ class DSApp {
         }
 
         return true
+    }
+
+    _detectLayerType(sLayer) {
+        const types = {
+            Artboard: "group artboard",
+            SymbolMaster: "group symbolmaster",
+            ShapePath: "layer",
+            Text: "text",
+            Image: "image",
+        }
+        if (!(sLayer.type in types)) {
+            return null
+        }
+        return types[sLayer.type]
     }
 
 
@@ -703,8 +730,9 @@ class DSApp {
                 args.push("-vars=" + pathToVars)
                 const pathToSASS = this.pathToAssets + "/" + Constants.SASSFILE_POSTFIX
                 args.push("-sass=" + pathToSASS)
-            })
+            }
             runResult = Utils.runCommand("/usr/local/bin/node", args)
+            log(runResult)
         } catch (error) {
             this.logError(error)
             return false
@@ -745,6 +773,7 @@ class DSApp {
     _findSymbolChildByPath(path) {
         // get 'Controls / Buttons' name of symbol master
         const symbolPaths = this._buildSymbolPathFromPath(path)
+
         let symbolName = symbolPaths.join(' / ')
         let sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => (l.type == 'SymbolMaster' || l.type == 'Artboard'))
         if (!sFoundLayers.length) {
@@ -752,12 +781,15 @@ class DSApp {
             sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => (l.type == 'SymbolMaster' || l.type == 'Artboard'))
         }
         if (!sFoundLayers.length) {
+            this.logError("Can not find a layer '" + path + "'")
             return null
         }
+
+        const childSubpath = path.filter(s => !s.startsWith('#'))
         const layerPath = path.filter(s => !s.startsWith('#')).map(n => n.replace(/^[\.#]/, '').replace(/(\s+)/g, ''))
 
         // return ref to found master symbol itself
-        if (layerPath.length && THIS_NAME == layerPath[0]) {
+        if (!childSubpath.length || (layerPath.length && THIS_NAME == layerPath[0])) {
             return sFoundLayers[0]
         }
 
@@ -765,6 +797,7 @@ class DSApp {
         const sLayer = this._findLayerChildByPath(sFoundLayers[0], layerPath)
         if (!sLayer) {
             this.logError("Can not find a layer '" + layerPath.join(' / ') + "' in symbol master or artboard'" + symbolName + "'")
+            return null
         }
         return sLayer
     }
@@ -1509,9 +1542,10 @@ class DSApp {
         const sLayer = rule.sLayer
         const nLayer = rule.sLayer ? rule.sLayer.sketchObject : null
         let currentResizesContent = null
+        const resizeSymbol = token[PT_RESIZE_SYMBOL]
 
         // Switch "Adjust Content on resize" off before resizing
-        if (sLayer && ("SymbolMaster" == sLayer.type || "Artboard" == sLayer.type)) {
+        if (null != resizeSymbol && (sLayer && ("SymbolMaster" == sLayer.type || "Artboard" == sLayer.type))) {
             currentResizesContent = nLayer.resizesContent()
             nLayer.setResizesContent(false)
         }
@@ -1524,7 +1558,6 @@ class DSApp {
             var marginRight = token['margin-right']
             var height = token['height']
             var width = token['width']
-            const resizeSymbol = token[PT_RESIZE_SYMBOL]
 
             if (null == marginTop && null == marginBottom
                 && null == marginLeft && null == marginRight && null == height && null == width) break
@@ -1567,6 +1600,8 @@ class DSApp {
                     if (null != height) parentFrame.height = l.frame.height
                     if (null != width) parentFrame.width = l.frame.width
                 }
+                log("_applyCommonRules for rule " + rule.path)
+                log(l.frame)
 
             }
             break
