@@ -372,6 +372,7 @@ class DSApp {
             const sStyleName = this._pathToStr(rule.path)
             rule.name = sStyleName
             let ruleType = ""
+            rule.type = ""
 
             if (rule.path[0].startsWith('#')) {
                 rule.isStandalone = true
@@ -558,6 +559,7 @@ class DSApp {
 
     _detectLayerType(sLayer) {
         const types = {
+            SymbolInstance: "group symbolinstance",
             Artboard: "group artboard",
             SymbolMaster: "group symbolmaster",
             ShapePath: "layer",
@@ -732,7 +734,6 @@ class DSApp {
                 args.push("-sass=" + pathToSASS)
             }
             runResult = Utils.runCommand("/usr/local/bin/node", args)
-            log(runResult)
         } catch (error) {
             this.logError(error)
             return false
@@ -1065,7 +1066,6 @@ class DSApp {
         aValues.forEach(function (sColor, index) {
             // detect linear-gradient(134deg, >>>>>#004B3A 0%<<<<<, #2D8B61 80%, #9BD77E 100%);
             const colorOctets = sColor.split(' ')
-            log(colorOctets)
             fill.gradient.stops.push({
                 color: Utils.strToHEXColor(colorOctets[0]),
                 position: colorOctets.length > 1 ? colorOctets[1].replace("%", "") / 100 : index * delta
@@ -1579,7 +1579,6 @@ class DSApp {
                 }
                 if (null != marginBottom) {
                     y = parentFrame.height - (parseInt(marginBottom.replace('px', "")) + l.frame.height)
-                    log(y)
                 }
                 if (null != marginLeft) {
                     x = parseInt(marginLeft.replace('px', ""))
@@ -1600,8 +1599,6 @@ class DSApp {
                     if (null != height) parentFrame.height = l.frame.height
                     if (null != width) parentFrame.width = l.frame.width
                 }
-                log("_applyCommonRules for rule " + rule.path)
-                log(l.frame)
 
             }
             break
