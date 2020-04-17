@@ -238,6 +238,7 @@ function saveSketchRule(rule, path) {
         }
     }
     rule.rules.forEach(function (oneRule, index) {
+        // drop comment
         if (oneRule.isLineComment) return
 
         if (null != oneRule.selectors) {
@@ -246,6 +247,10 @@ function saveSketchRule(rule, path) {
         }
 
         var value = oneRule.value.toCSS(parseOptions);
+
+        // drop comment and unparsed variables
+        console.log(oneRule.name)
+        if (oneRule.name.startsWith("@")) return
 
         // get token from rule comment
         var token = ''
@@ -261,7 +266,7 @@ function saveSketchRule(rule, path) {
         sketchRule.props[String(oneRule.name)] = value
         if (token != '') sketchRule.props.__tokens[token] = true
     })
-    sketchRules.push(sketchRule)
+    if (Object.keys(sketchRule.props).length > 1) sketchRules.push(sketchRule)
 }
 
 
