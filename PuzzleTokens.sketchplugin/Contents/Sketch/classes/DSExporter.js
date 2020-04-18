@@ -219,7 +219,7 @@ class DSExporter {
         let res = ""
         res += "///////////////// Text Styles /////////////////\n"
         this.sDoc.sharedTextStyles.forEach(function (sStyle) {
-            res += "///////////////" + sStyle.name + "\n"
+            res += this._getStyleInfoAsText(sStyle)
             let si = this._parseStyleName(sStyle.name, true)
             res += si.openTags
             ///
@@ -230,7 +230,7 @@ class DSExporter {
 
         res += "///////////////// Layer Styles /////////////////\n"
         this.sDoc.sharedLayerStyles.forEach(function (sStyle) {
-            res += "///////////////" + sStyle.name + "\n"
+            res += this._getStyleInfoAsText(sStyle)
             let si = this._parseStyleName(sStyle.name, false)
             //
             res += si.openTags
@@ -257,6 +257,17 @@ class DSExporter {
 
         }, this)
 
+        return res
+    }
+
+    _getStyleInfoAsText(sStyle) {
+        let res = ""
+        res += "///////////////" + sStyle.name + "\n"
+
+        let sLib = sStyle.getLibrary()
+        if (sLib != null) {
+            res += "///////////////" + "library: " + sLib.name + "\n"
+        }
         return res
     }
 
