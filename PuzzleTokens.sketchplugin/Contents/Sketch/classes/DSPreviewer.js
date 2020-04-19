@@ -112,11 +112,6 @@ class DSPreviewer {
         this.messages += msg + "\n"
     }
 
-    logLayer(msg) {
-        if (!Constants.LAYER_LOGGING) return
-        log(msg)
-    }
-
 
     logError(error) {
         this.logMsg("[ ERROR ] " + error)

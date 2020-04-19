@@ -20,6 +20,7 @@ class DSApp {
         }
         this.context = context
         this.UI = require('sketch/ui')
+        this.isQuick = false
 
         this.elements = {
             styles: {}
@@ -72,7 +73,11 @@ class DSApp {
 
     logMsg(msg) {
         if (Constants.LOGGING) log(msg)
-        this.messages += msg + "\n"
+        if (!this.isQuick) this.messages += msg + "\n"
+    }
+
+    logDebug(msg) {
+        if (Constants.LOGGING) log(msg)
     }
 
 
@@ -100,6 +105,7 @@ class DSApp {
     }
 
     runQuick() {
+        this.isQuick = true
         if ('' == this.pathToStyles) return this.runDialog()
         const success = this.run(false)
 
@@ -137,7 +143,12 @@ class DSApp {
 
         var applied = false
         while (true) {
-            if (!this.loadRules()) break
+            this.logDebug("run(): loadRules")
+            if (!this.loadRules()) {
+                this.logDebug("run(): loadRules: failed")
+                break
+            }
+            this.logDebug("run(): loadRules: success")
             if (!this._checkRules()) {
                 return false
             }
@@ -146,7 +157,7 @@ class DSApp {
             if (this.genSymbTokens) this._saveElements()
 
             applied = true
-            this.logMsg("Finished")
+            this.logDebug("Finished")
             break
         }
 
@@ -186,7 +197,7 @@ class DSApp {
 
     // return Sketch native object
     _findStyleByName(styleName, isLayerStyle) {
-        this.logMsg("_findStyleByName running...  styleName:" + styleName)
+        //this.logDebug("_findStyleByName running...  styleName:" + styleName)
 
 
         const sLocalStyle = !isLayerStyle ? this.sTextStyles[styleName] : this.sLayerStyles[styleName]
@@ -196,13 +207,13 @@ class DSApp {
         var sStyle = undefined
         var lib = undefined
         for (lib of this._getLibraries()) {
-            this.logMsg("_findStyleByName for lib " + lib.sLib.name)
+            //this.logDebug("_findStyleByName for lib " + lib.sLib.name)
             sStyle = this._findStyleByNameInLibrary(styleName, isLayerStyle, lib)
             if (sStyle) break
         }
         // check artboard existing
         if (!sStyle) {
-            this.logMsg("_findStyleByName FAILED")
+            //this.logDebug("_findStyleByName FAILED")
             return false
         }
         return sStyle
@@ -226,17 +237,17 @@ class DSApp {
     _getLibraries() {
         if (undefined != this.jsLibs) return this.jsLibs
 
-        log("_getLibraries: start")
+        //this.logDebug("_getLibraries: start")
         this.jsLibs = []
 
         var sLibraries = require('sketch/dom').getLibraries()
         for (const sLib of sLibraries) {
             if (!sLib.valid || !sLib.enabled) continue
-            log("_getLibraries: try to load document for library " + sLib.name + "")
+            //this.logDebug("_getLibraries: try to load document for library " + sLib.name + "")
 
             const sDoc = sLib.getDocument()
             if (!sDoc) {
-                log("_getLibraries: can't load document for library " + sDoc.path + "")
+                //this.logDebug("_getLibraries: can't load document for library " + sDoc.path + "")
                 continue
             }
             this.jsLibs.push({
@@ -244,7 +255,7 @@ class DSApp {
                 sDoc: sDoc
             })
         }
-        log("_getLibraries: finish")
+        //this.logDebug("_getLibraries: finish")
         return this.jsLibs
     }
 
@@ -309,7 +320,7 @@ class DSApp {
     _saveElements() {
         const pathToRules = this.pathToAssets + "/" + Constants.SYMBOLTOKENFILE_POSTFIX
         const json = JSON.stringify(this.elements, null, null)
-        this.logMsg("Save elements info into: " + pathToRules)
+        this.logDebug("Save elements info into: " + pathToRules)
         Utils.writeToFile(json, pathToRules)
     }
 
@@ -371,11 +382,13 @@ class DSApp {
     }
 
     _checkRules() {
+        this.logDebug("_checkRules() started")
         for (const rule of this.rules) {
             const sStyleName = this._pathToStr(rule.path)
             rule.name = sStyleName
             let ruleType = ""
             rule.type = ""
+            if (Constants.LOGGING) this.logDebug(rule.name)
 
             if (rule.path[0].startsWith('#')) {
                 rule.isStandalone = true
@@ -443,6 +456,7 @@ class DSApp {
                 }
             }
         }
+        this.logDebug("_checkRules() completed")
         return true
     }
 
@@ -454,8 +468,6 @@ class DSApp {
             //
 
             if ("" == ruleType) continue;
-
-            log(rule)
 
             if (ruleType.indexOf("image") >= 0) {
                 this._applyPropsToImage(rule)
@@ -568,6 +580,8 @@ class DSApp {
             ShapePath: "layer",
             Text: "text",
             Image: "image",
+            HotSpot: "hotspot",
+            Group: "group"
         }
         if (!(sLayer.type in types)) {
             return null
@@ -1138,7 +1152,6 @@ class DSApp {
             if (radius != "") {
                 const radiusList = radius.split(' ').map(value => parseFloat(value.replace("px", "")))
                 if (undefined == l.points) {
-                    this.logMsg('_applyShapeRadius: ' + l.name)
                     l = l.layers[0]
                 }
                 l.points.forEach(function (point, index) {
@@ -1626,6 +1639,7 @@ class DSApp {
 
     parentOffsetInArtboard(layer) {
         var offset = { x: 0, y: 0 };
+        if (layer.type == 'Artboard' || layer.type === 'SymbolMaster') return
         var parent = layer.parent;
         while (parent.name && (parent.type !== 'Artboard' && parent.type !== 'SymbolMaster')) {
             offset.x += parent.frame.x;
@@ -1645,6 +1659,7 @@ class DSApp {
     }
 
     updateParentFrames(layer) {
+        if (layer.type == 'Artboard' || layer.type === 'SymbolMaster') return
         var parent = layer.parent;
         while (parent && parent.name && (parent.type !== 'Artboard' && parent.type !== 'SymbolMaster')) {
             parent.adjustToFit();

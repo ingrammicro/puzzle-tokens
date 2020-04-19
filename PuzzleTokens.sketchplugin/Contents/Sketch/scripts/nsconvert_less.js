@@ -249,7 +249,6 @@ function saveSketchRule(rule, path) {
         var value = oneRule.value.toCSS(parseOptions);
 
         // drop comment and unparsed variables
-        console.log(oneRule.name)
         if (oneRule.name.startsWith("@")) return
 
         // get token from rule comment
