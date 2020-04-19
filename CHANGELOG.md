@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.3.1 (19 Apr 2020)
+Remove debug messages
+
 ##  Version 8.3.0 (17 Apr 2020)
 New features:
 - height: and width: are applicable to symbol masters and artboaeds
