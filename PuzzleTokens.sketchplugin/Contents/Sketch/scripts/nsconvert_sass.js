@@ -142,6 +142,7 @@ function saveData(strCSS, pathToJSON) {
     var node = null
     var inComments = false
     sassLines.forEach(function (line) {
+        console.log(line)
         if (line.startsWith("/*") && line.endsWith("*/")) {
         } else if (line.startsWith("/*")) {
             inComments = true
@@ -162,7 +163,7 @@ function saveData(strCSS, pathToJSON) {
         } else if (line.endsWith("}")) {
             // complete node declaration
             data.push(node)
-        } else {
+        } else if (node) {
             // save css rule
             line = line.replace(/^(\s*)/, "")
             var ruleName = line.replace(/(:+\s+.+;+)/, "")
