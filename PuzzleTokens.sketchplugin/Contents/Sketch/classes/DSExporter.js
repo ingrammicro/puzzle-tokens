@@ -61,8 +61,7 @@ class DSExporter {
         this.format = Settings.settingForKey(SettingKeys.PLUGIN_EXPORT_FORMAT)
         if (undefined == this.format) this.format = Constants.EXPORT_FORMAT_LESS
 
-        const confExportLibStyles = Settings.settingForKey(SettingKeys.PLUGIN_EXPORT_LIB_STYLES)
-        this.confExportLibStyles = (confExportLibStyles == null || confExportLibStyles == 1) ? 1 : 0
+        this.confExportLibStyles = Settings.settingForKey(SettingKeys.PLUGIN_EXPORT_LIB_STYLES) == 1
 
         this.confOpts = Settings.settingForKey(SettingKeys.PLUGIN_EXPORT_OPTS)
         if (undefined == this.confOpts) this.confOpts = {}
@@ -169,7 +168,7 @@ class DSExporter {
 
         dialog.addSpace()
         dialog.addLeftLabel("", "Styles")
-        dialog.addRadioButtons("exportLibSyles", "", this.confExportLibStyles, ["Export only local styles", "Export local and external library styles"], 250)
+        dialog.addCheckbox("exportLibStyles", "Export external library styles", this.confExportLibStyles)
 
 
         while (true) {
@@ -183,7 +182,7 @@ class DSExporter {
             this.pathTo = dialog.views['pathTo'].stringValue() + ""
             if ("" == this.pathTo) continue
             this.format = dialog.views['format'].selectedIndex
-            this.confExportLibStyles = dialog.views['exportLibSyles'].selectedIndex
+            this.confExportLibStyles = dialog.views['exportLibStyles'].state() == 1
             this.less = this.format == Constants.EXPORT_FORMAT_LESS
             this.scss = this.format == Constants.EXPORT_FORMAT_SCSS
             this.confOpts.colorTokens = dialog.views['colorTokens'].state() == 1
