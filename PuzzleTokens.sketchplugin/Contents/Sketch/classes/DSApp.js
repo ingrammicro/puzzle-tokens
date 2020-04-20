@@ -178,15 +178,14 @@ class DSApp {
         const showError = Settings.PLUGIN_SHOW_DOUBLESTYLES
 
         this.sTextStyles = {}
-        this.sDoc.sharedTextStyles.forEach(function (sStyle) {
-            //sStyle.name = sStyle.name.replace(" ",'')
+        this.sDoc.sharedTextStyles.filter(s => null == s.getLibrary()).forEach(function (sStyle) {
             if (this.showDoubleStyleError && sStyle.name in this.sTextStyles) {
                 this.logError("Found multiply text styles with name '" + sStyle.name + "'")
             }
             this.sTextStyles[sStyle.name] = sStyle
         }, this)
         this.sLayerStyles = {}
-        this.sDoc.sharedLayerStyles.forEach(function (sStyle) {
+        this.sDoc.sharedLayerStyles.filter(s => null == s.getLibrary()).forEach(function (sStyle) {
             if (this.showDoubleStyleError && sStyle.name in this.sLayerStyles) {
                 this.logError("Found multiply layer styles with name '" + sStyle.name + "'")
             }
@@ -203,7 +202,7 @@ class DSApp {
         const sLocalStyle = !isLayerStyle ? this.sTextStyles[styleName] : this.sLayerStyles[styleName]
         if (sLocalStyle) return sLocalStyle
 
-        // find Sketch Artboard
+        // find Sketch library and style
         var sStyle = undefined
         var lib = undefined
         for (lib of this._getLibraries()) {
@@ -211,7 +210,7 @@ class DSApp {
             sStyle = this._findStyleByNameInLibrary(styleName, isLayerStyle, lib)
             if (sStyle) break
         }
-        // check artboard existing
+        // check style existing
         if (!sStyle) {
             //this.logDebug("_findStyleByName FAILED")
             return false
@@ -513,7 +512,7 @@ class DSApp {
 
                 // drop existing (or new) style properties before first apply                
                 if (!this.sAppliedStyles[sStyleName] && (isText || isLayer) &&
-                    !(rule.sLayer && this.sAppliedStyles[rule.sLayer.sharedStyle.name])
+                    !(rule.sLayer && rule.sLayer.sharedStyle && this.sAppliedStyles[rule.sLayer.sharedStyle.name])
                 ) {
                     this._resetStyle(sStyle, isText)
                 }
