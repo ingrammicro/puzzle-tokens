@@ -512,7 +512,11 @@ class DSApp {
                 }
 
                 // drop existing (or new) style properties before first apply
-                if (!this.sAppliedStyles[sStyleName] && (isText || isLayer) && !rule.isStandalone) this._resetStyle(sStyle, isText)
+                log("check to reset for " + rule.name)
+                if (!this.sAppliedStyles[sStyleName] && (isText || isLayer)) {
+                    log("reset")
+                    this._resetStyle(sStyle, isText)
+                }
 
                 // Apply rule properties
                 // drop commented property
