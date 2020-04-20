@@ -511,8 +511,10 @@ class DSApp {
                     }
                 }
 
-                // drop existing (or new) style properties before first apply
-                if (!this.sAppliedStyles[sStyleName] && (isText || isLayer)) {
+                // drop existing (or new) style properties before first apply                
+                if (!this.sAppliedStyles[sStyleName] && (isText || isLayer) &&
+                    !(rule.sLayer && this.sAppliedStyles[rule.sLayer.sharedStyle.name])
+                ) {
                     this._resetStyle(sStyle, isText)
                 }
 
