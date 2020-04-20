@@ -61,6 +61,9 @@ class DSExporter {
         this.format = Settings.settingForKey(SettingKeys.PLUGIN_EXPORT_FORMAT)
         if (undefined == this.format) this.format = Constants.EXPORT_FORMAT_LESS
 
+        const confExportLibStyles = Settings.settingForKey(SettingKeys.PLUGIN_EXPORT_LIB_STYLES)
+        this.confExportLibStyles = (confExportLibStyles == null || confExportLibStyles == 1) ? 1 : 0
+
         this.confOpts = Settings.settingForKey(SettingKeys.PLUGIN_EXPORT_OPTS)
         if (undefined == this.confOpts) this.confOpts = {}
         if (null == this.confOpts.colorTokens) this.confOpts.colorTokens = true
@@ -147,23 +150,26 @@ class DSExporter {
             textValue: this.pathTo,
             inlineHint: 'e.g. ~/Temp', width: 520
         })
-        dialog.addDivider()
 
         dialog.addLeftLabel("", "File Format")
         dialog.addRadioButtons("format", "", this.format, ["LESS", "SCSS"], 250)
 
-        dialog.addSpace()
+        dialog.addDivider()
+
         dialog.addLeftLabel("", "Create tokens for")
         dialog.addCheckbox("colorTokens", "Colors", this.confOpts.colorTokens)
         dialog.addCheckbox("fontSizeTokens", "Font Sizes", this.confOpts.fontSizeTokens)
         dialog.addCheckbox("fontWeightTokens", "Font Weights", this.confOpts.fontWeightTokens)
         dialog.addCheckbox("fontFamilyTokens", "Font Families", this.confOpts.fontFamilyTokens)
 
-
         if (null == this.confOpts.colorTokens) this.confOpts.colorTokens = true
         if (null == this.confOpts.fontSizeTokens) this.confOpts.fontSizeTokens = true
         if (null == this.confOpts.fontWeightTokens) this.confOpts.fontWeightTokens = true
         if (null == this.confOpts.fontFamilyTokens) this.confOpts.fontFamilyTokens = true
+
+        dialog.addSpace()
+        dialog.addLeftLabel("", "Styles")
+        dialog.addRadioButtons("exportLibSyles", "", this.confExportLibStyles, ["Export only local styles", "Export local and external library styles"], 250)
 
 
         while (true) {
@@ -177,6 +183,7 @@ class DSExporter {
             this.pathTo = dialog.views['pathTo'].stringValue() + ""
             if ("" == this.pathTo) continue
             this.format = dialog.views['format'].selectedIndex
+            this.confExportLibStyles = dialog.views['exportLibSyles'].selectedIndex
             this.less = this.format == Constants.EXPORT_FORMAT_LESS
             this.scss = this.format == Constants.EXPORT_FORMAT_SCSS
             this.confOpts.colorTokens = dialog.views['colorTokens'].state() == 1
@@ -189,6 +196,7 @@ class DSExporter {
             Settings.setSettingForKey(SettingKeys.PLUGIN_EXPORT_PATH_TO, this.pathTo)
             Settings.setSettingForKey(SettingKeys.PLUGIN_EXPORT_FORMAT, this.format)
             Settings.setSettingForKey(SettingKeys.PLUGIN_EXPORT_OPTS, this.confOpts)
+            Settings.setSettingForKey(SettingKeys.PLUGIN_EXPORT_LIB_STYLES, this.confExportLibStyles)
             break
         }
 
@@ -214,6 +222,7 @@ class DSExporter {
         let res = ""
         res += "///////////////// Text Styles /////////////////\n"
         this.sDoc.sharedTextStyles.forEach(function (sStyle) {
+            if (!this.confExportLibStyles && sStyle.getLibrary()) return
             res += this._getStyleInfoAsText(sStyle)
             let si = this._parseStyleName(sStyle.name, true)
             res += si.openTags
@@ -225,6 +234,7 @@ class DSExporter {
 
         res += "///////////////// Layer Styles /////////////////\n"
         this.sDoc.sharedLayerStyles.forEach(function (sStyle) {
+            if (!this.confExportLibStyles && sStyle.getLibrary()) return
             res += this._getStyleInfoAsText(sStyle)
             let si = this._parseStyleName(sStyle.name, false)
             //
