@@ -1,6 +1,15 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.3.2 (19 Apr 2020)
+New small features:
+- Added abiity to exclude library styles from export
+- SCSS parser now supports @charset "UTF-8"; instruction
+
+Fixed issues:
+- Apply something to master layer reset fills which were assigned before to layer style
+- Checking for style name duplicates now process only local styles
+
 ##  Version 8.3.1 (19 Apr 2020)
 Remove debug messages
 
