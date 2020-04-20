@@ -512,9 +512,7 @@ class DSApp {
                 }
 
                 // drop existing (or new) style properties before first apply
-                log("check to reset for " + rule.name)
                 if (!this.sAppliedStyles[sStyleName] && (isText || isLayer)) {
-                    log("reset")
                     this._resetStyle(sStyle, isText)
                 }
 
