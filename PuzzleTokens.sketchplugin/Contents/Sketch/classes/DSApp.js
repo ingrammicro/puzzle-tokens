@@ -393,7 +393,9 @@ class DSApp {
                 rule.isStandalone = true
                 rule.sLayer = this._findSymbolChildByPath(rule.path)
                 if (null == rule.sLayer) {
-                    if (this.confCreateSymbols)
+                    if (PT_SKIP_MISSED in rule.props) {
+                        continue
+                    } else if (this.confCreateSymbols)
                         this.messages += "Will create new symbol " + rule.path + " of " + ruleType + " type \n"
                     else {
                         this.logError("Can't find symbol master by path " + rule.path)
@@ -484,6 +486,9 @@ class DSApp {
                 if (rule.isStandalone) {
 
                     if (!rule.sLayer) {
+                        if (PT_SKIP_MISSED in rule.props) {
+                            continue;
+                        }
                         rule.sLayer = this._findOrCreateSymbolMasterChild(rule)
                         if (!rule.sLayer) {
                             return this.logError("Can't find a symbol master layer by name " + rule.name)
@@ -561,7 +566,7 @@ class DSApp {
             this.sAppliedStyles[sStyleName] = true
         }
 
-        // cleam style names
+        // clean style names
         {
             const f = function (sStyle) {
                 const i = sStyle.name.lastIndexOf("--PTD-")
@@ -598,7 +603,7 @@ class DSApp {
         let master = this._findSymbolMasterByPath(rule.path)
         if (!master) {
             if (!this.confCreateSymbols) {
-                this.logError("Can't find symbol mast style by path " + rule.path)
+                this.logError("Can't find symbol master by path " + rule.path)
                 return null
             }
             const symbolPath = this._buildSymbolPathFromPath(rule.path)
@@ -802,7 +807,6 @@ class DSApp {
             sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => (l.type == 'SymbolMaster' || l.type == 'Artboard'))
         }
         if (!sFoundLayers.length) {
-            this.logError("Can not find a layer '" + path + "'")
             return null
         }
 
@@ -817,7 +821,6 @@ class DSApp {
         // find a symbol child
         const sLayer = this._findLayerChildByPath(sFoundLayers[0], layerPath)
         if (!sLayer) {
-            this.logError("Can not find a layer '" + layerPath.join(' / ') + "' in symbol master or artboard'" + symbolName + "'")
             return null
         }
         return sLayer
@@ -1177,7 +1180,7 @@ class DSApp {
         const borderStartArrowhead = token['border-start-arrowhead']
         const borderEndArrowhead = token['border-end-arrowhead']
 
-        const updateBorder = token[PT_BORDER_UPDATE] == 'true'
+        let updateBorder = token[PT_BORDER_UPDATE] == 'true'
 
         var border = {}
         if (updateBorder) {
