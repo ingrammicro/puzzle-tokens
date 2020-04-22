@@ -185,7 +185,7 @@ class Utils {
             const parts = str.split(PARTS_REG)
             const inset = parts.includes('inset')
             const last = parts.slice(-1)[0]
-            let color = !isLength(last) ? last : undefined
+            let color = !isLength(last) ? last : ""
             //  reverse workaround to support invalid REGEXP
             color = color.replace(/X/g, "(").replace(/Z/g, ")")
 
