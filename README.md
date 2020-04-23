@@ -5,7 +5,7 @@ Puzzle Tokens is a Sketch plugin to specify and apply design tokens (in LESS or 
 ### [Check this article](https://medium.com/@akalenyuk/bringing-styles-preprocessing-to-sketch-9cdf0d0c49bd) to get a detailed overview with examples and join [Spectrum Chat](https://spectrum.chat/puzzle-tokens?) for live talk
 
 ## Installation
-1. Check [provided examples](https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Tests)
+1. Download [zip file](https://github.com/ingrammicro/puzzle-tokens/raw/master/PuzzleTokens.sketchplugin.zip)
 2. Unarchive and install
 3. Download and install [Node.js](https://nodejs.org/en/download/)
 4. Instal _less_ or _sass_ using the following Terminal commands:
