@@ -9,6 +9,7 @@ var pathToResultCSS = args['-css']
 var pathToResultVars = args['-vars']
 var pluginNamesSrc = args['-plugins']
 var pluginNames = pluginNamesSrc != undefined ? pluginNamesSrc.split(',') : undefined
+var less;
 var lessPath = ''
 var lessVars = {}
 var sketchRules = []
@@ -109,7 +110,7 @@ function loadLessFromFiles(fileName1, fileName2) {
 function transformLESStoJSON(data) {
 
     var passToNodeModules = _getPathToNodeModules()
-    var less = require(passToNodeModules + "/less")
+    less = require(passToNodeModules + "/less")
 
     var pluginModules = []
     if (undefined != pluginNames) {
@@ -152,7 +153,7 @@ function transformLESStoJSON(data) {
                     var value = rule.value;
                     lessVars["@" + name] = value.toCSS(options);
 
-                    console.log(name + " : " + value.toCSS(options))
+                    //console.log(name + " : " + value.toCSS(options))
                 } else {
                     parseSketchRule(rule, null, [])
                 }
@@ -230,6 +231,7 @@ function saveSketchRule(rule, path) {
 
     // detect mixin by keyword and skip it
     if (path.length > 0 && path[0].startsWith(".mixin-")) return
+    if (path.length == 1 && "&" == path[0]) return
 
     const sketchRule = {
         path: path,
@@ -246,9 +248,14 @@ function saveSketchRule(rule, path) {
             return
         }
 
+        // skip mixin
+        if (null == oneRule.value || null == oneRule.name) return
+
         var value = oneRule.value.toCSS(parseOptions);
 
         // drop comment and unparsed variables
+        const s = typeof oneRule.name + ""
+        if ("object" == s) return
         if (oneRule.name.startsWith("@")) return
 
         // get token from rule comment
@@ -276,7 +283,7 @@ function saveData(data, pathToJSON) {
     if (pathToJSON && pathToJSON != '') {
         fs.writeFileSync(pathToJSON, json, 'utf8');
     } else {
-        console.log(json)
+        //console.log(json)
     }
 
     return true
@@ -296,7 +303,7 @@ function saveVarsToSASS(data, pathToSASS) {
     if (pathToSASS && pathToSASS != '') {
         fs.writeFileSync(pathToSASS, json, 'utf8');
     } else {
-        console.log(json)
+        //console.log(json)
     }
 
     return true
