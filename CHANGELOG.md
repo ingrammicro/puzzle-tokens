@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.3.3 (23 Apr 2020)
+Added "-pt-skip-missed: true;" rule
+
 ##  Version 8.3.2 (19 Apr 2020)
 New small features:
 - Added abiity to exclude library styles from export
