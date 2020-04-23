@@ -1,0 +1,30 @@
+.colors-blue(){
+    BLUE-1: blue;    
+}
+
+.colors-red(){
+    RED-1: red;
+}
+
+#colors(){
+    .colors-blue();
+    .colors-red();
+}
+
+
+.colors{
+    .blue{
+        each(.colors-blue(), { 
+            .@{key}{
+                color: @value;
+            }
+        })
+    }
+    .red{
+        each(.colors-red(), { 
+            .@{key}{
+                color: @value;
+            }
+        })
+    }
+}
