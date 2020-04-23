@@ -2,7 +2,8 @@
 See discussions on https://spectrum.chat/puzzle-tokens site
 
 ##  Version 8.3.3 (23 Apr 2020)
-Added "-pt-skip-missed: true;" rule
+Added "-pt-skip-missed: true;" rule.
+Example: https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Releases/8.3.3
 
 ##  Version 8.3.2 (19 Apr 2020)
 New small features:
