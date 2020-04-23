@@ -89,7 +89,7 @@ class DSApp {
     stopWithError(error) {
         const UI = require('sketch/ui')
         UI.alert('Error', error)
-        exit = true
+        //exit = true        
     }
 
     // Public methods
@@ -129,7 +129,7 @@ class DSApp {
         if (this.genSymbTokens) {
             if (!this.sDoc.path) {
                 return this.stopWithError("Can't create symbols & style file for unsaved Sketch file. Save it before or disable symbols & style generation in Settings.")
-            } else if (this.sDoc.path.includes("/com.bohemiancoding.sketch3/")) {
+            } else if (this.nDoc.isCloudDoc()) {
                 return this.stopWithError("Can't create symbols & style file for Cloud file. Move it to local or disable symbols & style generation in Settings.")
             } else {
                 const pathDetails = path.parse(this.sDoc.path)
