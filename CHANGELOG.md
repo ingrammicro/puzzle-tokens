@@ -1,7 +1,7 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
-##  Version 8.4.0 (24 Apr 2020)
+##  Version 8.4.1 (24 Apr 2020)
 Changes:
 - Droped Check stage in order to improve total performance
 Fixed issues:
