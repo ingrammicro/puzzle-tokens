@@ -1,6 +1,13 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.4.0 (24 Apr 2020)
+Changes:
+- Droped Check stage in order to improve total performance
+Fixed issues:
+- "sklayer-style" doesn't work
+- Processing of LARGE scss file freezes
+
 ##  Version 8.3.5 (23 Apr 2020)
 Fixed issues:
 - Failed to parse LESS mixins. 
