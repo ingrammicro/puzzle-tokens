@@ -446,6 +446,7 @@ class DSApp {
                     !(rule.sLayer && rule.sLayer.sharedStyle && this.sAppliedStyles[rule.sLayer.sharedStyle.name])
                 ) {
                     this._resetStyle(rule, sStyle)
+                    this.sAppliedStyles[sStyleName] = true
                 }
 
                 // Apply rule properties
@@ -492,7 +493,6 @@ class DSApp {
                 }
             }
             //
-            this.sAppliedStyles[sStyleName] = true
         }
 
         // clean style names
