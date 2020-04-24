@@ -124,7 +124,7 @@ function transformSASStoJSON(data) {
         process.exit(-1)
     }
 
-    console.log(sketchRules)
+    //console.log(sketchRules)
 
 
     console.log("Read SASS: done")
@@ -142,7 +142,7 @@ function saveData(strCSS, pathToJSON) {
     var node = null
     var inComments = false
     sassLines.forEach(function (line) {
-        console.log(line)
+        //console.log(line)
         if (line.startsWith("/*") && line.endsWith("*/")) {
         } else if (line.startsWith("/*")) {
             inComments = true
@@ -178,7 +178,7 @@ function saveData(strCSS, pathToJSON) {
     if (pathToJSON && pathToJSON != '') {
         fs.writeFileSync(pathToJSON, json, 'utf8');
     } else {
-        console.log(json)
+        //console.log(json)
     }
 
     return true
