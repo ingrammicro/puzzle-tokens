@@ -24,7 +24,7 @@ Remove debug messages
 
 ##  Version 8.3.0 (17 Apr 2020)
 New features:
-- height: and width: are applicable to symbol masters and artboaeds
+- height: and width: are applicable to symbol masters and artboards
 Fixed issues:
 - /* comment */ breaks SAAS parsing
 
