@@ -28,6 +28,7 @@ class DSApp {
         this.sTextStyles = {}
         this.sLayerStyles = {}
         this.sAppliedStyles = {}
+        this.sLayers = {}
 
         this._symbolPage = undefined
 
@@ -60,7 +61,6 @@ class DSApp {
 
         this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS) == 1
         this.showDebug = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DEBUG) == 1
-        this.showCheck = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_CHECK) == 1
         this.showDoubleStyleError = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DOUBLESTYLES) == 1
         this.confCreateSymbols = Settings.settingForKey(SettingKeys.PLUGIN_CREATE_SYMBOLS) == 1
         this.confClear = this.confClean = Settings.settingForKey(SettingKeys.PLUGIN_APPLY_CLEAR) == 1
@@ -116,14 +116,14 @@ class DSApp {
 
     runDialog() {
         if (!this._showDialog()) return false
-        const success = this.run(this.showCheck)
+        const success = this.run()
         if (success) {
             this._showMessages()
         }
         return success
     }
 
-    run(showCheck = true) {
+    run() {
         this.pathToTokens = this.pathToStyles.substring(0, this.pathToStyles.lastIndexOf("/"));
 
         if (this.genSymbTokens) {
@@ -149,10 +149,6 @@ class DSApp {
                 break
             }
             this.logDebug("run(): loadRules: success")
-            if (!this._checkRules()) {
-                return false
-            }
-            if (showCheck && !this._showCheck()) break
             if (!this._applyRules()) break
             if (this.genSymbTokens) this._saveElements()
 
@@ -268,18 +264,6 @@ class DSApp {
         return msg
     }
 
-    _showCheck() {
-        const dialog = new UIDialog("Review changes before you apply it", NSMakeRect(0, 0, 800, 400), "Apply", "")
-        dialog.removeLeftColumn()
-        const text = this.messages != '' ? this.messages : "None "
-        dialog.addTextViewBox("messages", "The following changes will be made in Sketch file:", text, 400)
-
-        const result = dialog.run()
-        dialog.finish()
-        this.messages = ""
-
-        return result
-    }
 
     _showMessages() {
         const dialog = new UIDialog("Styles have been successfully applied", NSMakeRect(0, 0, 800, 400), "Dismiss", "", "")
@@ -337,7 +321,6 @@ class DSApp {
             comboBoxOptions: this.pathToStylesList
         })
         dialog.addDivider()
-        dialog.addCheckbox("showCheck", "Review style changes before apply", this.showCheck)
         dialog.addCheckbox("confCreateSymbols", "Create missed master symbols", this.confCreateSymbols)
 
         while (true) {
@@ -357,7 +340,6 @@ class DSApp {
             this.pathToStylesList = this.pathToStylesList.slice(0, 20)
 
             ///
-            this.showCheck = dialog.views['showCheck'].state() == 1
             this.confCreateSymbols = dialog.views['confCreateSymbols'].state() == 1
             break
         }
@@ -366,7 +348,6 @@ class DSApp {
 
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS_LIST, this.pathToStylesList)
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToStyles)
-        Settings.setSettingForKey(SettingKeys.PLUGIN_SHOW_CHECK, this.showCheck)
         Settings.setSettingForKey(SettingKeys.PLUGIN_CREATE_SYMBOLS, this.confCreateSymbols)
 
 
@@ -380,9 +361,12 @@ class DSApp {
         return styles.length > 0
     }
 
-    _checkRules() {
-        this.logDebug("_checkRules() started")
+
+
+    _applyRules(justCheck) {
+        this.logMsg("Started")
         for (const rule of this.rules) {
+            //////////////////////
             const sStyleName = this._pathToStr(rule.path)
             rule.name = sStyleName
             let ruleType = ""
@@ -402,81 +386,18 @@ class DSApp {
                         continue
                     }
                 }
-                ruleType = this._detectLayerType(rule.sLayer)
-                if (null == ruleType) {
-                    this.logError("_checkRules(): uknown layer type " + rule.sLayer.type)
-                    continue
-                }
             } else {
-                ruleType = this._getRulePropsType(rule.props)
             }
+            ruleType = this._getRuleType(rule)
+            //////////////////////
 
-            if ("" == ruleType) {
-                if (this._isStylePropExisting(rule.props)) {
-                    this.logError("Can't understand a type of rule " + rule.name)
-                }
-                continue
-            }
-            rule.type = ruleType
-
-            if (ruleType.indexOf("image") >= 0) {
-                this.messages += "Will update image " + sStyleName + "\n"
-                continue
-            }
-            // Check rule
-            if (ruleType.indexOf("text") >= 0 && ruleType.indexOf("layer") >= 0) {
-                this.logError("Rule \"" + sStyleName + "\" has properties for both Text and Layer styles.")
-                return
-            }
-            /*if ("" == ruleType) {
-                this.logError("Rule \"" + sStyleName + "\" has no valid properties")
-                this.logError(JSON.stringify(rule, null, "\n"))
-                return
-            }*/
-            //     
-            const isText = ruleType.indexOf("text") >= 0
-            const isLayer = ruleType.indexOf("layer") >= 0
-            const isGroup = ruleType.indexOf("group") >= 0
-            const strType = isText ? "Text" : (isLayer ? "Layer" : (isGroup ? "Group" : "Uknown"))
-
-            if (rule.isStandalone) {
-                this.messages += "Will update " + strType + " style of standalone layer " + sStyleName + "\n"
-            } else {
-                // Find or create new style
-                var sSharedStyle = null
-                var sStyle = null
-
-                sSharedStyle = isText ? this.sTextStyles[sStyleName] : this.sLayerStyles[sStyleName]
-                sStyle = sSharedStyle != null ? sSharedStyle.style : {}
-
-                // Create new shared style
-                if (!sSharedStyle) {
-                    this.messages += "Will create new shared " + strType + " style " + sStyleName + "\n"
-                } else {
-                    this.messages += "Will update shared " + strType + " style " + sStyleName + "\n"
-                }
-            }
-        }
-        this.logDebug("_checkRules() completed")
-        return true
-    }
-
-    _applyRules(justCheck) {
-        this.logMsg("Started")
-        for (const rule of this.rules) {
-            const ruleType = rule.type
-            const sStyleName = rule.name // spcified in  _checkRules()
-            //
-
-            if ("" == ruleType) continue;
-
-            if (ruleType.indexOf("image") >= 0) {
+            if (ruleType.isImage) {
                 this._applyPropsToImage(rule)
             } else {
 
-                const isText = ruleType.indexOf("text") >= 0
-                const isLayer = ruleType.indexOf("layer") >= 0
-                const isGroup = ruleType.indexOf("group") >= 0
+                const isText = ruleType.includes("text")
+                const isLayer = ruleType.includes("layer")
+                const isGroup = ruleType.includes("group")
 
                 // Find or create new style
                 var sSharedStyle = null
@@ -484,7 +405,6 @@ class DSApp {
 
 
                 if (rule.isStandalone) {
-
                     if (!rule.sLayer) {
                         if (PT_SKIP_MISSED in rule.props) {
                             continue;
@@ -503,13 +423,19 @@ class DSApp {
                         l.sharedStyle = sExistingStyle
                         l.style.syncWithSharedStyle(sExistingStyle)
                         this.result.assignedStyles++
+                    } else {
+                        this.result.updatedLayers++
                     }
                     //                
                     sStyle = rule.sLayer.style
                 } else {
+                    if (!isText && !isLayer) {
+                        this.logError("Uknown type of rule " + rule.name)
+                        continue
+                    }
+
                     sSharedStyle = isText ? this.sTextStyles[sStyleName] : this.sLayerStyles[sStyleName]
-                    //if ("Style" == sSharedStyle.styleType)
-                    //  sSharedStyle.styleType = isText ? SharedStyle.StyleType.Text : SharedStyle.StyleType.Layer
+
                     sStyle = sSharedStyle != null ? sSharedStyle.style : {
                         styleType: isText ? SharedStyle.StyleType.Text : SharedStyle.StyleType.Layer
                     }
@@ -519,7 +445,7 @@ class DSApp {
                 if (!this.sAppliedStyles[sStyleName] && (isText || isLayer) &&
                     !(rule.sLayer && rule.sLayer.sharedStyle && this.sAppliedStyles[rule.sLayer.sharedStyle.name])
                 ) {
-                    this._resetStyle(sStyle, isText)
+                    this._resetStyle(rule, sStyle)
                 }
 
                 // Apply rule properties
@@ -535,6 +461,9 @@ class DSApp {
                     this._applyRuleToGroup(rule)
                     this.result.updatedLayers++
                 }
+                // SET MARGINS
+                this._applyCommonRules(rule, sSharedStyle)
+
 
                 if (rule.isStandalone) {
                     this.logMsg("[Updated] style for standalone layer " + sStyleName)
@@ -580,26 +509,11 @@ class DSApp {
         return true
     }
 
-    _detectLayerType(sLayer) {
-        const types = {
-            SymbolInstance: "group symbolinstance",
-            Artboard: "group artboard",
-            SymbolMaster: "group symbolmaster",
-            ShapePath: "layer",
-            Text: "text",
-            Image: "image",
-            HotSpot: "hotspot",
-            Group: "group"
-        }
-        if (!(sLayer.type in types)) {
-            return null
-        }
-        return types[sLayer.type]
-    }
-
 
     // Find or create a symbol master and place new layer inside
     _findOrCreateSymbolMasterChild(rule) {
+        if (rule.path in this.sLayers) return this.sLayers[rule.path]
+        //
         let master = this._findSymbolMasterByPath(rule.path)
         if (!master) {
             if (!this.confCreateSymbols) {
@@ -618,7 +532,10 @@ class DSApp {
         const layerName = layerPath[0]
 
         // Return ref to found master symbol itself
-        if (THIS_NAME == layerPath) return master
+        if (THIS_NAME == layerPath) {
+            this.sLayers[rule.path] = master
+            return master
+        }
 
         ///
         const isText = rule.type.indexOf("text") >= 0
@@ -654,25 +571,28 @@ class DSApp {
             })
             sLayer.name = layerName
         }
+        this.sLayers[rule.path] = sLayer
         return sLayer
 
     }
 
-    _resetStyle(sStyle, isText) {
-        sStyle.borders = []
-        sStyle.fills = []
-        sStyle.shadows = []
-        sStyle.borderOptions = undefined
+    _resetStyle(rule, sStyle) {
+        if (rule.isLayer && sStyle) {
+            sStyle.borders = []
+            sStyle.fills = []
+            sStyle.shadows = []
+            sStyle.borderOptions = undefined
+        }
     }
 
 
     _getFindSharedStyleByRule(rule) {
         let sStyleNameSrc = ""
         let isText = false
-        if (rule.type.indexOf(SKTEXT_STYLE) >= 0) {
+        if (SKTEXT_STYLE in rule.props) {
             sStyleNameSrc = rule.props[SKTEXT_STYLE]
             isText = true
-        } else if (rule.type.indexOf(SKLAYER_STYLE) >= 0) {
+        } else if (SKLAYER_STYLE in rule.props) {
             sStyleNameSrc = rule.props[SKLAYER_STYLE]
         } else {
             return undefined
@@ -687,17 +607,21 @@ class DSApp {
     }
 
 
-    _getRulePropsType(props) {
+    // mutable
+    _getRuleType(rule) {
         var res = ""
+        const props = rule.props
+
         if (null != props['color'] || null != props['font-family'] || null != props['font-style'] || null != props['font-size']
             || null != props['font-weight'] || null != props['text-transform'] || null != props['text-align'] || null != props['vertical-align']
             || null != props['text-decoration'] || null != props['letter-spacing'] || null != props[PT_PARAGRAPH_SPACING] || null != props['line-height']
+            || (PT_TEXT in props)
         )
             res += "text"
         if (null != props['image'])
             res += "image"
         if (null != props['background-color'] || null != props['border-color'] || null != props['box-shadow']
-            || null != props['border-radius'] || null != props['padding']
+            || null != props['border-radius']
         ) res += "layer"
         if (null != props['opacity'])
             if ("" == res)
@@ -705,23 +629,17 @@ class DSApp {
             else
                 res += "opacity"
 
-        if (null != props[SKLAYER_STYLE])
-            res += SKLAYER_STYLE
-        else if (null != props[SKTEXT_STYLE])
-            res += SKTEXT_STYLE
-
         if (null != props[PT_SMARTLAYOUT])
             res += "group"
 
-        if ("" == res) {
-            const layerType = props[PT_LAYER_TYPE]
-            if (null != layerType) {
-                res = layerType
-            }
-        }
+        if (PT_LAYER_TYPE in props) res += props[PT_LAYER_TYPE]
 
+        rule.isText = res.includes("text")
+        rule.isLayer = res.includes("layer")
+        rule.isGroup = res.includes("group")
+        rule.isImage = res.includes("image")
 
-        return res;
+        return res
     }
 
 
@@ -807,7 +725,16 @@ class DSApp {
             sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => (l.type == 'SymbolMaster' || l.type == 'Artboard'))
         }
         if (!sFoundLayers.length) {
-            return null
+            // search in pages
+            symbolName = symbolPaths.join(' / ')
+            sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => (l.type == 'Page'))
+            if (!sFoundLayers.length) {
+                symbolName = symbolPaths.join('/')
+                sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => (l.type == 'Page'))
+            }
+            if (!sFoundLayers.length) {
+                return null
+            }
         }
 
         const childSubpath = path.filter(s => !s.startsWith('#'))
@@ -1352,9 +1279,6 @@ class DSApp {
         // SET SHADOW 
         this._applyShadow(rule, sStyle, 'box-shadow')
 
-        // SET MARGINS
-        this._applyCommonRules(rule, sSharedStyle)
-
         // SET BORDER       
         if (('border-color' in token) || ('border-width' in token) || ('border-position' in token))
             this._applyBorderStyle(rule, sStyle)
@@ -1385,9 +1309,6 @@ class DSApp {
             }
             l.smartLayout = value
         }
-
-
-        this._applyCommonRules(rule)
     }
 
     _applyPaddingToLayer(rule, paddingSrc) {
@@ -1555,8 +1476,6 @@ class DSApp {
         // SET TEXT SHADOW
         this._applyShadow(rule, sStyle, "text-shadow")
 
-        // SET MARGINS
-        this._applyCommonRules(rule, sSharedStyle)
     }
 
     _applyCommonRules(rule, sSharedStyle) {
@@ -1725,7 +1644,7 @@ class DSApp {
                     image: path
                 })
                 var sStyle = sNewImage.style
-                this._resetStyle(sStyle, false)
+                this._resetStyle(rule, sStyle)
 
                 // remove old image
                 sLayer.remove()

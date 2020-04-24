@@ -22,7 +22,6 @@ var SettingKeys = {
     PLUGIN_PATH_TO_TOKENS_LESS_LIST: "pluginPathToTokensLessList",
     PLUGIN_GENERATE_SYMBOLTOKENS: "pluginGenSymbTokens",
     PLUGIN_APPLY_CLEAR: "pluginApplyClear",
-    PLUGIN_SHOW_CHECK: "pluginPreview",
     PLUGIN_SHOW_DEBUG: "pluginDebug",
     PLUGIN_SHOW_DOUBLESTYLES: "pluginDoubleStyles",
     PLUGIN_CREATE_SYMBOLS: "pluginCreateSymbols",
