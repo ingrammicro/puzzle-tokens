@@ -272,6 +272,7 @@ function saveSketchRule(rule, path) {
         sketchRule.props[String(oneRule.name)] = value
         if (token != '') sketchRule.props.__tokens[token] = true
     })
+    // we need more properties then only "__tokens"
     if (Object.keys(sketchRule.props).length > 1) sketchRules.push(sketchRule)
 }
 

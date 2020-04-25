@@ -571,7 +571,7 @@ class DSExporter {
         */
         const name = nameSrc
 
-        const path = name.split("/").map(s => s.replace(/\ /g, '__').replace(/\./g, '-DOT-').replace(/^(\d)/g, '--PT-$1'))
+        const path = name.split("/").map(s => s.replace(/\./g, '-DOT-').replace(/^(\d)/g, '--PT-$1'))
         let si = {
             openTags: "." + path.join(" .") + "{\n",
             spaces: "    ",

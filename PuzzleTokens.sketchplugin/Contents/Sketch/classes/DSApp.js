@@ -361,11 +361,28 @@ class DSApp {
         return styles.length > 0
     }
 
+    _transformRulePath(sketchRule) {
+        // Convert [ '#Symbol', '1', '.Back' ] to [ '#Symbol 1', '.Back' ],
+        if (sketchRule.path.filter(s => !(s.startsWith(".") || s.startsWith("#")))) {
+            let path = sketchRule.path.map(function (s, index, arr) {
+                if (!(s.startsWith(".") || s.startsWith("#"))) return ""
+                let i = index + 1
+                while (arr[i] != null && !(arr[i].startsWith("#") || arr[i].startsWith("."))) {
+                    s += " " + arr[i]
+                    i++
+                }
+                return s
+            }).filter(s => s != "")
+            sketchRule.path = path
+        }
+    }
 
 
     _applyRules(justCheck) {
         this.logMsg("Started")
         for (const rule of this.rules) {
+            //////////////////////
+            this._transformRulePath(rule)
             //////////////////////
             const sStyleName = this._pathToStr(rule.path)
             rule.name = sStyleName
