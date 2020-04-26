@@ -5,7 +5,12 @@
 
 var app = undefined
 
+function cleanName(n) {
+    if (n.startsWith('"')) n = n.slice(1)
+    if (n.endsWith('"')) n = n.slice(0, -1)
+    return n.replace(/^[\.#]/, '').replace(/(_{2})/g, ' ').replace(/(-DOT-)/g, '.').replace(/(--PT-)/g, '')
 
+}
 
 
 class DSApp {
@@ -194,13 +199,12 @@ class DSApp {
     _findStyleByName(styleName, isLayerStyle) {
         //this.logDebug("_findStyleByName running...  styleName:" + styleName)
 
-
         const sLocalStyle = !isLayerStyle ? this.sTextStyles[styleName] : this.sLayerStyles[styleName]
         if (sLocalStyle) return sLocalStyle
 
         // find Sketch library and style
-        var sStyle = undefined
-        var lib = undefined
+        var sStyle = null
+        var lib = null
         for (lib of this._getLibraries()) {
             //this.logDebug("_findStyleByName for lib " + lib.sLib.name)
             sStyle = this._findStyleByNameInLibrary(styleName, isLayerStyle, lib)
@@ -392,7 +396,7 @@ class DSApp {
 
             if (rule.path[0].startsWith('#')) {
                 rule.isStandalone = true
-                rule.sLayer = this._findSymbolChildByPath(rule.path)
+                rule.sLayer = this._findLayerByPath(rule.path)
                 if (null == rule.sLayer) {
                     if (PT_SKIP_MISSED in rule.props) {
                         continue
@@ -422,7 +426,7 @@ class DSApp {
 
 
                 if (rule.isStandalone) {
-                    if (!rule.sLayer) {
+                    /*if (!rule.sLayer) {
                         if (PT_SKIP_MISSED in rule.props) {
                             continue;
                         }
@@ -430,18 +434,18 @@ class DSApp {
                         if (!rule.sLayer) {
                             return this.logError("Can't find a symbol master layer by name " + rule.name)
                         }
-                    }
+                    }*/
 
                     // assign existing style
                     const sExistingStyle = this._getFindSharedStyleByRule(rule)
-                    if (undefined != sExistingStyle) {
+                    if (sExistingStyle) {
                         const l = rule.sLayer
                         l.style = {}
                         l.sharedStyle = sExistingStyle
                         l.style.syncWithSharedStyle(sExistingStyle)
                         this.result.assignedStyles++
                     } else {
-                        this.result.updatedLayers++
+                        continue;
                     }
                     //                
                     sStyle = rule.sLayer.style
@@ -528,6 +532,7 @@ class DSApp {
 
 
     // Find or create a symbol master and place new layer inside
+    /*
     _findOrCreateSymbolMasterChild(rule) {
         if (rule.path in this.sLayers) return this.sLayers[rule.path]
         //
@@ -590,8 +595,8 @@ class DSApp {
         }
         this.sLayers[rule.path] = sLayer
         return sLayer
-
     }
+    */
 
     _resetStyle(rule, sStyle) {
         if (rule.isLayer && sStyle) {
@@ -615,9 +620,9 @@ class DSApp {
             return undefined
         }
 
-        let sStyleName = sStyleNameSrc.replace(/(\s\/\s)/g, '\/').replace(/^(")/g, '').replace(/(")$/g, '')
+        let sStyleName = cleanName(sStyleNameSrc)
         const sSharedStyle = this._findStyleByName(sStyleName, !isText)
-        if (undefined == sSharedStyle) {
+        if (!sSharedStyle) {
             this.logError("Can't find shared style by name " + sStyleName)
         }
         return sSharedStyle
@@ -725,13 +730,13 @@ class DSApp {
 
     // stylePath: [str,str]
     _pathToStr(objPath) {
-        objPath = objPath.map(n => n.replace(/^[\.#]/, '').replace(/(_{2})/g, ' ').replace(/(-DOT-)/g, '.').replace(/(--PT-)/g, ''))
+        objPath = objPath.map(cleanName)
         var objPathStr = objPath.join("/")
         return objPathStr
     }
 
     // objPath: [#Controls,#Buttons,Text]
-    _findSymbolChildByPath(path) {
+    _findLayerByPath(path) {
         // get 'Controls / Buttons' name of symbol master
         const symbolPaths = this._buildSymbolPathFromPath(path)
 
@@ -754,11 +759,11 @@ class DSApp {
             }
         }
 
-        const childSubpath = path.filter(s => !s.startsWith('#'))
-        const layerPath = path.filter(s => !s.startsWith('#')).map(n => n.replace(/^[\.#]/, '').replace(/(\s+)/g, ''))
+        const layerPath = this._buildSymbolChildPathFromPath(path)
+
 
         // return ref to found master symbol itself
-        if (!childSubpath.length || (layerPath.length && THIS_NAME == layerPath[0])) {
+        if (!layerPath.length || (layerPath.length && THIS_NAME == layerPath[0])) {
             return sFoundLayers[0]
         }
 
@@ -771,17 +776,19 @@ class DSApp {
     }
 
     // objPath: [#Controls,#Buttons]
+    /*
     _findSymbolMasterByPath(path) {
         // get 'Controls / Buttons' name of symbol master
         const symbolPaths = this._buildSymbolPathFromPath(path)
         let symbolName = symbolPaths.join(' / ')
-        let sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => "SymbolMaster" == l.type)
+        let sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => "SymbolMaster" == l.type || l.type == 'Artboard')
         if (!sFoundLayers.length) {
             symbolName = symbolPaths.join('/')
-            sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => "SymbolMaster" == l.type)
+            sFoundLayers = this.sDoc.getLayersNamed(symbolName).filter(l => "SymbolMaster" == l.type || l.type == 'Artboard')
         }
         return sFoundLayers.length ? sFoundLayers[0] : null
     }
+    */
 
     // get existing or just create new Page with Symbols
     _getSymbolPage() {
@@ -818,10 +825,10 @@ class DSApp {
 
 
     _buildSymbolPathFromPath(path) {
-        return path.filter(s => s.startsWith('#')).map(n => n.replace(/^[\.#]/, '').replace(/(_{2})/g, ' '))
+        return path.filter(s => s.startsWith('#')).map(cleanName)
     }
     _buildSymbolChildPathFromPath(path) {
-        return path.filter(s => s.startsWith('.')).map(n => n.replace(/^[\.#]/, '').replace(/(_{2})/g, ' '))
+        return path.filter(s => s.startsWith('.')).map(cleanName)
     }
 
 
@@ -831,7 +838,7 @@ class DSApp {
         }
         const pathNode = path[0]
         for (var sLayer of sLayerParent.layers) {
-            if (sLayer.name.replace(/(\s+)/g, "") == pathNode) {
+            if (sLayer.name.replace(/^(\s+)/g, "").replace(/(\s+)$/g, "") == pathNode) {
                 if (path.length == 1) {
                     // found last element                    
                     return sLayer
