@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.5.1 (27 Apr 2020)
+Hotfix for 8.5.0
+
 ##  Version 8.5.0 (27 Apr 2020)
 1) Now you can use spaces in style and layer names.   
 Old: .Colors__Red .Red__001{  New: .Colors Red .Red 001{

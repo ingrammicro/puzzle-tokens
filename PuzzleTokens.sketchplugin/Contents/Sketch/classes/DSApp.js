@@ -82,7 +82,7 @@ class DSApp {
     }
 
     logDebug(msg) {
-        if (Constants.LOGGING) log(msg)
+        if (DEBUG) log(msg)
     }
 
 
@@ -437,15 +437,14 @@ class DSApp {
                     }*/
 
                     // assign existing style
-                    const sExistingStyle = this._getFindSharedStyleByRule(rule)
-                    if (sExistingStyle) {
+                    const sAttachToExistingStyle = this._getFindSharedStyleByRule(rule)
+                    if (sAttachToExistingStyle) {
                         const l = rule.sLayer
                         l.style = {}
-                        l.sharedStyle = sExistingStyle
-                        l.style.syncWithSharedStyle(sExistingStyle)
+                        l.sharedStyle = sAttachToExistingStyle
+                        l.style.syncWithSharedStyle(sAttachToExistingStyle)
                         this.result.assignedStyles++
                     } else {
-                        continue;
                     }
                     //                
                     sStyle = rule.sLayer.style
@@ -1509,6 +1508,8 @@ class DSApp {
         let currentResizesContent = null
         const resizeSymbol = token[PT_RESIZE_SYMBOL]
 
+        if (DEBUG) this.logDebug("_applyCommonRules: rule=" + rule.name)
+
         // Switch "Adjust Content on resize" off before resizing
         if (null != resizeSymbol && (sLayer && ("SymbolMaster" == sLayer.type || "Artboard" == sLayer.type))) {
             currentResizesContent = nLayer.resizesContent()
@@ -1534,6 +1535,8 @@ class DSApp {
                 const topParent = this._findLayerTopParent(l)
                 const parentFrame = topParent.frame
                 const moveTop = topParent != l.parent;
+
+                if (DEBUG) this.logDebug("_applyCommonRules: " + l.name)
 
                 let nRect = Utils.copyRect(topParent.sketchObject.absoluteRect())
                 let x = null

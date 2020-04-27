@@ -15,6 +15,7 @@ var Constants = {
 
     SITE_CHANGELOG_URL: "https://github.com/ingrammicro/puzzle-tokens/blob/master/CHANGELOG.md",
 };
+var DEBUG = Constants.LOGGING
 
 var SettingKeys = {
     PLUGIN_PREVIEWER_DEF: "pluginPreviewerDef",
