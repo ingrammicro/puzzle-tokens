@@ -1,0 +1,31 @@
+$linear-direction: 45deg;
+$palette-height: 160px;
+$palette-width: 160px;
+$palette-radius: 80px;
+
+$gradients-colors-coolors: (
+        Gradient__Coolor__001: linear-gradient($linear-direction, rgb(0, 97, 255) 0%, rgb(96, 239, 255) 100%),
+        Gradient__Coolor__002: linear-gradient($linear-direction, rgb(0, 255, 135) 0%, rgb(96, 239, 255) 100%),
+);
+
+.Gradients Coolors {
+    .Linear {
+        @each $key, $value in $gradients-colors-coolors {
+            .#{$key} {
+                background-color: $value;
+            }
+        }
+    }
+}
+
+#Gradients Coolors {
+    @each $key, $value in $gradients-colors-coolors {
+        .#{$key}{
+            -pt-layer-type: layer;
+            sklayer-style: "Gradients Coolors/Linear/#{$key}";
+            border-radius: $palette-radius;
+            width: $palette-width;
+            height: $palette-height;
+        }
+    }
+}
