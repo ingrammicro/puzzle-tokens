@@ -6,7 +6,8 @@ Hotfix for 8.5.0
 
 ##  Version 8.5.0 (27 Apr 2020)
 1) Now you can use spaces in style and layer names.   
-Old: .Colors__Red .Red__001{  New: .Colors Red .Red 001{
+Old: .Colors__Red .Red__001{  
+New: .Colors Red .Red 001{
 2) Internal optimisations applied
 
 ##  Version 8.4.1 (24 Apr 2020)
