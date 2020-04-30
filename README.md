@@ -169,6 +169,10 @@ You can update the following Sketch objects.
 }
 
 ```
+## Special Tricks for Selector Names
+- To start a style or symbol name from a number just add --PT- prefix. So, "--PT-1 Style" will be transformed to "1 Style".
+- To start a style or symbol name from a dot just use -DOT- special keyword. So, "-DOT-Style" will be transformed to ".Style"
+- To use a space inside a style or symbol name you can uses a space (but formally it will not be a CSS compartible notation) or replace space by __ .So "My__First__Style" wil be transformed to "My First Style
 
 ## Required Style Properties
 To apply _text_ style you need to defined at least one of the following properites:
