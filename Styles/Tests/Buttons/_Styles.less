@@ -34,6 +34,14 @@
     border-color:       blue;
 } 
 
+@base-path:                 "images/";
+#Artboard__2 .Image{
+    image:               ~"@{base-path}/image.svg";
+    //width:              100px;
+    //height:             100px;
+    //bottom:             22px;
+    //left:               2px;
+} 
 
 .Buttons{
     .Disabled{
@@ -49,7 +57,7 @@
 
 #Buttons{
     #Disabled{
-        Rectangle{
+        .Rectangle{
             border-radius:  2px;  
             sklayer-style:   "Buttons/Disabled";
             //sklayer-style:   "Controls/Buttons/Raised/Default/Back";

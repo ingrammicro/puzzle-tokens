@@ -1,6 +1,11 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.6.0 (05 May 2020)
+Fixed "image:" property
+Added support for SVG images
+https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Tests/Buttons
+
 ##  Version 8.5.1 (27 Apr 2020)
 Hotfix for 8.5.0
 

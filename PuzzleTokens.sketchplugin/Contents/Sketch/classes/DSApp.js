@@ -412,13 +412,9 @@ class DSApp {
             ruleType = this._getRuleType(rule)
             //////////////////////
 
-            if (ruleType.isImage) {
+            if (rule.isImage) {
                 this._applyPropsToImage(rule)
             } else {
-
-                const isText = ruleType.includes("text")
-                const isLayer = ruleType.includes("layer")
-                const isGroup = ruleType.includes("group")
 
                 // Find or create new style
                 var sSharedStyle = null
@@ -449,20 +445,20 @@ class DSApp {
                     //                
                     sStyle = rule.sLayer.style
                 } else {
-                    if (!isText && !isLayer) {
+                    if (!rule.isText && !rule.isLayer) {
                         this.logError("Uknown type of rule " + rule.name)
                         continue
                     }
 
-                    sSharedStyle = isText ? this.sTextStyles[sStyleName] : this.sLayerStyles[sStyleName]
+                    sSharedStyle = rule.isText ? this.sTextStyles[sStyleName] : this.sLayerStyles[sStyleName]
 
                     sStyle = sSharedStyle != null ? sSharedStyle.style : {
-                        styleType: isText ? SharedStyle.StyleType.Text : SharedStyle.StyleType.Layer
+                        styleType: rule.isText ? SharedStyle.StyleType.Text : SharedStyle.StyleType.Layer
                     }
                 }
 
                 // drop existing (or new) style properties before first apply                
-                if (!this.sAppliedStyles[sStyleName] && (isText || isLayer) &&
+                if (!this.sAppliedStyles[sStyleName] && (rule.isText || rule.isLayer) &&
                     !(rule.sLayer && rule.sLayer.sharedStyle && this.sAppliedStyles[rule.sLayer.sharedStyle.name])
                 ) {
                     this._resetStyle(rule, sStyle)
@@ -473,12 +469,12 @@ class DSApp {
                 // drop commented property
                 const validProps = Object.keys(rule.props).filter(n => n.indexOf("__") < 0)
 
-                if (isText)
+                if (rule.isText)
                     this._applyRuleToTextStyle(rule, sSharedStyle, sStyle)
-                else if (isLayer)
+                else if (rule.isLayer)
                     this._applyRuleToLayerStyle(rule, sSharedStyle, sStyle)
 
-                if (isGroup) {
+                if (rule.isGroup) {
                     this._applyRuleToGroup(rule)
                     this.result.updatedLayers++
                 }
@@ -497,7 +493,7 @@ class DSApp {
                             style: sStyle,
                             document: this.nDoc
                         })
-                        if (isText)
+                        if (rule.isText)
                             this.sTextStyles[sStyleName] = sSharedStyle
                         else
                             this.sLayerStyles[sStyleName] = sSharedStyle
@@ -1665,11 +1661,34 @@ class DSApp {
                 let frame = new Rectangle(sLayer.frame)
                 let oldConstraints = sLayer.sketchObject.resizingConstraint()
 
-                let sNewImage = new Image({
-                    frame: frame,
-                    name: sLayer.name,
-                    image: path
-                })
+                let sNewImage = null
+                var rawImageSize = null
+                if (path.toLowerCase().endsWith(".svg")) {
+                    let svgString = Utils.readFile(path)
+                    if (null == svgString) {
+                        return this.logError('Can not read SVG file on path: ' + path)
+                    }
+                    var svgData = svgString.dataUsingEncoding(NSUTF8StringEncoding);
+                    var svgImporter = MSSVGImporter.svgImporter();
+                    svgImporter.prepareToImportFromData(svgData);
+
+                    var svgLayer = svgImporter.importAsLayer();
+                    svgLayer.setName(sLayer.name);
+
+                    sNewImage = Sketch.fromNative(svgLayer)
+                    /*
+                                    sNewImage = Sketch.ShapePath.fromSVGPath(svgPath)
+                    */
+                    sNewImage.frame = sLayer.frame.copy()
+                    rawImageSize = sNewImage.frame
+                } else {
+                    sNewImage = new Image({
+                        frame: frame,
+                        name: sLayer.name,
+                        image: path
+                    })
+                    rawImageSize = sNewImage.image.nsimage.size()
+                }
                 var sStyle = sNewImage.style
                 this._resetStyle(rule, sStyle)
 
@@ -1681,7 +1700,6 @@ class DSApp {
                 // calculage new frame
                 var newWidth = null
                 var newHeight = null
-                var rawImageSize = sNewImage.image.nsimage.size()
 
                 if (null != token.width) {
                     const width = parseInt(token.width.replace(/([px|\%])/, ""), 10)
