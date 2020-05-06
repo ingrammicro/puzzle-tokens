@@ -1548,7 +1548,7 @@ class DSApp {
                     x = parseInt(marginLeft.replace('px', ""))
                 }
                 if (null != marginRight) {
-                    y = parentFrame.width - (parseInt(marginRight.replace('px', "")) + l.frame.width)
+                    x = parentFrame.width - (parseInt(marginRight.replace('px', "")) + l.frame.width)
                 }
                 if (null != height) {
                     l.frame.height = parseInt(height.replace('px', ""))
