@@ -1,6 +1,7 @@
 @import("constants.js")
 @import("lib/utils.js")
 @import("lib/uidialog.js")
+@import("lib/ga.js")
 
 const eol = ";\n"
 const pxeol = "px" + eol
@@ -94,6 +95,7 @@ class DSExporter {
         const res = this._showDialog()
         if ('cancel' == res) return false
 
+        this._track()
         var success = this._export()
 
         // show final message
@@ -109,6 +111,11 @@ class DSExporter {
     }
 
     // Internal
+
+    _track() {
+        const res = trackGA("export", "run", "")
+        log(res)
+    }
 
     _clearCloudName(cloudName) {
         let name = cloudName
