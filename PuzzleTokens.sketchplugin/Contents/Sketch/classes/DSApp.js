@@ -1071,7 +1071,8 @@ class DSApp {
             return false
         }
 
-        let reset = !this.sAppliedStyles[rule.name]
+        const token = rule.props
+        let reset = token[PT_SHADOW_UPDATE] == 'true' || !this.sAppliedStyles[rule.name]
         let resetInset = true
 
 

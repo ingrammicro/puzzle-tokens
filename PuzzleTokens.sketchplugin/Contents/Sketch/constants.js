@@ -67,6 +67,7 @@ const PT_PIN_BOTTOM = "-pt-pin-bottom"
 const PT_BORDER_UPDATE = "-pt-border-update"
 const PT_FILL_UPDATE = "-pt-fill-update"
 const PT_SKIP_MISSED = "-pt-skip-missed"
+const PT_SHADOW_UPDATE = "-pt-shadow-update"
 
 const THIS_NAME = "_This"
 
