@@ -58,7 +58,8 @@ The following CSS styles are supporting.
     border-line-end:            butt;      // butt / round / projecting
     border-line-join:           miter;     // miter / round / bevel
     border-start-arrowhead:     openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare
-    border-end-arrowhead:       openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare                  
+    border-end-arrowhead:       openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare            
+    -pt-shadow-update:          true;  // Use it if you want to replace any previous shadows, instead of adding a new one.
 
 
     /// CSS native properties
@@ -70,6 +71,7 @@ The following CSS styles are supporting.
     border-width:          2px;
     border-style:          dotted;    // dotted OR dashed
 
+    box-shadow:            none; // Clear any existing shadows from the layer style.
     box-shadow:            0 10px 20px 2 #FF00FF;
     box-shadow:            inset 0 10px 20px 2 rgba(0,0,0,0.1);
     box-shadow:            0 10px 20px 2 rgba(0,0,0,0.1), inset 0 10px 20px 2 rgba(0,0,0,0.1);

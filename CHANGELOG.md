@@ -1,6 +1,12 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.7.0 (16 May 2020)
+Changes:
+1) If "box-shadow:none", clear any existing shadows from the layer style (by @bigmedium)
+2) Added "-pt-shadow-update: true" property. Use it if you want to replace any previous shadows, instead of adding a new one. (by @bigmedium)
+3) PT now sends anonymous usage data (using Google Analytics). You can disable it in Settings. But we need it enabled to plan PT future. Thanks.
+
 ##  Version 8.6.0 (05 May 2020)
 Fixed "image:" property
 Added support for SVG images
