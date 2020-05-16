@@ -1080,6 +1080,7 @@ class DSApp {
         if (shadowCSS != null && shadowCSS != "" && shadowCSS != "none") {
             shadows = Utils.splitCSSShadows(shadowCSS)
         } else {
+            if (shadowCSS == 'none') sStyle.shadows = [] //clear any existing shadows
         }
 
         if (!shadows || !shadows.length) {
