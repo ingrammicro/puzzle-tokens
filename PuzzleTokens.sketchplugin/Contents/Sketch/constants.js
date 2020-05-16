@@ -38,8 +38,8 @@ const TRACK_INSTALLED = "installed"
 const TRACK_STARTED = "started"
 const TRACK_APPLY_DIALOG_SHOWN = "apply-dialog-shown"
 const TRACK_APPLY_DIALOG_CLOSED = "apply-dialog-closed"  // cmd:ok,cancel
-const TRACK_APPLY_COMPLETED = "apply-completed" // num:styles
-const TRACK_EXPORT_COMPLETED = "export-completed" // quick:yes,no
+const TRACK_APPLY_COMPLETED = "apply-completed" // num_cs: created styles, num_us: updated styles, num_l: updated layers, quick: yes/no
+const TRACK_EXPORT_COMPLETED = "export-completed"
 
 var Sketch = require('sketch/dom')
 var Settings = require('sketch/settings')
