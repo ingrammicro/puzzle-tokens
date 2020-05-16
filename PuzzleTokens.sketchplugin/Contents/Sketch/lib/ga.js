@@ -1,3 +1,6 @@
+@import "lib/utils.js";
+@import "constants.js";
+
 function jsonToQueryString(json) {
     return Object.keys(json)
         .map(function (key) {
@@ -6,87 +9,63 @@ function jsonToQueryString(json) {
         .join("&");
 }
 
-function makeRequest(url, options) {
-    if (!url) {
-        return
-    }
 
-    if (options && options.makeRequest) {
-        return options.makeRequest(url)
-    }
-    if (options && options.debug) {
-        var request = NSURLRequest.requestWithURL(url)
-        var responsePtr = MOPointer.alloc().init();
-        var errorPtr = MOPointer.alloc().init();
 
-        var data = NSURLConnection.sendSynchronousRequest_returningResponse_error(request, responsePtr, errorPtr)
-        return data ? NSString.alloc().initWithData_encoding(data, NSUTF8StringEncoding) : errorPtr.value()
-    }
+function track(page, props = undefined) {
+    coscript.scheduleWithInterval_jsFunction(1, function () {
 
-    NSURLSession.sharedSession()
-        .dataTaskWithURL(url)
-        .resume();
+        var trackingId = "UA-84277242-4"
+
+        var Settings = require("sketch/settings");
+        var kUUIDKey = "google.analytics.uuid";
+        var uuid = null
+        var uuid = NSUserDefaults.standardUserDefaults().objectForKey(kUUIDKey);
+        if (!uuid) {
+            uuid = NSUUID.UUID().UUIDString();
+            NSUserDefaults.standardUserDefaults().setObject_forKey(uuid, kUUIDKey)
+        }
+
+        var variant = MSApplicationMetadata.metadata().variant;
+        var source =
+            "Sketch " +
+            (variant == "NONAPPSTORE" ? "" : variant + " ") +
+            Settings.version.sketch;
+
+
+        if (Settings.settingForKey(SettingKeys.PLUGIN_GA_DISABLED)) {
+            // the user didn't enable sharing analytics
+            return 'the user didn\'t enable sharing analytics';
+        }
+
+        var payload = {
+            v: 1,
+            tid: trackingId,
+            ds: source,
+            cid: uuid,
+            t: "pageview",
+            dp: page
+        };
+
+        if (typeof __command !== "undefined") {
+            payload.an = __command.pluginBundle().name();
+            payload.aid = __command.pluginBundle().identifier();
+            payload.av = __command.pluginBundle().version();
+        }
+
+        if (props) {
+            Object.keys(props).forEach(function (key) {
+                payload[key] = props[key];
+            });
+        }
+
+        var nURL = NSURL.URLWithString(
+            "https://www.google-analytics.com/collect?payload_data&" +
+            jsonToQueryString(payload) +
+            "&z=" +
+            NSUUID.UUID().UUIDString()
+        );
+        if (DEBUG) log("Started GA " + nURL)
+        NSData.dataWithContentsOfURL(nURL);
+        if (DEBUG) log("Completed GA")
+    })
 }
-
-function trackGA(ec, ea, ev) {
-    var trackingId = "UA-84277242-4"
-    var hitType = "event"
-    var props = {
-        ec: ec,
-        ea: ea,
-        ev: ev
-    }
-    var options = null
-
-    var Settings = require("sketch/settings");
-
-    var kUUIDKey = "google.analytics.uuid";
-    var uuid = null
-    var uuid = NSUserDefaults.standardUserDefaults().objectForKey(kUUIDKey);
-    if (!uuid) {
-        uuid = NSUUID.UUID().UUIDString();
-        NSUserDefaults.standardUserDefaults().setObject_forKey(uuid, kUUIDKey)
-    }
-
-    var variant = MSApplicationMetadata.metadata().variant;
-    var source =
-        "Sketch " +
-        (variant == "NONAPPSTORE" ? "" : variant + " ") +
-        Settings.version.sketch;
-
-
-    if (!Settings.globalSettingForKey("analyticsEnabled") && false) {
-        // the user didn't enable sharing analytics
-        return 'the user didn\'t enable sharing analytics';
-    }
-
-    var payload = {
-        v: 1,
-        tid: trackingId,
-        ds: source,
-        cid: uuid,
-        t: hitType
-    };
-
-    if (typeof __command !== "undefined") {
-        payload.an = __command.pluginBundle().name();
-        payload.aid = __command.pluginBundle().identifier();
-        payload.av = __command.pluginBundle().version();
-    }
-
-    if (props) {
-        Object.keys(props).forEach(function (key) {
-            payload[key] = props[key];
-        });
-    }
-
-    var url = NSURL.URLWithString(
-        "https://www.google-analytics.com/" + (options && options.debug ? "debug/" : "") + "collect?" +
-        jsonToQueryString(payload) +
-        "&z=" +
-        NSUUID.UUID().UUIDString()
-    );
-    log(url)
-
-    return makeRequest(url, options)
-};

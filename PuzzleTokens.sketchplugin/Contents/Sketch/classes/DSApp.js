@@ -1,6 +1,7 @@
 @import("constants.js")
 @import("lib/utils.js")
 @import("lib/uidialog.js")
+@import("lib/ga.js")
 @import("classes/DSLayerCollector.js")
 
 var app = undefined
@@ -162,6 +163,7 @@ class DSApp {
             break
         }
 
+        track("/apply/completed")
         this.nDoc.reloadInspector();
 
         // show final message
@@ -265,6 +267,15 @@ class DSApp {
         if (this.result.assignedStyles) msg += "Assigned " + this.result.assignedStyles + " style(s). "
         if (this.result.updatedLayers) msg += "Updated " + this.result.updatedLayers + " layer(s). "
         if ("" == msg) msg = "No any styles applied or assigned "
+
+
+        track(TRACK_APPLY_COMPLETED, {
+            "num_cs": this.result.createdStyles,
+            "num_us": this.result.updatedStyles,
+            "num_l": this.result.updatedLayers,
+            "quick": this.isQuick ? "yes" : "no"
+        })
+
         return msg
     }
 
@@ -327,9 +338,13 @@ class DSApp {
         dialog.addDivider()
         dialog.addCheckbox("confCreateSymbols", "Create missed master symbols", this.confCreateSymbols)
 
+        track(TRACK_APPLY_DIALOG_SHOWN)
         while (true) {
             const result = dialog.run()
-            if (!result) return false
+            if (!result) {
+                track(TRACK_APPLY_DIALOG_CLOSED, { "cmd": "cancel" })
+                return false
+            }
 
             this.pathToStyles = dialog.views['pathToStyles'].stringValue() + ""
             if ("" == this.pathToStyles) continue
@@ -347,8 +362,8 @@ class DSApp {
             this.confCreateSymbols = dialog.views['confCreateSymbols'].state() == 1
             break
         }
-
         dialog.finish()
+        track(TRACK_APPLY_DIALOG_CLOSED, { "cmd": "ok" })
 
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS_LIST, this.pathToStylesList)
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToStyles)

@@ -95,7 +95,6 @@ class DSExporter {
         const res = this._showDialog()
         if ('cancel' == res) return false
 
-        this._track()
         var success = this._export()
 
         // show final message
@@ -103,6 +102,7 @@ class DSExporter {
             this._showErrors()
         } else {
             if (success) {
+                track(TRACK_EXPORT_COMPLETED)
                 this.UI.message("Completed")
             }
         }
@@ -111,11 +111,6 @@ class DSExporter {
     }
 
     // Internal
-
-    _track() {
-        const res = trackGA("export", "run", "")
-        log(res)
-    }
 
     _clearCloudName(cloudName) {
         let name = cloudName

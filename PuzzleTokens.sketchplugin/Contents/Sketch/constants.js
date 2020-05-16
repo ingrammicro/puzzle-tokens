@@ -2,7 +2,7 @@ var Constants = {
     DOCUMENT_VERSION: "docVersion",
     TAB_SIZE: 2,
     HOTSPOT_PADDING: 0,
-    LOGGING: false,
+    LOGGING: true,
     RESOURCES_FOLDER: "scripts",
     ASSETS_FOLDER_PREFIX: "_pt-assets",
     SYMBOLTOKENFILE_POSTFIX: "inspector.json",
@@ -18,6 +18,7 @@ var Constants = {
 var DEBUG = Constants.LOGGING
 
 var SettingKeys = {
+    PLUGIN_INSTALLED: "pluginInstalled",
     PLUGIN_PREVIEWER_DEF: "pluginPreviewerDef",
     PLUGIN_PATH_TO_TOKENS_LESS: "pluginPathToTokensLess",
     PLUGIN_PATH_TO_TOKENS_LESS_LIST: "pluginPathToTokensLessList",
@@ -30,8 +31,15 @@ var SettingKeys = {
     PLUGIN_EXPORT_FORMAT: "pluginExportFormat",
     PLUGIN_EXPORT_OPTS: "pluginExportOpts",
     PLUGIN_EXPORT_LIB_STYLES: "pluginExportLibStyles",
+    PLUGIN_GA_DISABLED: "pluginGADisabled",
 };
 
+const TRACK_INSTALLED = "installed"
+const TRACK_STARTED = "started"
+const TRACK_APPLY_DIALOG_SHOWN = "apply-dialog-shown"
+const TRACK_APPLY_DIALOG_CLOSED = "apply-dialog-closed"  // cmd:ok,cancel
+const TRACK_APPLY_COMPLETED = "apply-completed" // num:styles
+const TRACK_EXPORT_COMPLETED = "export-completed" // quick:yes,no
 
 var Sketch = require('sketch/dom')
 var Settings = require('sketch/settings')
