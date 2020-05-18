@@ -163,7 +163,6 @@ class DSApp {
             break
         }
 
-        track("/apply/completed")
         this.nDoc.reloadInspector();
 
         // show final message

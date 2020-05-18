@@ -2,7 +2,7 @@ var Constants = {
     DOCUMENT_VERSION: "docVersion",
     TAB_SIZE: 2,
     HOTSPOT_PADDING: 0,
-    LOGGING: true,
+    LOGGING: false,
     RESOURCES_FOLDER: "scripts",
     ASSETS_FOLDER_PREFIX: "_pt-assets",
     SYMBOLTOKENFILE_POSTFIX: "inspector.json",
