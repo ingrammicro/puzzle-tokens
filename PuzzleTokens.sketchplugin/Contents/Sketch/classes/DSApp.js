@@ -467,7 +467,8 @@ class DSApp {
                     sSharedStyle = rule.isText ? this.sTextStyles[sStyleName] : this.sLayerStyles[sStyleName]
 
                     sStyle = sSharedStyle != null ? sSharedStyle.style : {
-                        styleType: rule.isText ? SharedStyle.StyleType.Text : SharedStyle.StyleType.Layer
+                        styleType: rule.isText ? SharedStyle.StyleType.Text : SharedStyle.StyleType.Layer,
+                        borders: []
                     }
                 }
 
