@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.7.1 (17 May 2020)
+Disabled debug (hotfix for 8.7.0)
+
 ##  Version 8.7.0 (16 May 2020)
 Changes:
 1) If "box-shadow:none", clear any existing shadows from the layer style (by @bigmedium)
