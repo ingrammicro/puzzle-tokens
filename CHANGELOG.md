@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.7.2 (18 May 2020)
+New text style should not get "default" borders (reported by @ed-mcry)
+
 ##  Version 8.7.1 (17 May 2020)
 Disabled debug (hotfix for 8.7.0)
 
