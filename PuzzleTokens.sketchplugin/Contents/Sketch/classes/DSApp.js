@@ -875,6 +875,8 @@ class DSApp {
 
 
     _addTokenToStyle(token, sharedStyle) {
+        const tokenNames = Object.keys(token.__tokens)
+        if (!tokenNames.length) return
 
         var styleInfo = null
         if (sharedStyle.name in this.elements.styles) {
@@ -886,7 +888,7 @@ class DSApp {
             this.elements.styles[sharedStyle.name] = styleInfo
         }
 
-        for (var tokenName of Object.keys(token.__tokens)) {
+        for (var tokenName of tokenNames) {
             styleInfo.tokens[tokenName] = true
         }
 
@@ -894,6 +896,8 @@ class DSApp {
     }
 
     _addTokenToSymbol(token, slayer) {
+        const tokenNames = Object.keys(token.__tokens)
+        if (!tokenNames.length) return
 
         var nlayer = slayer.sketchObject.parentSymbol()
         if (null == nlayer) {
@@ -912,7 +916,7 @@ class DSApp {
             this.elements[symbolLayer.name] = symbolInfo
         }
 
-        for (var tokenName of Object.keys(token.__tokens)) {
+        for (var tokenName of tokenNames) {
             var layerInfo = null
             if (slayer.name in symbolInfo.layers) {
                 layerInfo = symbolInfo.layers[slayer.name]
