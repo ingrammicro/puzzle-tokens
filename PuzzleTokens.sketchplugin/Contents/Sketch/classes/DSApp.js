@@ -499,6 +499,7 @@ class DSApp {
 
                 if (rule.isStandalone) {
                     this.logMsg("[Updated] style for standalone layer " + sStyleName)
+                    this._addTokenToSymbol(rule.props, rule.sLayer)
                 } else {
                     // Create new shared style
                     if (!sSharedStyle) {
