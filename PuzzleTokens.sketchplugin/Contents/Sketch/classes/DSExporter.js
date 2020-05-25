@@ -3,6 +3,30 @@
 @import("lib/uidialog.js")
 @import("lib/ga.js")
 
+const bordedLineJoinMap2 = {
+    [Style.LineJoin.Miter]: "miter",
+    [Style.LineJoin.Round]: "round",
+    [Style.LineJoin.Bevel]: "bevel"
+}
+
+const bordedArrowheadMap2 = {
+    [Style.Arrowhead.None]: "none",
+    [Style.Arrowhead.OpenArrow]: "openarrow",
+    [Style.Arrowhead.FilledArrow]: "filledarrow",
+    [Style.Arrowhead.OpenCircle]: "opencircle",
+    [Style.Arrowhead.FilledCircle]: "filledcircle",
+    [Style.Arrowhead.OpenSquare]: "opensquare",
+    [Style.Arrowhead.FilledSquare]: "filledsquare",
+}
+
+
+const bordedLineEndMap2 = {
+    [Style.LineEnd.Butt]: "butt",
+    [Style.LineEnd.Round]: "round",
+    [Style.LineEnd.Projecting]: "projecting"
+}
+
+
 const eol = ";\n"
 const pxeol = "px" + eol
 var app = undefined
@@ -30,6 +54,7 @@ class DSExporter {
 
         this.layerStyles = {}
         this.textStyles = {}
+        this.runningForTokens = true
 
         this.docName = this._clearCloudName(this.nDoc.cloudName())
         this.pathTo = undefined
@@ -50,13 +75,9 @@ class DSExporter {
             },
         }
 
-        this._init()
-
-        // init global variable
-        app = this
     }
 
-    _init() {
+    init() {
         this.pathTo = Settings.settingForKey(SettingKeys.PLUGIN_EXPORT_PATH_TO)
         if (undefined == this.pathTo) this.pathTo = ""
         this.format = Settings.settingForKey(SettingKeys.PLUGIN_EXPORT_FORMAT)
@@ -70,6 +91,18 @@ class DSExporter {
         if (null == this.confOpts.fontSizeTokens) this.confOpts.fontSizeTokens = true
         if (null == this.confOpts.fontWeightTokens) this.confOpts.fontWeightTokens = true
         if (null == this.confOpts.fontFamilyTokens) this.confOpts.fontFamilyTokens = true
+
+        // init global variable
+        app = this
+    }
+
+    initForPublisher() {
+        this.format = Constants.EXPORT_FORMAT_LESS
+        this.confOpts = {}
+        this.runningForTokens = false
+
+        // init global variable
+        app = this
     }
 
     // Tools
@@ -240,7 +273,7 @@ class DSExporter {
             let si = this._parseStyleName(sStyle.name, false)
             //
             res += si.openTags
-            res += this._getLayerStylePropsAsText(sStyle, sStyle.style, si.spaces)
+            res += this._getLayerStylePropsAsText(sStyle, null, sStyle.style, si.spaces)
             res += si.closeTags
             // save additional borders
             const borders = sStyle.style.borders.filter(s => s.enabled)
@@ -319,7 +352,7 @@ class DSExporter {
         if (color.length == 9 && color.substring(7).toUpperCase() == "FF") {
             color = color.substring(0, 7)
         }
-        if (!this.confOpts.colorTokens) return color
+        if (!this.confOpts.colorTokens) return color.toUpperCase()
         return this._getAbstractToken(this.opts.colors, color)
     }
     _getFontSizeToken(fontSize) {
@@ -336,7 +369,7 @@ class DSExporter {
     }
 
 
-    _getTextStylePropsAsText(sStyle, spaces) {
+    _getTextStylePropsAsText(sStyle, spaces = "") {
         let res = ""
 
         res += spaces + "font-family" + ": " + this._getFontFamilyToken(sStyle.fontFamily) + eol
@@ -368,13 +401,15 @@ class DSExporter {
         if (null != sStyle.kerning) {
             res += spaces + "letter-spacing" + ": " + sStyle.kerning + pxeol
         }
-        res += spaces + PT_PARAGRAPH_SPACING + ": " + sStyle.paragraphSpacing + eol
+        if (this.runningForTokens) {
+            res += spaces + PT_PARAGRAPH_SPACING + ": " + sStyle.paragraphSpacing + eol
+        }
 
         return res
     }
 
 
-    _getLayerStylePropsAsText(sSharedStyle, sStyle, spaces) {
+    _getLayerStylePropsAsText(sSharedStyle, layer, sStyle, spaces = "") {
         let res = ""
 
         // process the first fill, other will be processed later
@@ -388,10 +423,10 @@ class DSExporter {
 
         // try to find and save border radius(es)
         while (true) {
-            const layers = sSharedStyle.getAllInstancesLayers()
+            const layers = sSharedStyle ? sSharedStyle.getAllInstancesLayers() : [layer]
             if (0 == layers.length) break
             const l = layers[0] // take the first
-            if ("Shape" != l.type) break;
+            if ("Shape" != l.type && "ShapePath" != l.type) break;
 
             let str = ""
             let radiusesHash = {}

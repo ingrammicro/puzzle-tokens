@@ -9,6 +9,7 @@ var onRun = function (context) {
     UIDialog.setUp(context);
 
     var app = new DSExporter(context)
+    app.init()
     app.run()
 
 };
