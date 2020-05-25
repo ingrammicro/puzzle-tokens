@@ -130,12 +130,6 @@ const bordedLineEndMap2 = {
     [Style.LineEnd.Projecting]: "projecting"
 }
 
-const bordedLineJoinMap2 = {
-    [Style.LineJoin.Miter]: "miter",
-    [Style.LineJoin.Round]: "round",
-    [Style.LineJoin.Bevel]: "bevel"
-}
-
 const smartLayoutMap = {
     "LeftToRight": SmartLayout.LeftToRight,
     "HorizontallyCenter": SmartLayout.HorizontallyCenter,
@@ -153,16 +147,6 @@ const bordedArrowheadMap = {
     "filledcircle": Style.Arrowhead.FilledCircle,
     "opensquare": Style.Arrowhead.OpenSquare,
     "filledsquare": Style.Arrowhead.FilledSquare,
-}
-
-const bordedArrowheadMap2 = {
-    [Style.Arrowhead.None]: "none",
-    [Style.Arrowhead.OpenArrow]: "openarrow",
-    [Style.Arrowhead.FilledArrow]: "filledarrow",
-    [Style.Arrowhead.OpenCircle]: "opencircle",
-    [Style.Arrowhead.FilledCircle]: "filledcircle",
-    [Style.Arrowhead.OpenSquare]: "opensquare",
-    [Style.Arrowhead.FilledSquare]: "filledsquare",
 }
 
 
