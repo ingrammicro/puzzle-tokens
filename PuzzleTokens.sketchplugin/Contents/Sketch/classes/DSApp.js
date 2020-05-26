@@ -897,8 +897,7 @@ class DSApp {
     }
 
     _addTokenToSymbol(token, slayer) {
-        const tokenNames = Object.keys(token.__tokens)
-        if (!tokenNames.length) return
+        if (!token.__tokens.length) return
 
         var nlayer = slayer.sketchObject.parentSymbol()
         if (null == nlayer) {
@@ -917,19 +916,16 @@ class DSApp {
             this.elements[symbolLayer.name] = symbolInfo
         }
 
-        for (var tokenName of tokenNames) {
-            var layerInfo = null
-            if (slayer.name in symbolInfo.layers) {
-                layerInfo = symbolInfo.layers[slayer.name]
-            } else {
-                layerInfo = {
-                    tokens: {}
-                }
-                symbolInfo.layers[slayer.name] = layerInfo
+        var layerInfo = null
+        if (slayer.name in symbolInfo.layers) {
+            layerInfo = symbolInfo.layers[slayer.name]
+        } else {
+            layerInfo = {
+                tokens: []
             }
-            layerInfo.tokens[tokenName] = true
+            symbolInfo.layers[slayer.name] = layerInfo
         }
-
+        Array.prototype.push.apply(layerInfo.tokens, token.__tokens)
         return true
     }
 
