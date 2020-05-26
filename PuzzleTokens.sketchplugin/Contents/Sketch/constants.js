@@ -124,6 +124,12 @@ const bordedLineJoinMap = {
     "bevel": Style.LineJoin.Bevel
 }
 
+const bordedLineEndMap2 = {
+    [Style.LineEnd.Butt]: "butt",
+    [Style.LineEnd.Round]: "round",
+    [Style.LineEnd.Projecting]: "projecting"
+}
+
 const smartLayoutMap = {
     "LeftToRight": SmartLayout.LeftToRight,
     "HorizontallyCenter": SmartLayout.HorizontallyCenter,
