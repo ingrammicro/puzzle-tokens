@@ -65,11 +65,54 @@ function initPaths() {
     return true
 }
 
-function injectTokensIntoLess(srcData) {
+function injectTokensIntoLess(srcData, lastPath = null) {
     var lessLines = srcData.split("\n")
     var newData = ""
 
     lessLines.forEach(function (line) {
+        line = line.trim()
+
+        // import file manually
+        if (line.startsWith("@import")) {
+            // cut file name
+            let parts = line.split("\"")
+            if (!parts.length) parts = line.split("\'")
+            const importFileName = parts[1]
+            console.log("importFileName=" + importFileName)
+            // construct path to imported filed
+            let importPath = ""
+            if (importFileName.startsWith("/")) {
+                importPath = importFileName
+                //
+                const dirInfo = nodePath.parse(importPath)
+                if (!dirInfo) {
+                    console.log("Failed to scan path:" + importPath)
+                    process.exit(-1)
+                }
+                lastPath = dirInfo.dir
+            } else {
+                if (null != lastPath) {
+                    importPath = lastPath + "/" + importFileName
+                } else {
+                    const dirInfo = nodePath.parse(pathToLess)
+                    if (!dirInfo) {
+                        console.log("Failed to scan path:" + pathToLess)
+                        process.exit(-1)
+                    }
+                    importPath = dirInfo.dir + "/" + importFileName
+                }
+            }
+            // load file
+            console.log("importFilePath=" + importPath)
+            const strSrcLess = loadLessFromFiles(importPath)
+            if (null == strSrcLess) {
+                console.log("Failed to load import by path:" + importPath)
+                process.exit(-1)
+            }
+            const strLess = injectTokensIntoLess(strSrcLess, lastPath)
+            newData += strLess
+            return
+        }
 
         // drop comment lines
         line = line.trim()
