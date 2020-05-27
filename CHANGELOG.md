@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.7.3 (26 May 2020)
+Update file protocol between Puzzle tokens and Puzzle Publisher
+
 ##  Version 8.7.2 (18 May 2020)
 New text style should not get "default" borders (reported by @ed-mcry)
 
