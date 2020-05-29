@@ -491,8 +491,8 @@ class DSApp {
 
                 if (rule.isGroup) {
                     this._applyRuleToGroup(rule)
-                    this.result.updatedLayers++
                 }
+                this.result.updatedLayers++
                 // SET MARGINS
                 this._applyCommonRules(rule, sSharedStyle)
 
@@ -884,16 +884,12 @@ class DSApp {
             styleInfo = this.elements.styles[sharedStyle.name]
         } else {
             styleInfo = {
-                tokens: {}
+                tokens: []
             }
             this.elements.styles[sharedStyle.name] = styleInfo
         }
 
-        for (var tokenName of tokenNames) {
-            styleInfo.tokens[tokenName] = true
-        }
-
-
+        Array.prototype.push.apply(styleInfo.tokens, token.__tokens)
     }
 
     _addTokenToSymbol(token, slayer) {
