@@ -274,6 +274,7 @@ class DSApp {
             "num_l": this.result.updatedLayers,
             "quick": this.isQuick ? "yes" : "no"
         })
+        track(this.isLess ? TRACK_APPLY_COMPLETED_LESS : TRACK_APPLY_COMPLETED_SCSS)
 
         return msg
     }
@@ -690,6 +691,8 @@ class DSApp {
         let runResult = null
         try {
             const stylesType = this.pathToStyles.endsWith(".less") ? "less" : "sass"
+            this.isLess = "less" == stylesType
+            this.isSass = "sass" == stylesType
 
             // Copy  conversion script
             const scriptPath = Utils.copyScript('nsconvert_' + stylesType + '.js', tempFolder)
