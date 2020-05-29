@@ -398,7 +398,7 @@ class DSApp {
         for (const complexRule of this.rules) {
             for (const strPath of complexRule.paths) {
                 const rule = {
-                    path: strPath.split("*"),
+                    path: strPath.split("/"),
                     props: complexRule.props
                 }
                 //////////////////////

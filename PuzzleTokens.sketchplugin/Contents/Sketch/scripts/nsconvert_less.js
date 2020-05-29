@@ -278,7 +278,7 @@ function saveSketchRule(rule, path) {
     if (path.length == 1 && "&" == path[0]) return
 
     const sketchRule = {
-        paths: [path.join("*")],
+        paths: [path.join("/")],
         props: {
             __tokens: []
         }
@@ -323,17 +323,29 @@ function saveSketchRule(rule, path) {
 
 function pushSketchRule(sketchRule) {
     const propsID = getDataID(sketchRule.props)
-    const existingRule = sketchRulesDict[propsID]
+    const existingRuleIndex = sketchRulesDict[propsID]
 
     // found existing rule with the same properties
-    if (existingRule) {
+    if (existingRuleIndex != undefined) {
+        console.log(sketchRulesDict)
+        console.log(sketchRules)
+
+        const existingRule = sketchRules[existingRuleIndex]
         // add new selector to existing rule
+        console.log(existingRuleIndex)
+        console.log(existingRule)
         existingRule.paths.push(sketchRule.paths[0])
-    } else {
-        //  save new rule
-        sketchRules.push(sketchRule)
-        sketchRulesDict[propsID] = sketchRule
+        //
+        if ((existingRuleIndex + 1) == sketchRules.length) return
+        //
+        sketchRules = sketchRules.slice(existingRuleIndex, existingRuleIndex + 1)
+        sketchRule = existingRule
     }
+
+    //  save new rule
+    const addedIndex = sketchRules.length
+    sketchRules.push(sketchRule)
+    sketchRulesDict[propsID] = addedIndex
 }
 
 function getDataID(data) {
