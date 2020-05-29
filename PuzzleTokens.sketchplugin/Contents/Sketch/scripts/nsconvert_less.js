@@ -14,6 +14,7 @@ var lessPath = ''
 var lessVars = {}
 var sketchRules = []
 var parseOptions = null
+var sketchRulesDict = {}
 var _lookups = {}
 
 /////////////////////////////////////////////
@@ -222,7 +223,7 @@ function transformLESStoJSON(data) {
         process.exit(-1)
     }
 
-    console.log(sketchRules)
+    //console.log(sketchRules)
 
 
     console.log("Read LESS: done")
@@ -277,7 +278,7 @@ function saveSketchRule(rule, path) {
     if (path.length == 1 && "&" == path[0]) return
 
     const sketchRule = {
-        path: path,
+        paths: [path.join("*")],
         props: {
             __tokens: []
         }
@@ -311,16 +312,33 @@ function saveSketchRule(rule, path) {
             }
         }
 
-
         sketchRule.props[String(oneRule.name)] = value
         if (token != '') sketchRule.props.__tokens.push([
             oneRule.name, token
         ])
     })
     // we need more properties then only "__tokens"
-    if (Object.keys(sketchRule.props).length > 1) sketchRules.push(sketchRule)
+    if (Object.keys(sketchRule.props).length > 1) pushSketchRule(sketchRule)
 }
 
+function pushSketchRule(sketchRule) {
+    const propsID = getDataID(sketchRule.props)
+    const existingRule = sketchRulesDict[propsID]
+
+    // found existing rule with the same properties
+    if (existingRule) {
+        // add new selector to existing rule
+        existingRule.paths.push(sketchRule.paths[0])
+    } else {
+        //  save new rule
+        sketchRules.push(sketchRule)
+        sketchRulesDict[propsID] = sketchRule
+    }
+}
+
+function getDataID(data) {
+    return JSON.stringify(data, null)
+}
 
 
 function saveData(data, pathToJSON) {

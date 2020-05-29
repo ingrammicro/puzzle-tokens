@@ -82,11 +82,6 @@ class DSApp {
         if (!this.isQuick) this.messages += msg + "\n"
     }
 
-    logDebug(msg) {
-        if (DEBUG) log(msg)
-    }
-
-
     logError(error) {
         this.logMsg("[ ERROR ] " + error)
         this.errors.push(error)
@@ -149,17 +144,18 @@ class DSApp {
 
         var applied = false
         while (true) {
-            this.logDebug("run(): loadRules")
+            if (DEBUG) this.logMsg("run(): loadRules")
             if (!this.loadRules()) {
-                this.logDebug("run(): loadRules: failed")
+                if (DEBUG) this.logMsg("run(): loadRules: failed")
                 break
             }
-            this.logDebug("run(): loadRules: success")
+            if (DEBUG) this.logMsg("run(): applyRules")
             if (!this._applyRules()) break
+            if (DEBUG) this.logMsg("run(): saveElements")
             if (this.genSymbTokens) this._saveElements()
 
             applied = true
-            this.logDebug("Finished")
+            if (DEBUG) this.logMsg("Finished")
             break
         }
 
@@ -198,7 +194,7 @@ class DSApp {
 
     // return Sketch native object
     _findStyleByName(styleName, isLayerStyle) {
-        //this.logDebug("_findStyleByName running...  styleName:" + styleName)
+        //if (DEBUG) this.logMsg("_findStyleByName running...  styleName:" + styleName)
 
         const sLocalStyle = !isLayerStyle ? this.sTextStyles[styleName] : this.sLayerStyles[styleName]
         if (sLocalStyle) return sLocalStyle
@@ -207,13 +203,13 @@ class DSApp {
         var sStyle = null
         var lib = null
         for (lib of this._getLibraries()) {
-            //this.logDebug("_findStyleByName for lib " + lib.sLib.name)
+            //if (DEBUG) this.logMsg("_findStyleByName for lib " + lib.sLib.name)
             sStyle = this._findStyleByNameInLibrary(styleName, isLayerStyle, lib)
             if (sStyle) break
         }
         // check style existing
         if (!sStyle) {
-            //this.logDebug("_findStyleByName FAILED")
+            //if (DEBUG) this.logMsg("_findStyleByName FAILED")
             return false
         }
         return sStyle
@@ -237,17 +233,17 @@ class DSApp {
     _getLibraries() {
         if (undefined != this.jsLibs) return this.jsLibs
 
-        //this.logDebug("_getLibraries: start")
+        //if (DEBUG) this.logMsg("_getLibraries: start")
         this.jsLibs = []
 
         var sLibraries = require('sketch/dom').getLibraries()
         for (const sLib of sLibraries) {
             if (!sLib.valid || !sLib.enabled) continue
-            //this.logDebug("_getLibraries: try to load document for library " + sLib.name + "")
+            //if (DEBUG) this.logMsg("_getLibraries: try to load document for library " + sLib.name + "")
 
             const sDoc = sLib.getDocument()
             if (!sDoc) {
-                //this.logDebug("_getLibraries: can't load document for library " + sDoc.path + "")
+                //if (DEBUG) this.logMsg("_getLibraries: can't load document for library " + sDoc.path + "")
                 continue
             }
             this.jsLibs.push({
@@ -255,7 +251,7 @@ class DSApp {
                 sDoc: sDoc
             })
         }
-        //this.logDebug("_getLibraries: finish")
+        //if (DEBUG) this.logMsg("_getLibraries: finish")
         return this.jsLibs
     }
 
@@ -318,7 +314,7 @@ class DSApp {
     _saveElements() {
         const pathToRules = this.pathToAssets + "/" + Constants.SYMBOLTOKENFILE_POSTFIX
         const json = JSON.stringify(this.elements, null, null)
-        this.logDebug("Save elements info into: " + pathToRules)
+        if (DEBUG) this.logMsg("Save elements info into: " + pathToRules)
         Utils.writeToFile(json, pathToRules)
     }
 
@@ -397,136 +393,142 @@ class DSApp {
     }
 
 
-    _applyRules(justCheck) {
+    _applyRules() {
         this.logMsg("Started")
-        for (const rule of this.rules) {
-            //////////////////////
-            this._transformRulePath(rule)
-            //////////////////////
-            const sStyleName = this._pathToStr(rule.path)
-            rule.name = sStyleName
-            let ruleType = ""
-            rule.type = ""
-            if (Constants.LOGGING) this.logDebug(rule.name)
-
-            if (rule.path[0].startsWith('#')) {
-                rule.isStandalone = true
-                rule.sLayer = this._findLayerByPath(rule.path)
-                if (null == rule.sLayer) {
-                    if (PT_SKIP_MISSED in rule.props) {
-                        continue
-                    } else if (this.confCreateSymbols)
-                        this.messages += "Will create new symbol " + rule.path + " of " + ruleType + " type \n"
-                    else {
-                        this.logError("Can't find symbol master by path " + rule.path)
-                        continue
-                    }
+        for (const complexRule of this.rules) {
+            for (const strPath of complexRule.paths) {
+                const rule = {
+                    path: strPath.split("*"),
+                    props: complexRule.props
                 }
-            } else {
-            }
-            ruleType = this._getRuleType(rule)
-            //////////////////////
+                //////////////////////
+                this._transformRulePath(rule)
+                //////////////////////
+                const sStyleName = this._pathToStr(rule.path)
+                rule.name = sStyleName
+                let ruleType = ""
+                rule.type = ""
 
-            if (rule.isImage) {
-                this._applyPropsToImage(rule)
-            } else {
-
-                // Find or create new style
-                var sSharedStyle = null
-                var sStyle = null
-
-
-                if (rule.isStandalone) {
-                    /*if (!rule.sLayer) {
+                if (rule.path[0].startsWith('#')) {
+                    rule.isStandalone = true
+                    rule.sLayer = this._findLayerByPath(rule.path)
+                    if (null == rule.sLayer) {
                         if (PT_SKIP_MISSED in rule.props) {
-                            continue;
-                        }
-                        rule.sLayer = this._findOrCreateSymbolMasterChild(rule)
-                        if (!rule.sLayer) {
-                            return this.logError("Can't find a symbol master layer by name " + rule.name)
-                        }
-                    }*/
-
-                    // assign existing style
-                    const sAttachToExistingStyle = this._getFindSharedStyleByRule(rule)
-                    if (sAttachToExistingStyle) {
-                        const l = rule.sLayer
-                        l.style = {}
-                        l.sharedStyle = sAttachToExistingStyle
-                        l.style.syncWithSharedStyle(sAttachToExistingStyle)
-                        this.result.assignedStyles++
-                    } else {
+                            continue
+                        } else if (this.confCreateSymbols)
+                            if (DEBUG) this.messages += "Will create new symbol " + rule.path + " of " + ruleType + " type \n"
+                            else {
+                                this.logError("Can't find symbol master by path " + rule.path)
+                                continue
+                            }
                     }
-                    //                
-                    sStyle = rule.sLayer.style
                 } else {
-                    if (!rule.isText && !rule.isLayer) {
-                        this.logError("Uknown type of rule " + rule.name)
-                        continue
-                    }
-
-                    sSharedStyle = rule.isText ? this.sTextStyles[sStyleName] : this.sLayerStyles[sStyleName]
-
-                    sStyle = sSharedStyle != null ? sSharedStyle.style : {
-                        styleType: rule.isText ? SharedStyle.StyleType.Text : SharedStyle.StyleType.Layer,
-                        borders: []
-                    }
                 }
+                ruleType = this._getRuleType(rule)
+                //////////////////////
 
-                // drop existing (or new) style properties before first apply                
-                if (!this.sAppliedStyles[sStyleName] && (rule.isText || rule.isLayer) &&
-                    !(rule.sLayer && rule.sLayer.sharedStyle && this.sAppliedStyles[rule.sLayer.sharedStyle.name])
-                ) {
-                    this._resetStyle(rule, sStyle)
-                    this.sAppliedStyles[sStyleName] = true
-                }
-
-                // Apply rule properties
-                // drop commented property
-                const validProps = Object.keys(rule.props).filter(n => n.indexOf("__") < 0)
-
-                if (rule.isText)
-                    this._applyRuleToTextStyle(rule, sSharedStyle, sStyle)
-                else if (rule.isLayer)
-                    this._applyRuleToLayerStyle(rule, sSharedStyle, sStyle)
-
-                if (rule.isGroup) {
-                    this._applyRuleToGroup(rule)
-                }
-                this.result.updatedLayers++
-                // SET MARGINS
-                this._applyCommonRules(rule, sSharedStyle)
-
-
-                if (rule.isStandalone) {
-                    this.logMsg("[Updated] style for standalone layer " + sStyleName)
-                    this._addTokenToSymbol(rule.props, rule.sLayer)
+                if (rule.isImage) {
+                    this._applyPropsToImage(rule)
                 } else {
-                    // Create new shared style
-                    if (!sSharedStyle) {
-                        // create
-                        sSharedStyle = SharedStyle.fromStyle({
-                            name: sStyleName,
-                            style: sStyle,
-                            document: this.nDoc
-                        })
-                        if (rule.isText)
-                            this.sTextStyles[sStyleName] = sSharedStyle
-                        else
-                            this.sLayerStyles[sStyleName] = sSharedStyle
-                        this.result.createdStyles++
-                        this.logMsg("[Created] new shared style " + sStyleName)
 
+                    // Find or create new style
+                    var sSharedStyle = null
+                    var sStyle = null
+
+
+                    if (rule.isStandalone) {
+                        /*if (!rule.sLayer) {
+                            if (PT_SKIP_MISSED in rule.props) {
+                                continue;
+                            }
+                            rule.sLayer = this._findOrCreateSymbolMasterChild(rule)
+                            if (!rule.sLayer) {
+                                return this.logError("Can't find a symbol master layer by name " + rule.name)
+                            }
+                        }*/
+
+                        // assign existing style
+                        const sAttachToExistingStyle = this._getFindSharedStyleByRule(rule)
+                        if (sAttachToExistingStyle) {
+                            const l = rule.sLayer
+                            l.style = {}
+                            l.sharedStyle = sAttachToExistingStyle
+                            l.style.syncWithSharedStyle(sAttachToExistingStyle)
+                            this.result.assignedStyles++
+                        } else {
+                        }
+                        //                
+                        sStyle = rule.sLayer.style
                     } else {
-                        sSharedStyle.sketchObject.resetReferencingInstances()
-                        this.logMsg("[Updated] shared style " + sStyleName)
-                        this.result.updatedStyles++
+                        if (!rule.isText && !rule.isLayer) {
+                            this.logError("Uknown type of rule " + rule.name)
+                            continue
+                        }
+
+                        sSharedStyle = rule.isText ? this.sTextStyles[sStyleName] : this.sLayerStyles[sStyleName]
+
+                        sStyle = sSharedStyle != null ? sSharedStyle.style : {
+                            styleType: rule.isText ? SharedStyle.StyleType.Text : SharedStyle.StyleType.Layer,
+                            borders: []
+                        }
                     }
-                    this._saveTokensForStyleAndSymbols(rule.props, sSharedStyle)
+
+                    // drop existing (or new) style properties before first apply                
+                    if (!this.sAppliedStyles[sStyleName] && (rule.isText || rule.isLayer) &&
+                        !(rule.sLayer && rule.sLayer.sharedStyle && this.sAppliedStyles[rule.sLayer.sharedStyle.name])
+                    ) {
+                        this._resetStyle(rule, sStyle)
+                        this.sAppliedStyles[sStyleName] = true
+                    }
+
+                    // Apply rule properties
+                    // drop commented property
+                    const validProps = Object.keys(rule.props).filter(n => n.indexOf("__") < 0)
+
+                    if (rule.isText)
+                        this._applyRuleToTextStyle(rule, sSharedStyle, sStyle)
+                    else if (rule.isLayer)
+                        this._applyRuleToLayerStyle(rule, sSharedStyle, sStyle)
+
+                    if (rule.isGroup) {
+                        this._applyRuleToGroup(rule)
+                    }
+                    this.result.updatedLayers++
+                    // SET MARGINS
+                    this._applyCommonRules(rule, sSharedStyle)
+
+
+                    if (rule.isStandalone) {
+                        if (DEBUG) this.logMsg("[Updated] style for standalone layer " + sStyleName)
+                        this._addTokenToSymbol(rule.props, rule.sLayer)
+                    } else {
+                        // Create new shared style
+                        if (!sSharedStyle) {
+                            // create
+                            sSharedStyle = SharedStyle.fromStyle({
+                                name: sStyleName,
+                                style: sStyle,
+                                document: this.nDoc
+                            })
+                            if (rule.isText)
+                                this.sTextStyles[sStyleName] = sSharedStyle
+                            else
+                                this.sLayerStyles[sStyleName] = sSharedStyle
+                            this.result.createdStyles++
+                            if (DEBUG) this.logMsg("[Created] new shared style " + sStyleName)
+
+                        } else {
+                            sSharedStyle.sketchObject.resetReferencingInstances()
+                            if (DEBUG) this.logMsg("[Updated] shared style " + sStyleName)
+                            this.result.updatedStyles++
+                        }
+                        this._saveTokensForStyleAndSymbols(rule.props, sSharedStyle)
+                    }
                 }
+                //
             }
-            //
         }
+        //
 
         // clean style names
         {
@@ -1521,7 +1523,6 @@ class DSApp {
         let currentResizesContent = null
         const resizeSymbol = token[PT_RESIZE_SYMBOL]
 
-        if (DEBUG) this.logDebug("_applyCommonRules: rule=" + rule.name)
 
         // Switch "Adjust Content on resize" off before resizing
         if (null != resizeSymbol && (sLayer && ("SymbolMaster" == sLayer.type || "Artboard" == sLayer.type))) {
@@ -1548,8 +1549,6 @@ class DSApp {
                 const topParent = this._findLayerTopParent(l)
                 const parentFrame = topParent.frame
                 const moveTop = topParent != l.parent;
-
-                if (DEBUG) this.logDebug("_applyCommonRules: " + l.name)
 
                 let nRect = Utils.copyRect(topParent.sketchObject.absoluteRect())
                 let x = null
