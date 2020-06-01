@@ -14,6 +14,8 @@ var Constants = {
     EXPORT_FORMAT_SCSS: 1,
 
     SITE_CHANGELOG_URL: "https://github.com/ingrammicro/puzzle-tokens/blob/master/CHANGELOG.md",
+
+    GA_ID: "UA-84277242-4"
 };
 var DEBUG = Constants.LOGGING
 
