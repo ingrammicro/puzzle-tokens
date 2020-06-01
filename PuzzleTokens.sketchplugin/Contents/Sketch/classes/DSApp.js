@@ -1,10 +1,30 @@
 @import("constants.js")
 @import("lib/utils.js")
 @import("lib/uidialog.js")
+@import("lib/uipanel.js")
 @import("lib/ga.js")
 @import("classes/DSLayerCollector.js")
 
 var app = undefined
+
+
+let exportInfo = {
+    timeout: undefined,
+    panel: undefined
+}
+
+function closePanel() {
+    if (exportInfo.panel != undefined) {
+        exportInfo.panel.finish()
+        exportInfo.panel = undefined
+    }
+    if (exportInfo.timeout != undefined) {
+        exportInfo.timeout.cancel() // fibers takes care of keeping coscript around
+        exportInfo.timeout = undefined
+    }
+    coscript.setShouldKeepAround(false)
+}
+
 
 function cleanName(n) {
     if (n.startsWith('"')) n = n.slice(1)
@@ -122,14 +142,44 @@ class DSApp {
 
     runDialog() {
         if (!this._showDialog()) return false
-        const success = this.run()
-        if (success) {
-            this._showMessages()
-        }
-        return success
+        this.run()
     }
 
+
     run() {
+        let panel = new UIPanel("Exporting to HTML")
+        exportInfo.panel = panel
+        panel.addLabel("", "Please wait...")
+        panel.show()
+
+
+        Class = function (className, BaseClass, selectorHandlerDict) {
+            const uniqueClassName = className + NSUUID.UUID().UUIDString();
+            const delegateClassDesc = MOClassDescription.allocateDescriptionForClassWithName_superclass_(uniqueClassName, BaseClass);
+            for (let selectorString in selectorHandlerDict) {
+                delegateClassDesc.addInstanceMethodWithSelector_function_(selectorString, selectorHandlerDict[selectorString]);
+            }
+            delegateClassDesc.registerClass();
+            return NSClassFromString(uniqueClassName);
+        };
+
+        var Runner = Class("Runner", NSObject, {
+            "run:": function (parameters) {
+                // Exporting...
+                let exportedOk = app.runAsync()
+                if (exportedOk) {
+                    //this._showMessages()
+                }
+
+                closePanel()
+            }
+        })
+        var runner = Runner.new();
+        coscript.setShouldKeepAround(true);
+        runner.performSelectorInBackground_withObject("run:", []);
+    }
+
+    runAsync() {
         this.pathToTokens = this.pathToStyles.substring(0, this.pathToStyles.lastIndexOf("/"));
 
         if (this.genSymbTokens) {
@@ -1341,7 +1391,7 @@ class DSApp {
         var smartLayout = token[PT_SMARTLAYOUT]
         if (smartLayout != null) {
             const value = smartLayoutMap[smartLayout]
-            if (null == value && "none" != smartLayout.toLowerCase() ) {
+            if (null == value && "none" != smartLayout.toLowerCase()) {
                 return this.logError("Can not understand rule " + PT_SMARTLAYOUT + ": " + smartLayout)
             }
             l.smartLayout = value
