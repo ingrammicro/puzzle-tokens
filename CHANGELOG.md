@@ -1,6 +1,13 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.8.0 (1 June 2020)
+New ability:
+`-pt-smartlayout: none` clears any smart layout on a symbol master or group (by @bigmedium)
+Otjer:
+Improved integration with Puzzle Publisher (many fixes in LESS tokens inspection)
+
+
 ##  Version 8.7.4 (28 May 2020)
 Handle @import manually to inject tokens into all imported files
 
