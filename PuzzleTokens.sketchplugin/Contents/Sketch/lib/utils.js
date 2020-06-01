@@ -478,8 +478,11 @@ class Utils {
 
 
     static runCommand(command, args) {
-        var task = NSTask.alloc().init();
+        if (DEBUG) {
+            log(command + args.join(" "))
+        }
 
+        var task = NSTask.alloc().init();
         var pipe = NSPipe.alloc().init()
         task.setStandardOutput_(pipe);
         task.setStandardError_(pipe);

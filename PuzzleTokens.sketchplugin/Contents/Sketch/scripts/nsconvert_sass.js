@@ -152,7 +152,7 @@ function saveData(strCSS, pathToJSON) {
             // skip comment
         } else if (line.endsWith("{")) {
             // start node declaration
-            const paths = line.replace(" {", "").split(' ')
+            const paths = line.replace(" {", "").split(' ').join("*")
             node = {
                 path: paths,
                 props: {

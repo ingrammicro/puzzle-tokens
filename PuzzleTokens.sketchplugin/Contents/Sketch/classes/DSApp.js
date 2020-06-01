@@ -381,6 +381,7 @@ class DSApp {
     }
 
     _transformRulePath(sketchRule) {
+        sketchRule.path = sketchRule.path.split("*")
         // Convert [ '#Symbol', '1', '.Back' ] to [ '#Symbol 1', '.Back' ],
         if (sketchRule.path.filter(s => !(s.startsWith(".") || s.startsWith("#")))) {
             let path = sketchRule.path.map(function (s, index, arr) {

@@ -269,7 +269,7 @@ function parseSketchRule(rule, elements, path) {
 }
 
 function saveSketchRule(rule, path) {
-    var sketchPath = path.join("/")
+    //var sketchPath = path.join("*")
     //sketchPath = sketchPath.replace(/(\.)/g, '').replace(/^\./,'')    
 
     // detect mixin by keyword and skip it
@@ -277,7 +277,7 @@ function saveSketchRule(rule, path) {
     if (path.length == 1 && "&" == path[0]) return
 
     const sketchRule = {
-        path: path,
+        path: path.join("*"),
         props: {
             __tokens: []
         }
@@ -324,7 +324,7 @@ function saveSketchRule(rule, path) {
 
 
 function saveData(data, pathToJSON) {
-    var json = JSON.stringify(data, null, '    ')
+    var json = JSON.stringify(data, null) //, '    ')
 
     if (pathToJSON && pathToJSON != '') {
         fs.writeFileSync(pathToJSON, json, 'utf8');
