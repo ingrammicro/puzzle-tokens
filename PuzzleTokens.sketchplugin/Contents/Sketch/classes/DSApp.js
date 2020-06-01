@@ -1341,7 +1341,7 @@ class DSApp {
         var smartLayout = token[PT_SMARTLAYOUT]
         if (smartLayout != null) {
             const value = smartLayoutMap[smartLayout]
-            if (null == value) {
+            if (null == value && "none" != smartLayout.toLowerCase() ) {
                 return this.logError("Can not understand rule " + PT_SMARTLAYOUT + ": " + smartLayout)
             }
             l.smartLayout = value

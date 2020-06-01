@@ -115,7 +115,7 @@ The following CSS styles are supporting.
 // Group & SymbolMaster Properties
 .Group{
     -pt-smartlayout:         LeftToRight; // LeftToRight OR HorizontallyCenter OR RightToLeft OR TopToBottom 
-                                          // OR VerticallyCenter OR BottomToTop
+                                          // OR VerticallyCenter OR BottomToTop OR None
 }
 
 #Image{
