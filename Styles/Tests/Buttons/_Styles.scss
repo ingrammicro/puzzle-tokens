@@ -2,7 +2,7 @@
 
 .Controls .Buttons .Submit {
     .Ok__Button {
-      Text{
+      .Text{
           color :             $btn-text-color;
           font-size:          $btn-font-size;
           font-family:        Verdana;
@@ -12,7 +12,7 @@
           line-height:        30px;        
           kerning:            2.5;
       }  
-      Back{
+      .Back{
           background-color:   $btn-back-color;
           border-color:       grey;
           border-radius:      $btn-radius;
@@ -39,7 +39,7 @@
   
   #Buttons{
       #Disabled{
-          Rectangle{
+          .Rectangle{
               border-radius:  2px;  
               sklayer-style:   "Buttons/Disabled";
               //sklayer-style:   "Controls/Buttons/Raised/Default/Back";

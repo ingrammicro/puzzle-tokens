@@ -1,1 +1,1 @@
-{"styles":{"Controls/Buttons/Submit/Ok Button Text":{"tokens":{}},"Controls/Buttons/Submit/Ok Button Back":{"tokens":{}},"Buttons/Disabled":{"tokens":{}},"Buttons/Lined":{"tokens":{}}},"Buttons / Disabled":{"layers":{}}}
+{"styles":{"Controls/Buttons/Submit/Ok Button Text":{"tokens":[["color","@btn-text-color"],["font-size","@btn-font-size"]]},"Controls/Buttons/Submit/Ok Button Back":{"tokens":[["background-color","@btn-back-color"],["border-radius","@btn-radius"],["box-shadow","@btn-shadow"],["border-style","@btn-border-style"]]}}}
