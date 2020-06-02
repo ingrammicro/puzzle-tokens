@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.8.1 (1 June 2020)
+Improved async mode for sending statistics
+
 ##  Version 8.8.0 (1 June 2020)
 New ability:
 `-pt-smartlayout: none` clears any smart layout on a symbol master or group (by @bigmedium)
