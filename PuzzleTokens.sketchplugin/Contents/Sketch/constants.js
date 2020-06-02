@@ -20,7 +20,6 @@ var Constants = {
 var DEBUG = Constants.LOGGING
 
 var SettingKeys = {
-    PLUGIN_INSTALLED: "pluginInstalled",
     PLUGIN_PREVIEWER_DEF: "pluginPreviewerDef",
     PLUGIN_PATH_TO_TOKENS_LESS: "pluginPathToTokensLess",
     PLUGIN_PATH_TO_TOKENS_LESS_LIST: "pluginPathToTokensLessList",
@@ -33,6 +32,8 @@ var SettingKeys = {
     PLUGIN_EXPORT_FORMAT: "pluginExportFormat",
     PLUGIN_EXPORT_OPTS: "pluginExportOpts",
     PLUGIN_EXPORT_LIB_STYLES: "pluginExportLibStyles",
+
+    PLUGIN_INSTALLED: "pluginInstalled",
     PLUGIN_GA_DISABLED: "pluginGADisabled",
 };
 
