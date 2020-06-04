@@ -1,4 +1,5 @@
 @import "constants.js";
+var DEBUG = Constants.LOGGING || require('sketch/settings').settingForKey(SettingKeys.PLUGIN_LOGDEBUG_ENABLED)
 
 Rectangle.prototype.round = function () {
     this.x = Math.round(this.x)

@@ -66,7 +66,7 @@ class DSApp {
         this.pathToAssets = ""
 
         this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS) == 1
-        this.showDebug = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DEBUG) == 1
+        this.showDebug = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_JSON) == 1
         this.showDoubleStyleError = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DOUBLESTYLES) == 1
         this.confCreateSymbols = Settings.settingForKey(SettingKeys.PLUGIN_CREATE_SYMBOLS) == 1
         this.confClear = this.confClean = Settings.settingForKey(SettingKeys.PLUGIN_APPLY_CLEAR) == 1
@@ -78,14 +78,13 @@ class DSApp {
     // Tools
 
     logMsg(msg) {
-        if (Constants.LOGGING) log(msg)
+        if (DEBUG) log(msg)
         if (!this.isQuick) this.messages += msg + "\n"
     }
 
     logDebug(msg) {
-        if (DEBUG) log(msg)
+        log(msg)
     }
-
 
     logError(error) {
         this.logMsg("[ ERROR ] " + error)
@@ -149,17 +148,17 @@ class DSApp {
 
         var applied = false
         while (true) {
-            this.logDebug("run(): loadRules")
+            this.logMsg("run(): loadRules")
             if (!this.loadRules()) {
-                this.logDebug("run(): loadRules: failed")
+                this.logMsg("run(): loadRules: failed")
                 break
             }
-            this.logDebug("run(): loadRules: success")
+            this.logMsg("run(): loadRules: success")
             if (!this._applyRules()) break
             if (this.genSymbTokens) this._saveElements()
 
             applied = true
-            this.logDebug("Finished")
+            this.logMsg("Finished")
             break
         }
 
@@ -198,7 +197,7 @@ class DSApp {
 
     // return Sketch native object
     _findStyleByName(styleName, isLayerStyle) {
-        //this.logDebug("_findStyleByName running...  styleName:" + styleName)
+        if (DEBUG) this.logDebug("_findStyleByName running...  styleName:" + styleName)
 
         const sLocalStyle = !isLayerStyle ? this.sTextStyles[styleName] : this.sLayerStyles[styleName]
         if (sLocalStyle) return sLocalStyle
@@ -207,13 +206,13 @@ class DSApp {
         var sStyle = null
         var lib = null
         for (lib of this._getLibraries()) {
-            //this.logDebug("_findStyleByName for lib " + lib.sLib.name)
+            if (DEBUG) this.logDebug("_findStyleByName for lib " + lib.sLib.name)
             sStyle = this._findStyleByNameInLibrary(styleName, isLayerStyle, lib)
             if (sStyle) break
         }
         // check style existing
         if (!sStyle) {
-            //this.logDebug("_findStyleByName FAILED")
+            if (DEBUG) this.logDebug("_findStyleByName FAILED")
             return false
         }
         return sStyle
@@ -237,17 +236,17 @@ class DSApp {
     _getLibraries() {
         if (undefined != this.jsLibs) return this.jsLibs
 
-        //this.logDebug("_getLibraries: start")
+        if (DEBUG) this.logDebug("_getLibraries: start")
         this.jsLibs = []
 
         var sLibraries = require('sketch/dom').getLibraries()
         for (const sLib of sLibraries) {
             if (!sLib.valid || !sLib.enabled) continue
-            //this.logDebug("_getLibraries: try to load document for library " + sLib.name + "")
+            if (DEBUG) this.logDebug("_getLibraries: try to load document for library " + sLib.name + "")
 
             const sDoc = sLib.getDocument()
             if (!sDoc) {
-                //this.logDebug("_getLibraries: can't load document for library " + sDoc.path + "")
+                if (DEBUG) this.logDebug("_getLibraries: can't load document for library " + sDoc.path + "")
                 continue
             }
             this.jsLibs.push({
@@ -255,7 +254,7 @@ class DSApp {
                 sDoc: sDoc
             })
         }
-        //this.logDebug("_getLibraries: finish")
+        if (DEBUG) this.logDebug("_getLibraries: finish")
         return this.jsLibs
     }
 
@@ -318,7 +317,10 @@ class DSApp {
     _saveElements() {
         const pathToRules = this.pathToAssets + "/" + Constants.SYMBOLTOKENFILE_POSTFIX
         const json = JSON.stringify(this.elements, null, null)
-        this.logDebug("Save elements info into: " + pathToRules)
+        if (DEBUG)
+            this.logDebug("Save elements info into: " + pathToRules)
+        else
+            this.logMsg("Save elements info")
         Utils.writeToFile(json, pathToRules)
     }
 
@@ -408,7 +410,7 @@ class DSApp {
             rule.name = sStyleName
             let ruleType = ""
             rule.type = ""
-            if (Constants.LOGGING) this.logDebug(rule.name)
+            if (DEBUG) this.logDebug(rule.name)
 
             if (rule.path[0].startsWith('#')) {
                 rule.isStandalone = true
@@ -1341,7 +1343,7 @@ class DSApp {
         var smartLayout = token[PT_SMARTLAYOUT]
         if (smartLayout != null) {
             const value = smartLayoutMap[smartLayout]
-            if (null == value && "none" != smartLayout.toLowerCase() ) {
+            if (null == value && "none" != smartLayout.toLowerCase()) {
                 return this.logError("Can not understand rule " + PT_SMARTLAYOUT + ": " + smartLayout)
             }
             l.smartLayout = value

@@ -17,7 +17,6 @@ var Constants = {
 
     GA_ID: "UA-84277242-4"
 };
-var DEBUG = Constants.LOGGING
 
 var SettingKeys = {
     PLUGIN_PREVIEWER_DEF: "pluginPreviewerDef",
@@ -25,7 +24,7 @@ var SettingKeys = {
     PLUGIN_PATH_TO_TOKENS_LESS_LIST: "pluginPathToTokensLessList",
     PLUGIN_GENERATE_SYMBOLTOKENS: "pluginGenSymbTokens",
     PLUGIN_APPLY_CLEAR: "pluginApplyClear",
-    PLUGIN_SHOW_DEBUG: "pluginDebug",
+    PLUGIN_SHOW_JSON: "pluginDebug",
     PLUGIN_SHOW_DOUBLESTYLES: "pluginDoubleStyles",
     PLUGIN_CREATE_SYMBOLS: "pluginCreateSymbols",
     PLUGIN_EXPORT_PATH_TO: "pluginExportPathTo",
@@ -35,6 +34,7 @@ var SettingKeys = {
 
     PLUGIN_INSTALLED: "pluginInstalled",
     PLUGIN_GA_DISABLED: "pluginGADisabled",
+    PLUGIN_LOGDEBUG_ENABLED: "pluginLogDebugEnabled",
 };
 
 const TRACK_INSTALLED = "installed"
