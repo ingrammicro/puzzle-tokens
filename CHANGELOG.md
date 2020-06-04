@@ -1,7 +1,10 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
-##  Version 8.8.1 (1 June 2020)
+##  Version 8.8.2 (4 June 2020)
+Added ability to enable debug logging
+
+##  Version 8.8.1 (2 June 2020)
 Improved async mode for sending statistics
 
 ##  Version 8.8.0 (1 June 2020)
