@@ -14,6 +14,7 @@ var Constants = {
     EXPORT_FORMAT_SCSS: 1,
 
     SITE_CHANGELOG_URL: "https://github.com/ingrammicro/puzzle-tokens/blob/master/CHANGELOG.md",
+    NODEJS_PATH: "/usr/local/bin/node",
 
     GA_ID: "UA-84277242-4"
 };
@@ -31,6 +32,8 @@ var SettingKeys = {
     PLUGIN_EXPORT_FORMAT: "pluginExportFormat",
     PLUGIN_EXPORT_OPTS: "pluginExportOpts",
     PLUGIN_EXPORT_LIB_STYLES: "pluginExportLibStyles",
+
+    PLUGIN_NODEJS_PATH: "pluginNodeJSPath",
 
     PLUGIN_INSTALLED: "pluginInstalled",
     PLUGIN_GA_DISABLED: "pluginGADisabled",

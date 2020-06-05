@@ -17,14 +17,19 @@ var onRun = function (context) {
     let showDoubleStyle = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DOUBLESTYLES) == 1
     let genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS) == 1
     let gaEnabled = !Settings.settingForKey(SettingKeys.PLUGIN_GA_DISABLED)
+    let nodeJSPAth = Settings.settingForKey(SettingKeys.PLUGIN_NODEJS_PATH)
 
     // Build dialog
-    const dialog = new UIDialog("Configure", NSMakeRect(0, 0, 400, 200), "Save", "Edit Puzzle Tokens common configuration settings.")
+    const dialog = new UIDialog("Configure", NSMakeRect(0, 0, 400, 300), "Save", "Edit Puzzle Tokens common configuration settings.")
 
     dialog.addLeftLabel("", "Apply Options")
     dialog.addCheckbox("showDoubleStyle", "Warn about style name duplicates", showDoubleStyle)
     dialog.addCheckbox("showJSON", "Show internal JSON data", showJSON)
     dialog.addCheckbox("logDebug", "Enable debug logging", logDebug)
+
+    dialog.addDivider()
+    dialog.addLeftLabel("", "Path to Node.js")
+    dialog.addTextInput("nodeJSPAth", "", nodeJSPAth, Constants.NODEJS_PATH, 350)
 
     dialog.addDivider()
     dialog.addLeftLabel("", "Integration with Puzzle Publisher", 40)
@@ -48,6 +53,7 @@ var onRun = function (context) {
         showJSON = dialog.views['showJSON'].state() == 1
         genSymbTokens = dialog.views['genSymbTokens'].state() == 1
         gaEnabled = dialog.views['gaEnabled'].state() == 1
+        nodeJSPAth = dialog.views['nodeJSPAth'].stringValue() + ""
 
         break
     }
@@ -59,6 +65,7 @@ var onRun = function (context) {
     Settings.setSettingForKey(SettingKeys.PLUGIN_SHOW_JSON, showJSON)
     Settings.setSettingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS, genSymbTokens)
     Settings.setSettingForKey(SettingKeys.PLUGIN_GA_DISABLED, !gaEnabled)
+    Settings.setSettingForKey(SettingKeys.PLUGIN_NODEJS_PATH, nodeJSPAth)
 
     return true
 

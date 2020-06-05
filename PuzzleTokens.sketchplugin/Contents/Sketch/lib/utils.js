@@ -480,7 +480,15 @@ class Utils {
 
     static runCommand(command, args) {
         if (DEBUG) {
-            log(command + args.join(" "))
+            log(command + " " + args.join(" "))
+        }
+
+        // check if launch path exists
+        if (!Utils.fileExistsAtPath(command)) {
+            return {
+                result: false,
+                output: command + "does not exists"
+            }
         }
 
         var task = NSTask.alloc().init();
@@ -491,7 +499,6 @@ class Utils {
         task.arguments = args;
         task.launch();
         task.waitUntilExit();
-
 
         var fileHandle = pipe.fileHandleForReading()
         var data = [fileHandle readDataToEndOfFile];

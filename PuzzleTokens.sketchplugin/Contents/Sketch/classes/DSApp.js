@@ -89,6 +89,7 @@ class DSApp {
     logError(error) {
         this.logMsg("[ ERROR ] " + error)
         this.errors.push(error)
+        return false
     }
 
     stopWithError(error) {
@@ -715,7 +716,15 @@ class DSApp {
                 const pathToSASS = this.pathToAssets + "/" + Constants.SASSFILE_POSTFIX
                 args.push("-sass=" + pathToSASS)
             }
-            runResult = Utils.runCommand("/usr/local/bin/node", args)
+
+            let nodePath = Settings.settingForKey(SettingKeys.PLUGIN_NODEJS_PATH) + ""
+            if ("" == nodePath) nodePath = Constants.NODEJS_PATH
+            // check if launch path exists
+            if (!Utils.fileExistsAtPath(nodePath)) {
+                return this.logError("Can not find " + nodePath + ". Install Node.js or change Node.js launch path in Settings.")
+            }
+            runResult = Utils.runCommand(nodePath, args)
+            if (DEBUG) this.logDebug(runResult)
         } catch (error) {
             this.logError(error)
             return false
