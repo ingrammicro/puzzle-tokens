@@ -717,8 +717,8 @@ class DSApp {
                 args.push("-sass=" + pathToSASS)
             }
 
-            let nodePath = Settings.settingForKey(SettingKeys.PLUGIN_NODEJS_PATH) + ""
-            if ("" == nodePath) nodePath = Constants.NODEJS_PATH
+            let nodePath = Settings.settingForKey(SettingKeys.PLUGIN_NODEJS_PATH)
+            if (undefined == nodePath || "" == nodePath) nodePath = Constants.NODEJS_PATH
             // check if launch path exists
             if (!Utils.fileExistsAtPath(nodePath)) {
                 return this.logError("Can not find " + nodePath + ". Install Node.js or change Node.js launch path in Settings.")

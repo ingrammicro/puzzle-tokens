@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.8.4 (6 June 2020)
+Hotfix
+
 ##  Version 8.8.3 (5 June 2020)
 Improved diagnostic for missed Node.ls
 User can change path to Node.js in Settings

@@ -33,7 +33,7 @@ var SettingKeys = {
     PLUGIN_EXPORT_OPTS: "pluginExportOpts",
     PLUGIN_EXPORT_LIB_STYLES: "pluginExportLibStyles",
 
-    PLUGIN_NODEJS_PATH: "pluginNodeJSPath",
+    PLUGIN_NODEJS_PATH: "pluginNodeJSPath0",
 
     PLUGIN_INSTALLED: "pluginInstalled",
     PLUGIN_GA_DISABLED: "pluginGADisabled",

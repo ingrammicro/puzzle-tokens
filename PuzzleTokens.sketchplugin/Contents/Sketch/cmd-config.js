@@ -18,6 +18,7 @@ var onRun = function (context) {
     let genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS) == 1
     let gaEnabled = !Settings.settingForKey(SettingKeys.PLUGIN_GA_DISABLED)
     let nodeJSPAth = Settings.settingForKey(SettingKeys.PLUGIN_NODEJS_PATH)
+    if (undefined == nodeJSPAth) nodeJSPAth = ""
 
     // Build dialog
     const dialog = new UIDialog("Configure", NSMakeRect(0, 0, 400, 300), "Save", "Edit Puzzle Tokens common configuration settings.")
