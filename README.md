@@ -35,7 +35,7 @@ The following CSS styles are supporting.
 .TextStyle {
     // Sketch only styles
     pt-paragraph-spacing:  23.33;
-    -pt-text-size-behaviour: fixed-size:    // or "auto-height" or  "auto-width"           
+    -pt-text-size-behaviour: fixed-size;    // or "auto-height" or  "auto-width"           
 
     // CSS native styles
     font-size:             12px;   
