@@ -1,6 +1,10 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.9.0 (26 June 2020)
+Added new style 
+-pt-text-size-behaviour: fixed-size; // or auto-height or auto-width
+
 ##  Version 8.8.4 (6 June 2020)
 Hotfix
 

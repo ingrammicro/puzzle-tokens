@@ -1399,6 +1399,7 @@ class DSApp {
         var align = token['text-align']
         var verticalAlign = token['vertical-align']
         var text = token[PT_TEXT]
+        var sizeBehaviour = token[PT_SIZE_BEHAVIOUR]
         var paragraphSpacing = token[PT_PARAGRAPH_SPACING]
 
         // SET LAYER TEXT 
@@ -1406,6 +1407,13 @@ class DSApp {
             const layerName = rule.sLayer.name
             rule.sLayer.text = text
             rule.sLayer.name = layerName
+        }
+
+        if (undefined != sizeBehaviour && rule.sLayer) {
+            const svalue = FIXED_SIZE_BEHAVIOUR_MAP[sizeBehaviour]
+            if (undefined == svalue)
+                return this.logError("Wrong text behaviour value '" + sizeBehaviour + "' for rule " + rule.name)
+            rule.sLayer.sketchObject.setTextBehaviour(svalue)
         }
 
         //// SET FONT SIZE

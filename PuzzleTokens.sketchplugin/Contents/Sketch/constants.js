@@ -76,6 +76,7 @@ const PT_LAYER_TYPE = "-pt-layer-type"
 const PT_SMARTLAYOUT = "-pt-smartlayout"
 const PT_FIX_SIZE_HEIGHT = "-pt-fix-size-height"
 const PT_FIX_SIZE_WIDTH = "-pt-fix-size-width"
+const PT_SIZE_BEHAVIOUR = "-pt-text-size-behaviour"
 const PT_PIN_LEFT = "-pt-pin-left"
 const PT_PIN_RIGHT = "-pt-pin-right"
 const PT_PIN_TOP = "-pt-pin-top"
@@ -96,6 +97,12 @@ const edgeFixdMap = {
     '-pt-pin-bottom': 8,
     '-pt-fix-size-height': 16,
     '-pt-pin-top': 32,
+}
+
+const FIXED_SIZE_BEHAVIOUR_MAP = {
+    'auto-width': 0,
+    'auto-height': 1,
+    'fixed-size': 2
 }
 
 const alignMap = {
