@@ -99,6 +99,7 @@ The following CSS styles are supporting.
     -pt-pin-bottom:          true; // "true" or "false
     -pt-fix-size-height:     true; // "true" or "false
     -pt-fix-size-width:      true; // "true" or "false
+    -pt-skip-missed:         true: // "true" or "false // Usefull to skip style if no layer found without an error
 
     // The following properties are not a part of shared styles.
     // Bu you can set these properties for a shared style.
