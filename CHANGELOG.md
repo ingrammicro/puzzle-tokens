@@ -1,6 +1,27 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+
+##  Version 8.10.0 (6 Aug 2020) 
+Author: Josh Clark  (https://github.com/bigmedium)
+This update adds four new properties, which are specifically intended to be helpful for managing the spacing and size within buttons, for example.
+
+Margin enhancements:
+
+-pt-margin-relative-to: "layer name";
+This sets margin values relative to the specified layer. The specified layer must be a sibling at the same level in a group, artboard, or symbol) of the layer to which you are applying the margin styles. If not specified, margin will be set relative to the artboard or page (which is the current behavior).
+
+-pt-margin-resize: true;
+If true, resize the "margin-relative-to" layer to "fit" the size of the current layer, plus the specified margin. This will make the "margin-relative-to" layer surround the current layer at exactly the requested margin. (Very helpful for effectively setting the padding of buttons and sizing the surrounding background layer to fit.)
+
+Artboard/symbol resizing:
+
+-pt-fit-content: true;
+Applies only to artboards and symbol masters: if true, resize the artboard/symbol to fit its content.
+
+-pt-resize-instances: true;
+Applies only to symbol masters. If true, resize all instances of a symbol; the same as clicking Sketch's "Shrink instance to fit content" button in the Overrides section of the instance. (This reapplies SmartLayout, useful when you change the size of a symbol.)
+
 ##  Version 8.9.0 (26 June 2020)
 Added new style 
 -pt-text-size-behaviour: fixed-size; // or auto-height or auto-width
