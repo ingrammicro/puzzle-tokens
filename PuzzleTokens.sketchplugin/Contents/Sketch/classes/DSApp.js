@@ -1290,7 +1290,7 @@ class DSApp {
         const token = rule.props
         // SET COLOR        
         let backColor = token['background-color']
-        const updateFill = token[PT_FILL_UPDATE] == 'true'
+        var updateFill = token[PT_FILL_UPDATE] == 'true'
         if (backColor != null) {
             let fill = {}
             if (updateFill) {
