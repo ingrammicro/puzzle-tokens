@@ -107,12 +107,36 @@ The following CSS styles are supporting.
     // through style assigned to it. You can also
     // apply it to the layers or symbols directly.
 
-    margin-top:             10px;
-    margin-left:            10px;
-    margin-right:           10px;
-    margin-bottom:          10px;
     width:                  100px;
-    height:                 100px;        
+    height:                 100px;
+
+    margin-top:             10px;
+    margin-left:            20px;
+    margin-right:           20px;
+    margin-bottom:          10px;
+    
+    // By default, margin is set relative to the layer's containing artboard or page.
+    // (Specifically, the layer is moved so that it is positioned inside the artboard/
+    // page at the specified margin. In the example above, the top-left corner of the
+    // layer is set to x:10 and y:20 of the containing artboard.)
+    //
+    // If you prefer to set the margin  relative to another layer (for example, to set 
+    // the text layer of a button within the boundaries of the button's background
+    // layer style), use the "-pt-margin-relative-to" property shown below.
+    
+    -pt-margin-relative-to: "layer name"; // set margin values relative to the specified
+                                          // layer. The specified layer must be a sibling
+                                          // (at the same level in a group, artboard, or
+                                          // symbol) of the layer to which you are
+                                          // applying the margin styles. If not specified,
+                                          // margin will be set relative to the artboard
+                                          // or page
+    -pt-margin-resize:      true;         // if true, resize the "margin-relative-to"
+                                          // layer to "fit" the size of the current layer,
+                                          // plus the specified margin. This will make
+                                          // the "margin-relative-to" layer surround
+                                          // the current layer at exactly the requested
+                                          // margin.
 }
 
 // Group & SymbolMaster Properties
@@ -120,6 +144,19 @@ The following CSS styles are supporting.
     -pt-smartlayout:         LeftToRight; // LeftToRight OR HorizontallyCenter OR RightToLeft OR TopToBottom 
                                           // OR VerticallyCenter OR BottomToTop OR None
 }
+
+// SymbolMaster and Artboard Properties
+    -pt-fit-content:        true;        // Resize the symbol or artboard to fit content
+}
+
+// SymbolMaster Properties
+    -pt-resize-instances:   true;        // Resize all instances of a symbol; the same as
+                                         // clicking Sketch's "Shrink instance to fit
+                                         // content" button in the Overrides section of
+                                         // the instance. (This reapplies SmartLayout,
+                                         // useful when you change the size of a symbol.)
+}
+
 
 #Image{
     // Required Properties

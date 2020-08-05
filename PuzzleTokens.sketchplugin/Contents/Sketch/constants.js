@@ -85,6 +85,10 @@ const PT_BORDER_UPDATE = "-pt-border-update"
 const PT_FILL_UPDATE = "-pt-fill-update"
 const PT_SKIP_MISSED = "-pt-skip-missed"
 const PT_SHADOW_UPDATE = "-pt-shadow-update"
+const PT_MARGIN_RELATIVE_TO = "-pt-margin-relative-to"
+const PT_MARGIN_RESIZE = "-pt-margin-resize"
+const PT_FIT_CONTENT = "-pt-fit-content"
+const PT_RESIZE_INSTANCES = "-pt-resize-instances"
 
 const THIS_NAME = "_This"
 

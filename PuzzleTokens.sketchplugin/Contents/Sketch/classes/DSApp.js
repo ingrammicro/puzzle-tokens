@@ -1551,21 +1551,59 @@ class DSApp {
 
         // SET MARGINS
         while (true) {
-            var marginTop = token['margin-top']
-            var marginBottom = token['margin-bottom']
-            var marginLeft = token['margin-left']
-            var marginRight = token['margin-right']
+            var margin = {
+              "top": token['margin-top'],
+              "right": token['margin-right'],
+              "bottom": token['margin-bottom'],
+              "left": token['margin-left'] };
             var height = token['height']
             var width = token['width']
+ 
+            var relativeTo = token[PT_MARGIN_RELATIVE_TO];
+            var resize = token[PT_MARGIN_RESIZE];
+            if (relativeTo) {
+                if (relativeTo.startsWith('"') || relativeTo.startsWith("'")) {
+                    relativeTo = relativeTo.slice(1);
+                }
+                if (relativeTo.endsWith('"') || relativeTo.endsWith("'")) {
+                    relativeTo = relativeTo.slice(0, -1);
+                }
+            }
+            
+            var gotMargin;
+            for (var m in margin) {
+                if (margin[m] == null) continue
+                margin[m] = parseInt(margin[m].replace('px', ""));
+                gotMargin = true;
+            }
 
-            if (null == marginTop && null == marginBottom
-                && null == marginLeft && null == marginRight && null == height && null == width) break
+            if (null == gotMargin && null == height && null == width) break
             if (null == sSharedStyle && null == rule.sLayer) break
 
             const layers = rule.sLayer ? [rule.sLayer] : sSharedStyle.getAllInstancesLayers()
 
             for (var l of layers) {
-                const topParent = this._findLayerTopParent(l)
+                // if margin-relative-to is set, find that sibling element
+                // and set as topParent for relative positioning
+                var xOffset = 0;
+                var yOffset = 0;
+                var topParent;
+                if (relativeTo != null) {
+                    var siblings = l.parent.layers;
+                    for (var sib of siblings) {
+                        if (sib.name == relativeTo) {
+                            topParent = sib;
+                            xOffset = topParent.frame.x;
+                            yOffset = topParent.frame.y;
+                            break;
+                        }
+                    }
+                }
+                // ...otherwise set to top parent 
+                if (!topParent) {
+                    topParent = this._findLayerTopParent(l);                   
+                }
+               
                 const parentFrame = topParent.frame
                 const moveTop = topParent != l.parent;
 
@@ -1575,17 +1613,17 @@ class DSApp {
                 let x = null
                 let y = null
 
-                if (null != marginTop) {
-                    y = parseInt(marginTop.replace('px', ""))
+                if (null != margin["top"]) { // prefer top positioning to bottom
+                    y = margin["top"] + yOffset;
                 }
-                if (null != marginBottom) {
-                    y = parentFrame.height - (parseInt(marginBottom.replace('px', "")) + l.frame.height)
+                else if (null != margin["bottom"]) {
+                    y = parentFrame.height + yOffset - (margin["bottom"] + l.frame.height)
                 }
-                if (null != marginLeft) {
-                    x = parseInt(marginLeft.replace('px', ""))
+                if (null != margin["left"]) { // prefer left positioning to right
+                    x = margin["left"] + xOffset;
                 }
-                if (null != marginRight) {
-                    x = parentFrame.width - (parseInt(marginRight.replace('px', "")) + l.frame.width)
+                else if (null != margin["right"]) {
+                    x = parentFrame.width + xOffset - (margin["right"] + l.frame.width)
                 }
                 if (null != height) {
                     l.frame.height = parseInt(height.replace('px', ""))
@@ -1599,6 +1637,11 @@ class DSApp {
                 if (resizeSymbol != null && "true" == resizeSymbol) {
                     if (null != height) parentFrame.height = l.frame.height
                     if (null != width) parentFrame.width = l.frame.width
+                }
+                
+                if (resize == "true") {
+                    parentFrame.height = l.frame.height + (margin["top"] || 0) + (margin["bottom"] || 0);
+                    parentFrame.width = l.frame.width + (margin["left"] || 0) + (margin["right"] || 0);
                 }
 
             }
@@ -1617,7 +1660,20 @@ class DSApp {
         if (null != currentResizesContent) {
             nLayer.setResizesContent(currentResizesContent)
         }
-
+        
+        // Adjust to fit content if selected for artboard or symbol
+        if ("true" == token[PT_FIT_CONTENT]) {
+            if (sLayer && ("SymbolMaster" == sLayer.type || "Artboard" == sLayer.type)) {
+                sLayer.adjustToFit();
+            }
+        }
+        
+        // Resize instances if selected for symbol
+        if ("true" == token[PT_RESIZE_INSTANCES] && sLayer && "SymbolMaster" == sLayer.type) {
+            for (var inst of sLayer.getAllInstances()) {
+                inst.resizeWithSmartLayout();
+            }
+        }
         return true
     }
 
