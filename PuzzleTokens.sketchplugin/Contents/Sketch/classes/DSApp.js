@@ -1167,6 +1167,21 @@ class DSApp {
             }
         }
 
+        // process border-style
+        if (null != borderStyle) {
+            if ("none" == borderStyle) { // remove any border and bail
+                if (updateBorder) sStyle.borders.pop();
+                return;
+            }      
+            if (undefined == sStyle.borderOptions) sStyle.borderOptions = {}
+            const width = borderWidth != null ? borderWidth.replace("px", "") : 1
+            if ("dashed" == borderStyle) {
+                sStyle.borderOptions.dashPattern = [3 * width, 3 * width]
+            } else if ("dotted" == borderStyle) {
+                sStyle.borderOptions.dashPattern = [1 * width, 1 * width]
+            }
+        }
+
         // process color
         if (null != borderColor) {
             var color = borderColor
@@ -1193,17 +1208,6 @@ class DSApp {
         // process width
         if (null != borderWidth) {
             border.thickness = borderWidth.replace("px", "")
-        }
-
-        // process border-style
-        if (null != borderStyle) {
-            if (undefined == sStyle.borderOptions) sStyle.borderOptions = {}
-            const width = borderWidth != null ? borderWidth.replace("px", "") : 1
-            if ("dashed" == borderStyle) {
-                sStyle.borderOptions.dashPattern = [3 * width, 3 * width]
-            } else if ("dotted" == borderStyle) {
-                sStyle.borderOptions.dashPattern = [1 * width, 1 * width]
-            }
         }
 
         if (null != borderLineEnd) {
