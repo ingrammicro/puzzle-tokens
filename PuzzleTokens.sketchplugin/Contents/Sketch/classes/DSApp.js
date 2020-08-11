@@ -940,7 +940,7 @@ class DSApp {
         return true
     }
 
-    _applyFillGradient(rule, sStyle, colorsRaw, fill) {
+    _buildGradientObject(rule, sStyle, colorsRaw) {
         const token = rule.props
 
         // CHECK GRADIENT TYPE
@@ -977,12 +977,11 @@ class DSApp {
         var count = aValues.length
         var lenA = 0.5
 
-        fill.fill = Style.FillType.Gradient
-        fill.gradient = {
+        var gradient = {
             gradientType: gradientTypes[gradientTypeSrc],
             stops: []
-        }
-
+        };
+    
         var delta = 1 / (count - 1)
 
         var from = {}
@@ -1056,19 +1055,20 @@ class DSApp {
             }
         }
 
-        fill.gradient.to = to
-        fill.gradient.from = from
-
+        gradient.to = to
+        gradient.from = from
+        
         aValues.forEach(function (sColor, index) {
             // detect linear-gradient(134deg, >>>>>#004B3A 0%<<<<<, #2D8B61 80%, #9BD77E 100%);
             const colorOctets = sColor.split(' ')
-            fill.gradient.stops.push({
+            gradient.stops.push({
                 color: Utils.strToHEXColor(colorOctets[0]),
                 position: colorOctets.length > 1 ? colorOctets[1].replace("%", "") / 100 : index * delta
             })
         })
-
+        return gradient;
     }
+
 
     _applyFillGradientProcessColor(rule, sStyle, colorType) {
         const token = rule.props
@@ -1184,10 +1184,18 @@ class DSApp {
 
         // process color
         if (null != borderColor) {
-            var color = borderColor
-            var opacity = token['border-color-opacity']
-            if (null != opacity) color = color + Utils.opacityToHex(opacity)
-            border.color = Utils.strToHEXColor(color)
+            if (borderColor.indexOf("gradient") > 0) {
+                border.fillType = Style.FillType.Gradient
+                border.gradient = this._buildGradientObject(rule, sStyle, borderColor)
+                if (border.color) delete border['color'];
+            } else if (borderColor != "none") {
+                let color = borderColor
+                let opacity = token['border-color-opacity']
+                if (null != opacity) color = color + Utils.opacityToHex(opacity)
+                border.fillType = Style.FillType.Color
+                border.color = Utils.strToHEXColor(color)
+                if (border.gradient) delete border['gradient'];
+            }
         }
 
         // process position
@@ -1306,7 +1314,8 @@ class DSApp {
                 }
             }
             if (backColor.indexOf("gradient") > 0) {
-                this._applyFillGradient(rule, sStyle, backColor, fill)
+                fill.fill = Style.FillType.Gradient
+                fill.gradient = this._buildGradientObject(rule, sStyle, backColor)
             } else if (backColor != "" && backColor != "none") {
                 fill.fill = Style.FillType.Color
                 fill.color = Utils.strToHEXColor(backColor, token['opacity'])
