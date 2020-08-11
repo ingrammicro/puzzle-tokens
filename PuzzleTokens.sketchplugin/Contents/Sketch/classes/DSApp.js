@@ -1170,7 +1170,7 @@ class DSApp {
         // process border-style
         if (null != borderStyle) {
             if ("none" == borderStyle) { // remove any border and bail
-                if (updateBorder) sStyle.borders.pop();
+                if (updateBorder) sStyle.borders = [];
                 return;
             }      
             if (undefined == sStyle.borderOptions) sStyle.borderOptions = {}
