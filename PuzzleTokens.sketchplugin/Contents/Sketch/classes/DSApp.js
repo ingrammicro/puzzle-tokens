@@ -705,8 +705,13 @@ class DSApp {
             // Run script 
             var args = [scriptPath]
             args.push("-styles=" + this.pathToStyles)
-
             args.push("-json=" + pathToRulesJSON)
+
+            if (this.isSass) {
+                let sassModulePath = Settings.settingForKey(SettingKeys.PLUGIN_SASSMODULE_PATH)
+                if (undefined != sassModulePath && sassModulePath != '')
+                    args.push("-sassmodule=" + sassModulePath)
+            }
 
             if (this.pathToAssets != "") {
                 const pathToCSS = this.pathToAssets + "/" + Constants.CSSFILE_POSTFIX
@@ -719,6 +724,7 @@ class DSApp {
 
             let nodePath = Settings.settingForKey(SettingKeys.PLUGIN_NODEJS_PATH)
             if (undefined == nodePath || "" == nodePath) nodePath = Constants.NODEJS_PATH
+
             // check if launch path exists
             if (!Utils.fileExistsAtPath(nodePath)) {
                 return this.logError("Can not find " + nodePath + ". Install Node.js or change Node.js launch path in Settings.")
@@ -981,7 +987,7 @@ class DSApp {
             gradientType: gradientTypes[gradientTypeSrc],
             stops: []
         };
-    
+
         var delta = 1 / (count - 1)
 
         var from = {}
@@ -1057,7 +1063,7 @@ class DSApp {
 
         gradient.to = to
         gradient.from = from
-        
+
         aValues.forEach(function (sColor, index) {
             // detect linear-gradient(134deg, >>>>>#004B3A 0%<<<<<, #2D8B61 80%, #9BD77E 100%);
             const colorOctets = sColor.split(' ')
@@ -1172,7 +1178,7 @@ class DSApp {
             if ("none" == borderStyle) { // remove any border and bail
                 if (updateBorder) sStyle.borders = [];
                 return;
-            }      
+            }
             if (undefined == sStyle.borderOptions) sStyle.borderOptions = {}
             const width = borderWidth != null ? borderWidth.replace("px", "") : 1
             if ("dashed" == borderStyle) {
@@ -1565,13 +1571,14 @@ class DSApp {
         // SET MARGINS
         while (true) {
             var margin = {
-              "top": token['margin-top'],
-              "right": token['margin-right'],
-              "bottom": token['margin-bottom'],
-              "left": token['margin-left'] };
+                "top": token['margin-top'],
+                "right": token['margin-right'],
+                "bottom": token['margin-bottom'],
+                "left": token['margin-left']
+            };
             var height = token['height']
             var width = token['width']
- 
+
             var relativeTo = token[PT_MARGIN_RELATIVE_TO];
             var resize = token[PT_MARGIN_RESIZE];
             if (relativeTo) {
@@ -1582,7 +1589,7 @@ class DSApp {
                     relativeTo = relativeTo.slice(0, -1);
                 }
             }
-            
+
             var gotMargin;
             for (var m in margin) {
                 if (margin[m] == null) continue
@@ -1614,9 +1621,9 @@ class DSApp {
                 }
                 // ...otherwise set to top parent 
                 if (!topParent) {
-                    topParent = this._findLayerTopParent(l);                   
+                    topParent = this._findLayerTopParent(l);
                 }
-               
+
                 const parentFrame = topParent.frame
                 const moveTop = topParent != l.parent;
 
@@ -1651,7 +1658,7 @@ class DSApp {
                     if (null != height) parentFrame.height = l.frame.height
                     if (null != width) parentFrame.width = l.frame.width
                 }
-                
+
                 if (resize == "true") {
                     parentFrame.height = l.frame.height + (margin["top"] || 0) + (margin["bottom"] || 0);
                     parentFrame.width = l.frame.width + (margin["left"] || 0) + (margin["right"] || 0);
@@ -1673,14 +1680,14 @@ class DSApp {
         if (null != currentResizesContent) {
             nLayer.setResizesContent(currentResizesContent)
         }
-        
+
         // Adjust to fit content if selected for artboard or symbol
         if ("true" == token[PT_FIT_CONTENT]) {
             if (sLayer && ("SymbolMaster" == sLayer.type || "Artboard" == sLayer.type)) {
                 sLayer.adjustToFit();
             }
         }
-        
+
         // Resize instances if selected for symbol
         if ("true" == token[PT_RESIZE_INSTANCES] && sLayer && "SymbolMaster" == sLayer.type) {
             for (var inst of sLayer.getAllInstances()) {
