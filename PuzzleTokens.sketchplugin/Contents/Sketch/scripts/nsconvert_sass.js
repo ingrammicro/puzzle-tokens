@@ -5,6 +5,7 @@ var nodePath = require('path');
 const args = parseArgs(process.argv.slice(2))
 var pathToSass = args['-styles']
 var pathToJSON = args['-json']
+var argsPathToSassModule = args['-sassmodule']
 var sassPath = ''
 var sketchRules = []
 
@@ -97,10 +98,9 @@ function loadSassFromFiles(fileName1, fileName2) {
 }
 
 function transformSASStoJSON(data) {
-
-    var passToSassModules = _getPathToSassModules()
-    console.log(passToSassModules)
-    var sass = require(passToSassModules)
+    var pathToSassModule = _getpathToSassModule()
+    console.log(pathToSassModule)
+    var sass = require(pathToSassModule)
 
     process.on('unhandledRejection', error => {
         // Will print "unhandledRejection err is not defined"
@@ -184,8 +184,13 @@ function saveData(strCSS, pathToJSON) {
     return true
 }
 
-function _getPathToSassModules() {
-    var result = require('child_process').execSync("node /usr/local/bin/npm -g root", { env: process.env.PATH })
-    var path = result.toString().replace("\n", "")
+function _getpathToSassModule() {
+    var path = ""
+    if (argsPathToSassModule !== undefined && argsPathToSassModule != "")
+        path = argsPathToSassModule
+    else {
+        var result = require('child_process').execSync("node /usr/local/bin/npm -g root", { env: process.env.PATH })
+        path = result.toString().replace("\n", "")
+    }
     return path + "/sass"
 }
