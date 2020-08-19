@@ -89,6 +89,9 @@ const PT_MARGIN_RELATIVE_TO = "-pt-margin-relative-to"
 const PT_MARGIN_RESIZE = "-pt-margin-resize"
 const PT_FIT_CONTENT = "-pt-fit-content"
 const PT_RESIZE_INSTANCES = "-pt-resize-instances"
+const PT_DEBUG_OVERRIDES = "-pt-debug-overrides"
+const PT_OVERRIDE_TYPE = "-pt-override-type"
+const PT_OVERRIDE_VALUE = "-pt-override-value"
 
 const THIS_NAME = "_This"
 

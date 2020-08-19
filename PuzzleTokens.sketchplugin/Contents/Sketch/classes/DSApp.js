@@ -13,6 +13,11 @@ function cleanName(n) {
 
 }
 
+function stripQuotes(str) {
+        if (str.startsWith('"') || str.startsWith("'")) str = str.slice(1);
+        if (str.endsWith('"') || str.endsWith("'")) str = str.slice(0, -1);
+        return str;
+}
 
 class DSApp {
     constructor(context) {
@@ -383,11 +388,11 @@ class DSApp {
         return styles.length > 0
     }
 
-    _transformRulePath(sketchRule) {
-        sketchRule.path = sketchRule.path.split("*")
+    _transformRulePath(pathString) {
+        var pathArray = pathString.split("*")
         // Convert [ '#Symbol', '1', '.Back' ] to [ '#Symbol 1', '.Back' ],
-        if (sketchRule.path.filter(s => !(s.startsWith(".") || s.startsWith("#")))) {
-            let path = sketchRule.path.map(function (s, index, arr) {
+        if (pathArray.filter(s => !(s.startsWith(".") || s.startsWith("#")))) {
+            let path = pathArray.map(function (s, index, arr) {
                 if (!(s.startsWith(".") || s.startsWith("#"))) return ""
                 let i = index + 1
                 while (arr[i] != null && !(arr[i].startsWith("#") || arr[i].startsWith("."))) {
@@ -396,8 +401,9 @@ class DSApp {
                 }
                 return s
             }).filter(s => s != "")
-            sketchRule.path = path
+            pathArray = path
         }
+        return pathArray;
     }
 
 
@@ -405,7 +411,7 @@ class DSApp {
         this.logMsg("Started")
         for (const rule of this.rules) {
             //////////////////////
-            this._transformRulePath(rule)
+            rule.path = this._transformRulePath(rule.path)
             //////////////////////
             const sStyleName = this._pathToStr(rule.path)
             rule.name = sStyleName
@@ -1674,6 +1680,11 @@ class DSApp {
             nLayer.setResizesContent(currentResizesContent)
         }
         
+        //update symbol overrides
+        if (token[PT_OVERRIDE_VALUE] && sLayer) {
+            this._applySymbolOverrides(sLayer, token);
+        }
+        
         // Adjust to fit content if selected for artboard or symbol
         if ("true" == token[PT_FIT_CONTENT]) {
             if (sLayer && ("SymbolMaster" == sLayer.type || "Artboard" == sLayer.type)) {
@@ -1690,6 +1701,50 @@ class DSApp {
         return true
     }
 
+    _applySymbolOverrides(layer, token) {
+        var topParent = this._findLayerTopParent(layer);
+        var instances = [];
+        if ("SymbolMaster" == topParent.type) instances = topParent.getAllInstances();
+        else if ("SymbolInstance" == topParent.type) instances = [topParent];
+                  
+        var orideValue = stripQuotes( token[PT_OVERRIDE_VALUE] );
+        var otype = stripQuotes( token[PT_OVERRIDE_TYPE] );
+        for (var inst of instances) {
+            var overrides = inst.overrides;
+            var oride;
+            for (var o of overrides) {
+                // find override matching layer name and (if provided) override type
+                if ( o.affectedLayer.name != layer.name ) continue;
+                if (!otype || (o.property == otype) ) {
+                    oride = o;
+                    break;
+                }
+            }
+            if (!oride) {
+                if (DEBUG) this.logDebug("No matching override for layer " + layer.name);
+            }
+            else if ("symbolID" == oride.property) {
+                var symbolPath = orideValue;
+                if (symbolPath == "none") {
+                    oride.value = "";
+                }
+                else {
+                    symbolPath = symbolPath.replace(/\s+/g, "*");
+                    symbolPath = this._transformRulePath(symbolPath);
+                    var master = this._findLayerByPath(symbolPath);
+                    if (!master && DEBUG) {
+                        this.logDebug("No symbol found at '" + token[PT_OVERRIDE_VALUE] + "'");
+                    }
+                    else {
+                        oride.value = master.symbolId;
+                    }
+                }
+            }
+            else {
+
+            }
+        }
+    }
 
     parentOffsetInArtboard(layer) {
         var offset = { x: 0, y: 0 };
