@@ -1,6 +1,13 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+##  Version 8.12.0 (15 Aug 2020)  (Цой жив)
+Added configuration setting to define a custom path to SASS module
+
+##  Version 8.11.0 (11 Aug 2020) 
+Author: Josh Clark  (https://github.com/bigmedium)
+1) Added support for gradients in border-color
+2) When border-style is "none", apply no border style (or remove any existing border style if -pt-border-update is true)
 
 ##  Version 8.10.0 (6 Aug 2020) 
 Author: Josh Clark  (https://github.com/bigmedium)

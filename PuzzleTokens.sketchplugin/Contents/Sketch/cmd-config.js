@@ -19,9 +19,11 @@ var onRun = function (context) {
     let gaEnabled = !Settings.settingForKey(SettingKeys.PLUGIN_GA_DISABLED)
     let nodeJSPAth = Settings.settingForKey(SettingKeys.PLUGIN_NODEJS_PATH)
     if (undefined == nodeJSPAth) nodeJSPAth = ""
+    let sassModulePath = Settings.settingForKey(SettingKeys.PLUGIN_SASSMODULE_PATH)
+    if (undefined == sassModulePath) sassModulePath = ""
 
     // Build dialog
-    const dialog = new UIDialog("Configure", NSMakeRect(0, 0, 400, 300), "Save", "Edit Puzzle Tokens common configuration settings.")
+    const dialog = new UIDialog("Configure", NSMakeRect(0, 0, 400, 340), "Save", "Edit Puzzle Tokens common configuration settings.")
 
     dialog.addLeftLabel("", "Apply Options")
     dialog.addCheckbox("showDoubleStyle", "Warn about style name duplicates", showDoubleStyle)
@@ -31,6 +33,9 @@ var onRun = function (context) {
     dialog.addDivider()
     dialog.addLeftLabel("", "Path to Node.js")
     dialog.addTextInput("nodeJSPAth", "", nodeJSPAth, Constants.NODEJS_PATH, 350)
+    dialog.addLeftLabel("", "Path to SASS Module", 40)
+    dialog.addTextInput("sassModulePath", "", sassModulePath, Constants.DEF_SASSMODULE_PATH, 350)
+    dialog.y -= 20
 
     dialog.addDivider()
     dialog.addLeftLabel("", "Integration with Puzzle Publisher", 40)
@@ -55,6 +60,7 @@ var onRun = function (context) {
         genSymbTokens = dialog.views['genSymbTokens'].state() == 1
         gaEnabled = dialog.views['gaEnabled'].state() == 1
         nodeJSPAth = dialog.views['nodeJSPAth'].stringValue() + ""
+        sassModulePath = dialog.views['sassModulePath'].stringValue() + ""
 
         break
     }
@@ -67,6 +73,7 @@ var onRun = function (context) {
     Settings.setSettingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS, genSymbTokens)
     Settings.setSettingForKey(SettingKeys.PLUGIN_GA_DISABLED, !gaEnabled)
     Settings.setSettingForKey(SettingKeys.PLUGIN_NODEJS_PATH, nodeJSPAth)
+    Settings.setSettingForKey(SettingKeys.PLUGIN_SASSMODULE_PATH, sassModulePath)
 
     return true
 
