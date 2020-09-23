@@ -61,8 +61,7 @@ The following CSS styles are supporting.
     border-line-join:           miter;     // miter / round / bevel
     border-start-arrowhead:     openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare
     border-end-arrowhead:       openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare            
-    -pt-shadow-update:          true;  // Use it if you want to replace any previous shadows, instead of adding a new one.
-
+    -pt-border-update:          true;  // Use it if you want to replace an existing border, instead of adding a new one.
 
     /// CSS native properties
     background-color:      #B0AFB1;
@@ -79,6 +78,7 @@ The following CSS styles are supporting.
     box-shadow:            0 10px 20px 2 #FF00FF;
     box-shadow:            inset 0 10px 20px 2 rgba(0,0,0,0.1);
     box-shadow:            0 10px 20px 2 rgba(0,0,0,0.1), inset 0 10px 20px 2 rgba(0,0,0,0.1);
+    -pt-shadow-update:          true;  // Use it if you want to replace any previous shadows, instead of adding a new one.
      
     // !!ATTENTION!!
     // Shared styles don't include radius property,
