@@ -1639,6 +1639,13 @@ class DSApp {
                 let x = null
                 let y = null
 
+                if (null != height) {
+                    l.frame.height = parseInt(height.replace('px', ""))
+                }
+                if (null != width) {
+                    l.frame.width = parseInt(width.replace('px', ""))
+                }
+
                 if (null != margin["top"]) { // prefer top positioning to bottom
                     y = margin["top"] + yOffset;
                 }
@@ -1650,12 +1657,6 @@ class DSApp {
                 }
                 else if (null != margin["right"]) {
                     x = parentFrame.width + xOffset - (margin["right"] + l.frame.width)
-                }
-                if (null != height) {
-                    l.frame.height = parseInt(height.replace('px', ""))
-                }
-                if (null != width) {
-                    l.frame.width = parseInt(width.replace('px', ""))
                 }
 
                 if (x != null || y != null) this.positionInArtboard(l, x, y)
@@ -1709,47 +1710,53 @@ class DSApp {
     }
 
     _applySymbolOverrides(layer, token) {
-        var topParent = this._findLayerTopParent(layer);
-        var instances = [];
-        if ("SymbolMaster" == topParent.type) instances = topParent.getAllInstances();
-        else if ("SymbolInstance" == topParent.type) instances = [topParent];
-                  
-        var orideValue = stripQuotes( token[PT_OVERRIDE_VALUE] );
+        if ("SymbolInstance" != layer.type) {
+            return this.logError("Can't apply override because layer is not a symbol instance: " + layer.name)
+        }
+
         var otype = stripQuotes( token[PT_OVERRIDE_TYPE] );
-        for (var inst of instances) {
-            var overrides = inst.overrides;
-            var oride;
-            for (var o of overrides) {
-                // find override matching layer name and (if provided) override type
-                if ( o.affectedLayer.name != layer.name ) continue;
-                if (!otype || (o.property == otype) ) {
-                    oride = o;
-                    break;
-                }
+        var olayer;
+        if ( token[PT_OVERRIDE_LAYER] ) olayer = stripQuotes( token[PT_OVERRIDE_LAYER] );
+
+        var overrides = layer.overrides;
+        var oride;
+        for (var o of overrides) {
+            // find override matching layer name and (if provided) override type
+if (DEBUG) this.logDebug("Checking override for " + layer.name);
+if (DEBUG) this.logDebug("Affected layer is " + o.affectedLayer.name);
+            if ( olayer && o.affectedLayer.name != olayer ) continue;
+if (DEBUG) this.logDebug("Examining override with property " + o.property);
+            if (!otype || (o.property == otype) ) {
+                oride = o;
+                break;
             }
-            if (!oride) {
-                if (DEBUG) this.logDebug("No matching override for layer " + layer.name);
-            }
-            else if ("symbolID" == oride.property) {
-                var symbolPath = orideValue;
-                if (symbolPath == "none") {
-                    oride.value = "";
-                }
-                else {
-                    symbolPath = symbolPath.replace(/\s+/g, "*");
-                    symbolPath = this._transformRulePath(symbolPath);
-                    var master = this._findLayerByPath(symbolPath);
-                    if (!master && DEBUG) {
-                        this.logDebug("No symbol found at '" + token[PT_OVERRIDE_VALUE] + "'");
-                    }
-                    else {
-                        oride.value = master.symbolId;
-                    }
-                }
+        }
+
+        var orideValue = stripQuotes( token[PT_OVERRIDE_VALUE] );
+
+        if (!oride) {
+            if (DEBUG) this.logDebug("No matching override for layer " + layer.name);
+        }
+        else if ("symbolID" == oride.property) {
+            var symbolPath = orideValue;
+            if (symbolPath == "none") {
+                oride.value = "";
             }
             else {
-
+if (DEBUG) this.logDebug("Applying symbol override for layer " + layer.name);
+                symbolPath = symbolPath.replace(/\s+/g, "*");
+                symbolPath = this._transformRulePath(symbolPath);
+                var master = this._findLayerByPath(symbolPath);
+                if (!master && DEBUG) {
+                    this.logDebug("No symbol found at '" + token[PT_OVERRIDE_VALUE] + "'");
+                }
+                else {
+                    oride.value = master.symbolId;
+                }
             }
+        }
+        else {
+
         }
     }
 
