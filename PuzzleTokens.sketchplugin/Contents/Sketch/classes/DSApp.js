@@ -1539,6 +1539,13 @@ class DSApp {
                 let x = null
                 let y = null
 
+                if (null != height) {
+                    l.frame.height = parseInt(height.replace('px', ""))
+                }
+                if (null != width) {
+                    l.frame.width = parseInt(width.replace('px', ""))
+                }
+
                 if (null != margin["top"]) { // prefer top positioning to bottom
                     y = margin["top"] + yOffset;
                 }
@@ -1550,12 +1557,6 @@ class DSApp {
                 }
                 else if (null != margin["right"]) {
                     x = parentFrame.width + xOffset - (margin["right"] + l.frame.width)
-                }
-                if (null != height) {
-                    l.frame.height = parseInt(height.replace('px', ""))
-                }
-                if (null != width) {
-                    l.frame.width = parseInt(width.replace('px', ""))
                 }
 
                 if (x != null || y != null) this.positionInArtboard(l, x, y)
