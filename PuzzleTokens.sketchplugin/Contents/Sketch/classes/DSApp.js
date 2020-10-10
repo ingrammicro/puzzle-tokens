@@ -31,10 +31,9 @@ class DSApp {
         this.elements = {
             styles: {}
         }
-        this.sTextStyles = {}
-        this.sLayerStyles = {}
-        this.sAppliedStyles = {}
-        this.sLayers = {}
+        this.textStyles = {}
+        this.layerStyles = {}
+        this.appliedStyles = {}
 
         this._symbolPage = undefined
 
@@ -179,19 +178,19 @@ class DSApp {
     _initStyles() {
         const showError = Settings.PLUGIN_SHOW_DOUBLESTYLES
 
-        this.sTextStyles = {}
+        this.textStyles = {}
         this.sDoc.sharedTextStyles.filter(s => null == s.getLibrary()).forEach(function (sStyle) {
-            if (this.showDoubleStyleError && sStyle.name in this.sTextStyles) {
+            if (this.showDoubleStyleError && sStyle.name in this.textStyles) {
                 this.logError("Found multiply text styles with name '" + sStyle.name + "'")
             }
-            this.sTextStyles[sStyle.name] = sStyle
+            this.textStyles[sStyle.name] = sStyle
         }, this)
-        this.sLayerStyles = {}
+        this.layerStyles = {}
         this.sDoc.sharedLayerStyles.filter(s => null == s.getLibrary()).forEach(function (sStyle) {
-            if (this.showDoubleStyleError && sStyle.name in this.sLayerStyles) {
+            if (this.showDoubleStyleError && sStyle.name in this.layerStyles) {
                 this.logError("Found multiply layer styles with name '" + sStyle.name + "'")
             }
-            this.sLayerStyles[sStyle.name] = sStyle
+            this.layerStyles[sStyle.name] = sStyle
 
         }, this)
     }
@@ -200,8 +199,8 @@ class DSApp {
     _findStyleByName(styleName, isLayerStyle) {
         if (DEBUG) this.logDebug("_findStyleByName running...  styleName:" + styleName)
 
-        const sLocalStyle = !isLayerStyle ? this.sTextStyles[styleName] : this.sLayerStyles[styleName]
-        if (sLocalStyle) return sLocalStyle
+        const localStyle = !isLayerStyle ? this.textStyles[styleName] : this.layerStyles[styleName]
+        if (localStyle) return localStyle
 
         // find Sketch library and style
         var sStyle = null
@@ -469,7 +468,7 @@ class DSApp {
                         continue
                     }
 
-                    sSharedStyle = rule.isText ? this.sTextStyles[sStyleName] : this.sLayerStyles[sStyleName]
+                    sSharedStyle = rule.isText ? this.textStyles[sStyleName] : this.layerStyles[sStyleName]
 
                     sStyle = sSharedStyle != null ? sSharedStyle.style : {
                         styleType: rule.isText ? SharedStyle.StyleType.Text : SharedStyle.StyleType.Layer,
@@ -478,11 +477,11 @@ class DSApp {
                 }
 
                 // drop existing (or new) style properties before first apply                
-                if (!this.sAppliedStyles[sStyleName] && (rule.isText || rule.isLayer) &&
-                    !(rule.sLayer && rule.sLayer.sharedStyle && this.sAppliedStyles[rule.sLayer.sharedStyle.name])
+                if (!this.appliedStyles[sStyleName] && (rule.isText || rule.isLayer) &&
+                    !(rule.sLayer && rule.sLayer.sharedStyle && this.appliedStyles[rule.sLayer.sharedStyle.name])
                 ) {
                     this._resetStyle(rule, sStyle)
-                    this.sAppliedStyles[sStyleName] = true
+                    this.appliedStyles[sStyleName] = true
                 }
 
                 // Apply rule properties
@@ -515,9 +514,9 @@ class DSApp {
                             document: this.nDoc
                         })
                         if (rule.isText)
-                            this.sTextStyles[sStyleName] = sSharedStyle
+                            this.textStyles[sStyleName] = sSharedStyle
                         else
-                            this.sLayerStyles[sStyleName] = sSharedStyle
+                            this.layerStyles[sStyleName] = sSharedStyle
                         this.result.createdStyles++
                         this.logMsg("[Created] new shared style " + sStyleName)
 
@@ -545,74 +544,6 @@ class DSApp {
 
         return true
     }
-
-
-    // Find or create a symbol master and place new layer inside
-    /*
-    _findOrCreateSymbolMasterChild(rule) {
-        if (rule.path in this.sLayers) return this.sLayers[rule.path]
-        //
-        let master = this._findSymbolMasterByPath(rule.path)
-        if (!master) {
-            if (!this.confCreateSymbols) {
-                this.logError("Can't find symbol master by path " + rule.path)
-                return null
-            }
-            const symbolPath = this._buildSymbolPathFromPath(rule.path)
-            let symbolName = symbolPath.join(' / ')
-
-            // Create new symbol master
-            master = this._createNewSymbolMaster(symbolName)
-        }
-
-        // Get a name for the layer
-        const layerPath = this._buildSymbolChildPathFromPath(rule.path)
-        const layerName = layerPath[0]
-
-        // Return ref to found master symbol itself
-        if (THIS_NAME == layerPath) {
-            this.sLayers[rule.path] = master
-            return master
-        }
-
-        ///
-        const isText = rule.type.indexOf("text") >= 0
-        const isLayer = rule.type.indexOf("layer") >= 0
-        let sLayer = null
-        if (isLayer) {
-            sLayer = new Shape({
-                name: layerName,
-                parent: master,
-                style: {},
-                frame: new Rectangle(
-                    0, 0, 100, 100
-                ),
-                //sharedStyleId: isTextStyle ? undefined : sSharedStyle.id
-            })
-            if (sLayer.layers) { // remove group which Sketch creates for Shape
-                const realShape = sLayer.layers[0]
-                realShape.parent = master
-                realShape.name = layerName
-                sLayer.remove()
-                sLayer = realShape
-            }
-        } else if (isText) {
-            sLayer = new Text({
-                name: layerName,
-                parent: master,
-                frame: new Rectangle(
-                    0, 0, 100, 100
-                ),
-                style: {
-                    borders: [],
-                }
-            })
-            sLayer.name = layerName
-        }
-        this.sLayers[rule.path] = sLayer
-        return sLayer
-    }
-    */
 
     _resetStyle(rule, sStyle) {
         if (rule.isLayer && sStyle) {
@@ -1106,7 +1037,7 @@ class DSApp {
         }
 
         const token = rule.props
-        let reset = token[PT_SHADOW_UPDATE] == 'true' || !this.sAppliedStyles[rule.name]
+        let reset = token[PT_SHADOW_UPDATE] == 'true' || !this.appliedStyles[rule.name]
         let resetInset = true
 
 
@@ -1260,7 +1191,7 @@ class DSApp {
                 border = null
             }
 
-            if (this.sAppliedStyles[rule.name] != undefined && sStyle.borders != null) {
+            if (this.appliedStyles[rule.name] != undefined && sStyle.borders != null) {
                 // already added border, now add one more
                 if (border) {
                     sStyle.borders.push(border)
@@ -1269,31 +1200,6 @@ class DSApp {
                 // drop existing borders
                 sStyle.borders = border ? [border] : []
             }
-        }
-    }
-
-    _getObjTextData(obj) {
-        var orgTextStyle = sLayer.style.sketchObject.textStyle()
-        const textAttribs = orgTextStyle.attributes()
-
-        const textTransformAttribute = textAttribs.MSAttributedStringTextTransformAttribute
-        const colorAttr = textAttribs.NSColor
-        const kernAttr = textAttribs.NSKern
-
-        var attributes = {
-            'NSFont': textAttribs.NSFont.copy(),
-            'NSParagraphStyle': textAttribs.NSParagraphStyle.copy()
-        };
-        if (colorAttr)
-            attributes['NSColor'] = colorAttr.copy()
-        if (textTransformAttribute)
-            attributes['MSAttributedStringTextTransformAttribute'] = textTransformAttribute.copy()
-        if (kernAttr)
-            attributes['NSKern'] = kernAttr.copy()
-
-        return {
-            'attributes': attributes,
-            'orgTextStyle': orgTextStyle
         }
     }
 
@@ -1440,7 +1346,7 @@ class DSApp {
             sStyle.fontSize = parseFloat(fontSize.replace("px", ""))
 
             // If applied font size at first time then drop line-height
-            if (!this.sAppliedStyles[rule.name]) {
+            if (!this.appliedStyles[rule.name]) {
                 sStyle.lineHeight = null
             }
         }
