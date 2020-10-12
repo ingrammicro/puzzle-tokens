@@ -1591,7 +1591,10 @@ class DSApp {
         // Adjust to fit content if selected for artboard or symbol
         if ("true" == token[PT_FIT_CONTENT]) {
             if (sLayer && ("SymbolMaster" == sLayer.type || "Artboard" == sLayer.type)) {
-                sLayer.adjustToFit();
+                currentResizesContent = nLayer.resizesContent()
+                nLayer.setResizesContent(false)
+                sLayer.adjustToFit()
+                nLayer.setResizesContent(currentResizesContent)
             }
         }
 
