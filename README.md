@@ -101,7 +101,10 @@ The following CSS styles are supporting.
     -pt-pin-bottom:          true; // "true" or "false
     -pt-fix-size-height:     true; // "true" or "false
     -pt-fix-size-width:      true; // "true" or "false
-    -pt-skip-missed:         true: // "true" or "false // Usefull to skip style if no layer found without an error
+    -pt-skip-missed:         true: // "true" or "false // Usefull to skip style if no layer
+                                                       // found without an error
+    -pt-resize-symbol:      true:  //  resize layer owner (symbol master) to a layer size
+
 
     // The following properties are not a part of shared styles.
     // Bu you can set these properties for a shared style.
@@ -142,23 +145,24 @@ The following CSS styles are supporting.
 }
 
 // Group & SymbolMaster Properties
-.Group{
+#Group{
     -pt-smartlayout:         LeftToRight; // LeftToRight OR HorizontallyCenter OR RightToLeft OR TopToBottom 
                                           // OR VerticallyCenter OR BottomToTop OR None
 }
 
 // SymbolMaster and Artboard Properties
+#Symbol{
     -pt-fit-content:        true;        // Resize the symbol or artboard to fit content
 }
 
-// SymbolMaster Properties
+// SymbolMaster properties
+#Symbol{
     -pt-resize-instances:   true;        // Resize all instances of a symbol; the same as
                                          // clicking Sketch's "Shrink instance to fit
                                          // content" button in the Overrides section of
                                          // the instance. (This reapplies SmartLayout,
                                          // useful when you change the size of a symbol.)
 }
-
 
 #Image{
     // Required Properties
