@@ -1,0 +1,18 @@
+////////////////////////////////// RENAME TEXT STYLES
+// Argument
+var search = "OLDNAME"
+var replace = "NEWNAME"
+
+//Get the current document
+var sketch = require('sketch')
+var document = sketch.getSelectedDocument()
+
+//Get the shared text styles of this document
+var textStyles = document.sharedTextStyles;
+
+textStyles.forEach(function(style){
+  style.name = style.name.replaceAll(search,replace)
+})
+
+
+////////////////////////////////////////////////////////////
