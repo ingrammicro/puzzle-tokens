@@ -498,7 +498,7 @@ class DSApp {
                 }
                 this.result.updatedLayers++
                 // SET MARGINS
-                this._applyCommonRules(rule, sSharedStyle)
+                this._applyCommonRules(rule, sSharedStyle, sStyle)
 
 
                 if (rule.isStandalone) {
@@ -1459,7 +1459,7 @@ class DSApp {
 
     }
 
-    _applyCommonRules(rule, sSharedStyle) {
+    _applyCommonRules(rule, sSharedStyle, sStyle) {
         const token = rule.props
         const sLayer = rule.sLayer
         const nLayer = rule.sLayer ? rule.sLayer.sketchObject : null
@@ -1604,6 +1604,18 @@ class DSApp {
                 inst.resizeWithSmartLayout();
             }
         }
+
+        //
+        const mixBlendModeCSS = token['mix-blend-mode']
+        if (undefined != mixBlendModeCSS) {
+            const mixBlendModeSketch = BLENDING_MODE_CSS_TO_SKETCH[mixBlendModeCSS]
+            if (undefined == mixBlendModeSketch) {
+                this.logError("Uknown '" + mixBlendModeCSS + "' mix-blend-mode value'")
+            } else {
+                sStyle.blendingMode = mixBlendModeSketch;
+            }
+        }
+
         return true
     }
 

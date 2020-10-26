@@ -79,6 +79,9 @@ The following CSS styles are supporting.
     box-shadow:            inset 0 10px 20px 2 rgba(0,0,0,0.1);
     box-shadow:            0 10px 20px 2 rgba(0,0,0,0.1), inset 0 10px 20px 2 rgba(0,0,0,0.1);
     -pt-shadow-update:          true;  // Use it if you want to replace any previous shadows, instead of adding a new one.
+
+    mix-blend-mode:         normal; // normal / darken / multiply / color-burn / lighten / screen / color-dodge / overlay / difference 
+                                    // exclusion / hue / saturation / color / luminosity
      
     // !!ATTENTION!!
     // Shared styles don't include radius property,
@@ -104,7 +107,6 @@ The following CSS styles are supporting.
     -pt-skip-missed:         true: // "true" or "false // Usefull to skip style if no layer
                                                        // found without an error
     -pt-resize-symbol:      true:  //  resize layer owner (symbol master) to a layer size
-
 
     // The following properties are not a part of shared styles.
     // Bu you can set these properties for a shared style.

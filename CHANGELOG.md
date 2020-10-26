@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+# Version 8.13.0 (26 Oct 2020)
+Added support for mix-blend-mode CSS rule
+
 ##  Version 8.12.1 (10 Oct 2020)
 Author: Josh Clark  (https://github.com/bigmedium)
 Height/width dimensions have to be adjusted first, or bottom-margin and right-margin are incorrect.

@@ -91,6 +91,7 @@ const PT_MARGIN_RELATIVE_TO = "-pt-margin-relative-to"
 const PT_MARGIN_RESIZE = "-pt-margin-resize"
 const PT_FIT_CONTENT = "-pt-fit-content"
 const PT_RESIZE_INSTANCES = "-pt-resize-instances"
+const PT_VALIGN = "-pt-valign"
 
 const THIS_NAME = "_This"
 
@@ -110,6 +111,27 @@ const FIXED_SIZE_BEHAVIOUR_MAP = {
     'auto-height': 1,
     'fixed-size': 2
 }
+
+
+const BLENDING_MODE_CSS_TO_SKETCH = {
+    "normal": Style.BlendingMode.Normal,
+    "darken": Style.BlendingMode.Darken,
+    "multiply": Style.BlendingMode.Multiply,
+    "color-burn": Style.BlendingMode.ColorBurn,
+    "lighten": Style.BlendingMode.Lighten,
+    "screen": Style.BlendingMode.Screen,
+    "color-dodge": Style.BlendingMode.ColorDodge,
+    "overlay": Style.BlendingMode.Overlay,
+    //"darken": Style.BlendingMode.SoftLight, // Not supported in CSS
+    //"darken": Style.BlendingMode.HardLight, // Not supported in CSS
+    "difference": Style.BlendingMode.Difference,
+    "exclusion": Style.BlendingMode.Exclusion,
+    "hue": Style.BlendingMode.Hue,
+    "saturation": Style.BlendingMode.Saturation,
+    "color": Style.BlendingMode.Color,
+    "luminosity": Style.BlendingMode.Luminosity,
+}
+
 
 const alignMap = {
     left: Text.Alignment.left,
