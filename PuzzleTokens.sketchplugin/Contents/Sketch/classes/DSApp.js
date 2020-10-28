@@ -1690,17 +1690,23 @@ class DSApp {
 
     _applyPropsToColor(rule) {
         const token = rule.props
-        const colorValue = token['color']
+        let colorValue = token['color']
         const colorName = rule.path[1].replace(/^\./, '')
+
+        let opacity = token['opacity']
+        let opacityHEX = undefined != opacity ? Utils.opacityToHex(opacity) : ''
+        colorValue = Utils.strToHEXColor(colorValue + opacityHEX)
+
 
         var colors = this.sDoc.swatches
         var color = colors.find(c => c.name == colorName)
         if (!color) {
             // create new color
-            color = {
+            var sketch = require('sketch')
+            color = sketch.Swatch.from({
                 name: colorName,
                 color: colorValue
-            }
+            })
             colors.push(color)
         } else {
             // update existing color
