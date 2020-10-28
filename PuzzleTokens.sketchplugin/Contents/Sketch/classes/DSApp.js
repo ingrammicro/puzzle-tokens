@@ -412,25 +412,32 @@ class DSApp {
             rule.type = ""
             if (DEBUG) this.logDebug(rule.name)
 
-            if (rule.path[0].startsWith('#')) {
-                rule.isStandalone = true
-                rule.sLayer = this._findLayerByPath(rule.path)
-                if (null == rule.sLayer) {
-                    if (PT_SKIP_MISSED in rule.props) {
-                        continue
-                    } else if (this.confCreateSymbols)
-                        this.messages += "Will create new symbol " + rule.path + " of " + ruleType + " type \n"
-                    else {
-                        this.logError("Can't find symbol master by path " + rule.path)
-                        continue
-                    }
-                }
+            if (rule.path[0].startsWith(SPACE_COLORS)) {
+                // will define color variable
+                ruleType = this._defineRuleTypeAsColor(rule)
             } else {
+                if (rule.path[0].startsWith('#')) {
+                    rule.isStandalone = true
+                    rule.sLayer = this._findLayerByPath(rule.path)
+                    if (null == rule.sLayer) {
+                        if (PT_SKIP_MISSED in rule.props) {
+                            continue
+                        } else if (this.confCreateSymbols)
+                            this.messages += "Will create new symbol " + rule.path + " of " + ruleType + " type \n"
+                        else {
+                            this.logError("Can't find symbol master by path " + rule.path)
+                            continue
+                        }
+                    }
+                } else {
+                }
+                ruleType = this._defineRuleType(rule)
             }
-            ruleType = this._getRuleType(rule)
             //////////////////////
 
-            if (rule.isImage) {
+            if (rule.isColor) {
+                this._applyPropsToColor(rule)
+            } else if (rule.isImage) {
                 this._applyPropsToImage(rule)
             } else {
 
@@ -575,11 +582,24 @@ class DSApp {
         return sSharedStyle
     }
 
+    // mutable
+    _defineRuleTypeAsColor(rule) {
+        rule.isColor = true
+        rule.isStandalone = false
+        rule.isText = false
+        rule.isLayer = false
+        rule.isGroup = false
+        rule.isImage = false
+        return "color"
+    }
 
     // mutable
-    _getRuleType(rule) {
+    _defineRuleType(rule) {
         var res = ""
         const props = rule.props
+
+        if (null != props['image'])
+            res += "image"
 
         if (null != props['color'] || null != props['font-family'] || null != props['font-style'] || null != props['font-size']
             || null != props['font-weight'] || null != props['text-transform'] || null != props['text-align'] || null != props['vertical-align']
@@ -607,6 +627,7 @@ class DSApp {
         rule.isLayer = res.includes("layer")
         rule.isGroup = res.includes("group")
         rule.isImage = res.includes("image")
+        rule.isColor = false
 
         return res
     }
@@ -1667,6 +1688,33 @@ class DSApp {
     }
 
 
+    _applyPropsToColor(rule) {
+        const token = rule.props
+        const colorValue = token['color']
+        const colorName = rule.path[1].replace(/^\./, '')
+
+        var colors = this.sDoc.swatches
+        var color = colors.find(c => c.name == colorName)
+        if (!color) {
+            // create new color
+            color = {
+                name: colorName,
+                color: colorValue
+            }
+            colors.push(color)
+        } else {
+            // update existing color
+            let myNewColor = MSColor.colorWithHex_alpha(colorValue, 1.0)
+            let swatchContainer = this.nDoc.documentData().sharedSwatches()
+            swatchContainer.swatches().forEach((s) => {
+                if (s.name() == colorName) {
+                    s.updateWithColor(myNewColor)
+                    log(s)
+                    swatchContainer.updateReferencesToSwatch(s)
+                }
+            })
+        }
+    }
 
     _applyPropsToImage(rule) {
         const token = rule.props

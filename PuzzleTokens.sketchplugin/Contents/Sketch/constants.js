@@ -93,6 +93,8 @@ const PT_FIT_CONTENT = "-pt-fit-content"
 const PT_RESIZE_INSTANCES = "-pt-resize-instances"
 const PT_VALIGN = "-pt-valign"
 
+const SPACE_COLORS = ".--COLORS-"
+
 const THIS_NAME = "_This"
 
 
