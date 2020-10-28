@@ -1715,7 +1715,6 @@ class DSApp {
             swatchContainer.swatches().forEach((s) => {
                 if (s.name() == colorName) {
                     s.updateWithColor(myNewColor)
-                    log(s)
                     swatchContainer.updateReferencesToSwatch(s)
                 }
             })
