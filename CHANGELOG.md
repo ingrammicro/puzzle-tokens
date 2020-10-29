@@ -1,6 +1,10 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+# Version 8.14.1 (29 Oct 2020)
+Fixed color var updating
+Fixed support for image path in SASS/SCSS
+
 # Version 8.14.0 (28 Oct 2020)
 Added support for color variables
 Example: https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Releases/8.14.0
