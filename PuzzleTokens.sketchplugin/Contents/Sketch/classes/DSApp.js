@@ -1443,7 +1443,10 @@ class DSApp {
 
         // SET TEXT COLOR
         if (undefined != color) {
-            sStyle.textColor = Utils.strToHEXColor(color, token['opacity'])
+            let opacity = token['opacity']
+            let opacityHEX = undefined != opacity ? Utils.opacityToHex(opacity) : ''
+
+            sStyle.textColor = Utils.strToHEXColor(color + opacityHEX)
         }
         // SET TEXT TRANSFORM
         if (undefined != transform) {
