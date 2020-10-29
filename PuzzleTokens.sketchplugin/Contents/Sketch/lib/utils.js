@@ -369,6 +369,8 @@ class Utils {
             str = Utils.HSLAToHexA(str)
         } else if (str.toLowerCase().includes("hsl")) {
             str = Utils.HSLToHex(str)
+        } else if (str.toLowerCase().includes("rgba")) {
+            str = Utils.RGBAToHexA(str)
         }
         if (str.includes(" ") && str.includes("%")) {
             const list = str.split(" ")

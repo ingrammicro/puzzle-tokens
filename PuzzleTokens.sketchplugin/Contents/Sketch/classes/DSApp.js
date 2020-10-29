@@ -1709,8 +1709,13 @@ class DSApp {
             })
             colors.push(color)
         } else {
-            // update existing color
-            let myNewColor = MSColor.colorWithHex_alpha(colorValue, 1.0)
+            let opacity = 1.0
+            if (colorValue.length > 7) {
+                let rgba = Utils.hexColorToRGBA(colorValue)
+                opacity = rgba.a / 255
+                colorValue = colorValue.substring(0, 7)
+            }
+            let myNewColor = MSColor.colorWithHex_alpha(colorValue, opacity)
             let swatchContainer = this.nDoc.documentData().sharedSwatches()
             swatchContainer.swatches().forEach((s) => {
                 if (s.name() == colorName) {
@@ -1723,7 +1728,7 @@ class DSApp {
 
     _applyPropsToImage(rule) {
         const token = rule.props
-        const imageName = token['image']
+        let imageName = token['image']
         var sLayer = rule.sLayer
 
 
@@ -1736,6 +1741,7 @@ class DSApp {
             if ('transparent' == imageName) {
                 sLayer.style.opacity = 0
             } else {
+                imageName = imageName.replace(/^\"/, "").replace(/\"$/, "")
                 let path = this.pathToTokens + "/" + imageName
 
                 var fileManager = [NSFileManager defaultManager];
