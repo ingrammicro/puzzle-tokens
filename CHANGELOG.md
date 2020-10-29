@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+# Version 8.14.2 (29 Oct 2020)
+Fixed opacity for text layers
+
 # Version 8.14.1 (29 Oct 2020)
 Fixed color var updating
 Fixed support for image path in SASS/SCSS
