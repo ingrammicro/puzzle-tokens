@@ -408,6 +408,16 @@ class Utils {
         return hex
     }
 
+
+    // opacity: 0 .. 1.0(transparent) or 0(transparent)..100% to 1.0 
+    static cssOpacityToSketch(opacity) {
+        if (typeof opacity == 'string' && opacity.indexOf("%") >= 0) {
+            opacity = opacity.replace("%", "")
+            opacity = parseInt(opacity) / 100
+        }
+        return parseFloat(opacity)
+    }
+
     static stripStr(str) {
         return str.replace(/^\s+|\s+$/g, '');
     }
