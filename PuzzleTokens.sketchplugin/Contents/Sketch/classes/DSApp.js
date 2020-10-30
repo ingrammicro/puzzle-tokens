@@ -29,7 +29,8 @@ class DSApp {
         this.isQuick = false
 
         this.elements = {
-            styles: {}
+            styles: {},
+            colors__: {},
         }
         this.textStyles = {}
         this.layerStyles = {}
@@ -1724,6 +1725,7 @@ class DSApp {
                 }
             })
         }
+        this.elements.colors__[colorName] = token.__tokens
     }
 
     _applyPropsToImage(rule) {
