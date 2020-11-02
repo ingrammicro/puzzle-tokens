@@ -585,6 +585,10 @@ class DSApp {
 
     // mutable
     _defineRuleTypeAsColor(rule) {
+        // cut first path element '.--COLORS-'
+        rule.path.splice(0, 1)
+        rule.name = cleanName(rule.path.map(cleanName).join("/"))
+        //
         rule.isColor = true
         rule.isStandalone = false
         rule.isText = false
@@ -1693,7 +1697,7 @@ class DSApp {
     _applyPropsToColor(rule) {
         const token = rule.props
         let colorValue = token['color']
-        const colorName = rule.path[1].replace(/^\./, '')
+        const colorName = rule.name
 
         let opacity = token['opacity']
         let opacityHEX = undefined != opacity ? Utils.opacityToHex(opacity) : ''

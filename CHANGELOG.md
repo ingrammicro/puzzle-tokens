@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+# Version 8.14.4 (29 Oct 2020)
+Supported color var groups
+
 # Version 8.14.2 (29 Oct 2020)
 Fixed opacity for text layers
 
