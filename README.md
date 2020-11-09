@@ -218,6 +218,16 @@ You can update the following Sketch objects.
     }
 }
 
+// Update color variables
+.--COLORS-{
+    .primary{
+        color:                                      black;
+    }
+    .secondary{
+        color:                                      grey;
+    }
+}
+
 ```
 ## Special Tricks for Selector Names
 - To start a style or symbol name from a number just add --PT- prefix. So, "--PT-1 Style" will be transformed to "1 Style".
