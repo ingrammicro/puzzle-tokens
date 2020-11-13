@@ -68,7 +68,7 @@ class DSApp {
         this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS) == 1
         this.showDebug = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_JSON) == 1
         this.showDoubleStyleError = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DOUBLESTYLES) == 1
-        this.confCreateSymbols = Settings.settingForKey(SettingKeys.PLUGIN_CREATE_SYMBOLS) == 1
+        //this.confCreateSymbols = Settings.settingForKey(SettingKeys.PLUGIN_CREATE_SYMBOLS) == 1
         this.confClear = this.confClean = Settings.settingForKey(SettingKeys.PLUGIN_APPLY_CLEAR) == 1
 
         // Check if we in Cloud
@@ -327,7 +327,7 @@ class DSApp {
 
 
     _showDialog() {
-        const dialog = new UIDialog("Apply LESS/SASS styles", NSMakeRect(0, 0, 600, 120), "Apply", "Load LESS or SASS file with style definions and create new Sketch styles (or update existing).")
+        const dialog = new UIDialog("Apply LESS/SASS styles", NSMakeRect(0, 0, 600, 100), "Apply", "Load LESS or SASS file with style definions and create new Sketch styles (or update existing).")
         dialog.removeLeftColumn()
 
         this.pathToStylesList = this.pathToStylesList.slice(0, 20)
@@ -338,8 +338,8 @@ class DSApp {
             width: 580, askFilePath: true,
             comboBoxOptions: this.pathToStylesList
         })
-        dialog.addDivider()
-        dialog.addCheckbox("confCreateSymbols", "Create missed master symbols", this.confCreateSymbols)
+        //dialog.addDivider()
+        //dialog.addCheckbox("confCreateSymbols", "Create missed master symbols", this.confCreateSymbols)
 
         track(TRACK_APPLY_DIALOG_SHOWN)
         while (true) {
@@ -362,7 +362,7 @@ class DSApp {
             this.pathToStylesList = this.pathToStylesList.slice(0, 20)
 
             ///
-            this.confCreateSymbols = dialog.views['confCreateSymbols'].state() == 1
+            //this.confCreateSymbols = dialog.views['confCreateSymbols'].state() == 1
             break
         }
         dialog.finish()
@@ -370,7 +370,7 @@ class DSApp {
 
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS_LIST, this.pathToStylesList)
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToStyles)
-        Settings.setSettingForKey(SettingKeys.PLUGIN_CREATE_SYMBOLS, this.confCreateSymbols)
+        //Settings.setSettingForKey(SettingKeys.PLUGIN_CREATE_SYMBOLS, this.confCreateSymbols)
 
 
         return true
@@ -423,9 +423,12 @@ class DSApp {
                     if (null == rule.sLayer) {
                         if (PT_SKIP_MISSED in rule.props) {
                             continue
-                        } else if (this.confCreateSymbols)
-                            this.messages += "Will create new symbol " + rule.path + " of " + ruleType + " type \n"
-                        else {
+                            /*} lse if (this.confCreateSymbols) {
+                                this.messages += "Will create new symbol " + rule.path + " of " + ruleType + " type \n"
+                                rule.sLayer = new SymbolMaster({
+                                    name: rule.name,
+                                })*/
+                        } else {
                             this.logError("Can't find symbol master by path " + rule.path)
                             continue
                         }
