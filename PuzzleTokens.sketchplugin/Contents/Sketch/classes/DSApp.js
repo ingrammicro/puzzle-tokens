@@ -1112,6 +1112,8 @@ class DSApp {
     }
 
     _applyBorderStyle(rule, sStyle) {
+        if (DEBUG) this.logDebug("_applyBorderStyle: rule=" + rule.name)
+
         const token = rule.props
         const borderWidth = token['border-width']
         const borderColor = token['border-color']
@@ -1240,6 +1242,8 @@ class DSApp {
     ////////////////////////////////////////////////////////////////////////////
 
     _applyRuleToLayerStyle(rule, sSharedStyle, sStyle) {
+        if (DEBUG) this.logDebug("_applyRuleToLayerStyle: rule=" + rule.name)
+
         const token = rule.props
         // SET COLOR        
         let backColor = token['background-color']
@@ -1339,6 +1343,8 @@ class DSApp {
 
     _applyRuleToTextStyle(rule, sSharedStyle, sStyle) {
         const token = rule.props
+
+        if (DEBUG) this.logDebug("_applyRuleToTextStyle: rule=" + rule.name)
 
         // read token attribues
         var fontSize = token['font-size']
@@ -1702,6 +1708,8 @@ class DSApp {
         let colorValue = token['color']
         const colorName = rule.name
 
+        if (DEBUG) this.logDebug("_applyPropsToColor: rule=" + rule.name)
+
         let opacity = token['opacity']
         let opacityHEX = undefined != opacity ? Utils.opacityToHex(opacity) : ''
         colorValue = Utils.strToHEXColor(colorValue + opacityHEX)
@@ -1740,6 +1748,8 @@ class DSApp {
         const token = rule.props
         let imageName = token['image']
         var sLayer = rule.sLayer
+
+        if (DEBUG) this.logDebug("_applyPropsToImage: rule=" + rule.name)
 
 
         if (null == sLayer) {
