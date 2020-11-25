@@ -365,6 +365,16 @@ class Utils {
         if (str.includes("transparent")) {
             return "#FFFFFF" + Utils.opacityToHex(0)
         }
+        if (str.startsWith('"')) {
+            const swatchName = str.substr(1, str.length - 2)
+            var swatches = app.sDoc.swatches
+            var s = swatches.find(sw => sw.name == swatchName)
+            if (!s) {
+                app.logError("strToHEXColor() Can not find color variable named as \"" + swatchName + "\"")
+                return "black"
+            }
+            return s.referencingColor
+        }
         if (str.toLowerCase().includes("hsla")) {
             str = Utils.HSLAToHexA(str)
         } else if (str.toLowerCase().includes("hsl")) {

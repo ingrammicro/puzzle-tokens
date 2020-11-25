@@ -41,6 +41,8 @@ class DSApp {
         this.rules = undefined
 
         this.result = {
+            createdColors: 0,
+            updatedColors: 0,
             createdStyles: 0,
             updatedStyles: 0,
             assignedStyles: 0,
@@ -261,6 +263,8 @@ class DSApp {
 
     _getResultSummary() {
         var msg = ""
+        if (this.result.createdColors) msg += "Created " + this.result.createdColors + " color(s). "
+        if (this.result.updatedColors) msg += "Updated " + this.result.updatedColors + " color(s). "
         if (this.result.createdStyles) msg += "Created " + this.result.createdStyles + " style(s). "
         if (this.result.updatedStyles) msg += "Updated " + this.result.updatedStyles + " style(s). "
         if (this.result.assignedStyles) msg += "Assigned " + this.result.assignedStyles + " style(s). "
@@ -1725,9 +1729,14 @@ class DSApp {
                 color: colorValue
             })
             colors.push(color)
+            //
+            this.result.createdColors++
+            this.logMsg("[Created] color variable " + colorName)
         } else {
             let opacity = 1.0
-            if (colorValue.length > 7) {
+            if (colorValue in COLOR_NAMES) {
+                colorValue = COLOR_NAMES[colorValue]
+            } else if (colorValue.length > 7) {
                 let rgba = Utils.hexColorToRGBA(colorValue)
                 opacity = rgba.a / 255
                 colorValue = colorValue.substring(0, 7)
@@ -1740,6 +1749,9 @@ class DSApp {
                     swatchContainer.updateReferencesToSwatch(s)
                 }
             })
+            //
+            this.result.updatedColors++
+            this.logMsg("[Updated] color variable " + colorName)
         }
         this.elements.colors__[colorName] = token.__tokens
     }

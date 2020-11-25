@@ -30,6 +30,7 @@ var SettingKeys = {
     PLUGIN_SHOW_DOUBLESTYLES: "pluginDoubleStyles",
     PLUGIN_CREATE_SYMBOLS: "pluginCreateSymbols",
     PLUGIN_EXPORT_PATH_TO: "pluginExportPathTo",
+    PLUGIN_EXPORT_OPEN_FINDER: "PLUGIN_EXPORT_OPEN_FINDER",
     PLUGIN_EXPORT_FORMAT: "pluginExportFormat",
     PLUGIN_EXPORT_OPTS: "pluginExportOpts",
     PLUGIN_EXPORT_LIB_STYLES: "pluginExportLibStyles",
