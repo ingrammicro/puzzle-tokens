@@ -43,7 +43,7 @@ The following CSS styles are supporting.
     font-weight:           bold;            // or extra-light, light, regular, medium, semibold, bold
     font-style:            italic;          // or normal
     line-height:           1.0;             // or 1.2 or 1.5 or any other mulitplier for font-size OR 10px
-    color:                 #FFFFFF;         // HEX value or any other CSS-compatible color values, such as red or black
+    color:                 #FFFFFF;         // HEX value OR any other CSS-compatible color values, such as red or black OR color variable name in double quotes
     opacity:               63%;             // supported "63%" or "0.42"
     text-transform:        uppercase;       // "uppercase", "lowercase", "none"
     text-decoration:       underline;       // "underline", "line-through"
@@ -67,10 +67,12 @@ The following CSS styles are supporting.
     background-color:      #B0AFB1;
     background-color:      linear-gradient(45deg, #000000,#B0AFB4);
     background-color:      linear-gradient(134deg, #004B3A 0%, #2D8B61 51%, #9BD77E 100%);
+    background-color:      "mycolors/color01"; // assign color variable
     opacity:               63%;       // "63%" or "0.42"
     border-color:          #000000;
     border-color:          linear-gradient(45deg, #000000,#B0AFB4);
     border-color:          linear-gradient(134deg, #004B3A 0%, #2D8B61 51%, #9BD77E 100%);
+    border-color:          "mycolors/color01"; // assign color variable
     border-width:          2px;
     border-style:          dotted;    // dotted OR dashed
 
