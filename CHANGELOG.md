@@ -3,8 +3,10 @@ See discussions on https://spectrum.chat/puzzle-tokens site
 
 # Version 8.15.0 (25 Nov 2020)
 Now you can assign color variable to any style or layer color using double quotes to specify a color variable name.
-Example:
-background-color:  "Red-Colors/red01";
+Example:background-color:  "Red-Colors/red01";
+
+Changed:
+Now exporter name destination file as "puzzle-tokens.less" or "puzzle-tokens.scss" (#26 fixed)
 
 Fixed issues:
 - "red","green",etc color value can not be assigned to color var
