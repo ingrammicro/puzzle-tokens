@@ -29,7 +29,7 @@ npm i sass -g
 
 ## Features
 The following CSS styles are supporting.
-```
+```css
 // Text Layers
 
 .TextStyle {
@@ -190,7 +190,7 @@ You can [look into more examples](https://github.com/ingrammicro/puzzle-tokens/t
 ## Supported Targets
 You can update the following Sketch objects.
 
-```
+```css
 // Update shared style
 .MyStyles .Group .Style1{
     color: #FFFFFF;
