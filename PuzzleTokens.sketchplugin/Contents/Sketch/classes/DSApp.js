@@ -622,7 +622,7 @@ class DSApp {
         if (null != props['image'])
             res += "image"
         if (null != props['background-color'] || null != props['border-color'] || null != props['box-shadow']
-            || null != props['border-radius']
+            || null != props['border-radius'] || null != props['border-position']
         ) res += "layer"
         if (null != props['opacity'])
             if ("" == res)
@@ -1581,6 +1581,7 @@ class DSApp {
 
                 if (null != height) {
                     l.frame.height = parseInt(height.replace('px', ""))
+                    if (DEBUG) this.logDebug("_applyCommonRules: set height to " + l.frame.height)
                 }
                 if (null != width) {
                     l.frame.width = parseInt(width.replace('px', ""))
