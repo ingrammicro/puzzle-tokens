@@ -146,6 +146,9 @@ The following CSS styles are supporting.
                                           // the "margin-relative-to" layer surround
                                           // the current layer at exactly the requested
                                           // margin.
+
+
+    -pt-vertical-align:             middle; // "middle"/"top"/"bottom" : align vertically inside a parent
 }
 
 // Group & SymbolMaster Properties

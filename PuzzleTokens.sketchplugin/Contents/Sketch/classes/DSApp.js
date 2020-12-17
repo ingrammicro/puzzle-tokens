@@ -1657,6 +1657,19 @@ class DSApp {
             }
         }
 
+        if (sLayer && null != token[PT_VERTICAL_ALIGN]) {
+            const align = token[PT_VERTICAL_ALIGN]
+            if (DEBUG) this.logDebug("_applyCommonRules: " + PT_VERTICAL_ALIGN + "=" + align)
+            if ("middle" == align) {
+                sLayer.frame.y = (sLayer.parent.frame.height - sLayer.frame.height) / 2
+            } else if ("bottom" == align) {
+                sLayer.frame.y = sLayer.parent.frame.height - sLayer.frame.height
+            } else if ("top" == align) {
+                sLayer.frame.y = 0
+            }
+
+        }
+
         return true
     }
 
