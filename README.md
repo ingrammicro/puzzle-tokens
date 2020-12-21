@@ -148,7 +148,7 @@ The following CSS styles are supporting.
                                           // margin.
 
 
-    -pt-vertical-align:             middle; // "middle"/"top"/"bottom" : align vertically inside a parent
+    -pt-valign:             middle; // "middle"/"top"/"bottom" : align vertically inside a parent
 }
 
 // Group & SymbolMaster Properties
