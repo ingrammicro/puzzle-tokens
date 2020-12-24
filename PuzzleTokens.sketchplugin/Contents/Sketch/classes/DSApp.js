@@ -413,13 +413,12 @@ class DSApp {
             //////////////////////
             const sStyleName = this._pathToStr(rule.path)
             rule.name = sStyleName
-            let ruleType = ""
             rule.type = ""
             if (DEBUG) this.logDebug(rule.name)
 
             if (rule.path[0].startsWith(SPACE_COLORS)) {
                 // will define color variable
-                ruleType = this._defineRuleTypeAsColor(rule)
+                rule.type = this._defineRuleTypeAsColor(rule)
             } else {
                 if (rule.path[0].startsWith('#')) {
                     rule.isStandalone = true
@@ -439,7 +438,7 @@ class DSApp {
                     }
                 } else {
                 }
-                ruleType = this._defineRuleType(rule)
+                rule.type = this._defineRuleType(rule)
             }
             //////////////////////
 
@@ -626,7 +625,7 @@ class DSApp {
         ) res += "layer"
         if (null != props['opacity'])
             if ("" == res)
-                res += "single_opacity"
+                res += "single_opacity layer"
             else
                 res += "opacity"
 
@@ -1282,7 +1281,7 @@ class DSApp {
         }
 
 
-        if ("single_opacity" == rule.type) {
+        if (rule.type.includes("single_opacity")) {
             sStyle.opacity = token['opacity']
         }
 
@@ -1313,11 +1312,11 @@ class DSApp {
         // SET SMART LAYOUT
         var smartLayout = token[PT_SMARTLAYOUT]
         if (smartLayout != null) {
-            const value = smartLayoutMap[smartLayout]
-            if (null == value && "none" != smartLayout.toLowerCase()) {
+            smartLayout = smartLayout.toLowerCase().replace(/^\"/, "").replace(/\"$/, "")
+            if (!(smartLayout in smartLayoutMap)) {
                 return this.logError("Can not understand rule " + PT_SMARTLAYOUT + ": " + smartLayout)
             }
-            l.smartLayout = value
+            l.smartLayout = smartLayoutMap[smartLayout]
         }
     }
 
@@ -1636,6 +1635,8 @@ class DSApp {
                 nLayer.setResizesContent(false)
                 sLayer.adjustToFit()
                 nLayer.setResizesContent(currentResizesContent)
+            } else if ("Group" == sLayer.type)) {
+                sLayer.adjustToFit()
             }
         }
 

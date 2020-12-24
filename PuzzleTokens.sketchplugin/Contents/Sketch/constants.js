@@ -90,7 +90,7 @@ const PT_SKIP_MISSED = "-pt-skip-missed"
 const PT_SHADOW_UPDATE = "-pt-shadow-update"
 const PT_MARGIN_RELATIVE_TO = "-pt-margin-relative-to"
 const PT_MARGIN_RESIZE = "-pt-margin-resize"
-const PT_VERTICAL_ALIGN = "-pt-vertical-align"
+const PT_VERTICAL_ALIGN = "-pt-valign"
 const PT_FIT_CONTENT = "-pt-fit-content"
 const PT_RESIZE_INSTANCES = "-pt-resize-instances"
 const PT_VALIGN = "-pt-valign"
@@ -172,12 +172,13 @@ const bordedLineJoinMap = {
 }
 
 const smartLayoutMap = {
-    "LeftToRight": SmartLayout.LeftToRight,
-    "HorizontallyCenter": SmartLayout.HorizontallyCenter,
-    "RightToLeft": SmartLayout.RightToLeft,
-    "TopToBottom": SmartLayout.TopToBottom,
-    "VerticallyCenter": SmartLayout.VerticallyCenter,
-    "BottomToTop": SmartLayout.BottomToTop,
+    "none": null,
+    "lefttoright": SmartLayout.LeftToRight,
+    "horizontallycenter": SmartLayout.HorizontallyCenter,
+    "righttoleft": SmartLayout.RightToLeft,
+    "toptobottom": SmartLayout.TopToBottom,
+    "verticallycenter": SmartLayout.VerticallyCenter,
+    "bottomtotop": SmartLayout.BottomToTop,
 }
 
 const bordedArrowheadMap = {
