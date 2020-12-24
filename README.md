@@ -148,7 +148,7 @@ The following CSS styles are supporting.
                                           // margin.
 
 
-    -pt-valign:             middle; // "middle"/"top"/"bottom" : align vertically inside a parent
+    -pt-valign:             middle; // middle / top / bottom : align vertically inside a parent
 }
 
 // Group & SymbolMaster Properties
@@ -157,9 +157,9 @@ The following CSS styles are supporting.
                                           // OR VerticallyCenter OR BottomToTop OR None
 }
 
-// SymbolMaster and Artboard Properties
+// Group, SymbolMaster and Artboard Properties
 #Symbol{
-    -pt-fit-content:        true;        // Resize the symbol or artboard to fit content
+    -pt-fit-content:        true;        // Resize to fit content
 }
 
 // SymbolMaster properties
