@@ -1513,8 +1513,8 @@ class DSApp {
             nLayer.setResizesContent(false)
         }
 
-        const getRuleLayers = function (rule) {
-            return rule.sLayer ? [rule.sLayer] : sSharedStyle.getAllInstancesLayers()
+        const getRuleLayers = function (rule, sSharedStyle) {
+            return rule.sLayer ? [rule.sLayer] : sSharedStyle ? sSharedStyle.getAllInstancesLayers() : []
         }
 
         // SET MARGINS
@@ -1550,7 +1550,7 @@ class DSApp {
             if (null == gotMargin && null == height && null == width) break
             if (null == sSharedStyle && null == rule.sLayer) break
 
-            for (var l of getRuleLayers(rule)) {
+            for (var l of getRuleLayers(rule, sSharedStyle)) {
                 // if margin-relative-to is set, find that sibling elemet
                 // and set as topParent for relative positioning
                 var xOffset = 0;
@@ -1654,7 +1654,7 @@ class DSApp {
         if (null != token[PT_VERTICAL_ALIGN]) {
             const align = token[PT_VERTICAL_ALIGN]
             if (DEBUG) this.logDebug("_applyCommonRules: " + PT_VERTICAL_ALIGN + "=" + align)
-            for (var layer of getRuleLayers(rule)) {
+            for (var layer of getRuleLayers(rule, sSharedStyle)) {
                 if ("middle" == align) {
                     layer.frame.y = (layer.parent.frame.height - layer.frame.height) / 2
                 } else if ("bottom" == align) {
