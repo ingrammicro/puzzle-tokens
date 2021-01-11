@@ -1,6 +1,11 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+# Version 8.16.0 (11 Jan 2021)
+"border-position" activates border style
+"-pt-vertical-align: middle/bottom/top;" rule has been added
+Other small improvements
+
 # Version 8.15.0 (25 Nov 2020)
 Now you can assign color variable to any style or layer color using double quotes to specify a color variable name.
 Example:background-color:  "Red-Colors/red01";
