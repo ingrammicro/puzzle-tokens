@@ -1513,8 +1513,13 @@ class DSApp {
             nLayer.setResizesContent(false)
         }
 
+        const getRuleLayers = function (rule) {
+            return rule.sLayer ? [rule.sLayer] : sSharedStyle.getAllInstancesLayers()
+        }
+
         // SET MARGINS
         while (true) {
+
             var margin = {
                 "top": token['margin-top'],
                 "right": token['margin-right'],
@@ -1545,10 +1550,8 @@ class DSApp {
             if (null == gotMargin && null == height && null == width) break
             if (null == sSharedStyle && null == rule.sLayer) break
 
-            const layers = rule.sLayer ? [rule.sLayer] : sSharedStyle.getAllInstancesLayers()
-
-            for (var l of layers) {
-                // if margin-relative-to is set, find that sibling element
+            for (var l of getRuleLayers(rule)) {
+                // if margin-relative-to is set, find that sibling elemet
                 // and set as topParent for relative positioning
                 var xOffset = 0;
                 var yOffset = 0;
@@ -1572,7 +1575,7 @@ class DSApp {
                 const parentFrame = topParent.frame
                 const moveTop = topParent != l.parent;
 
-                if (DEBUG) this.logDebug("_applyCommonRules: " + l.name)
+                if (DEBUG) this.logDebug("_applyCommonRules for layer: " + l.name)
 
                 let nRect = Utils.copyRect(topParent.sketchObject.absoluteRect())
                 let x = null
@@ -1647,6 +1650,21 @@ class DSApp {
             }
         }
 
+        // apply vertical align
+        if (null != token[PT_VERTICAL_ALIGN]) {
+            const align = token[PT_VERTICAL_ALIGN]
+            if (DEBUG) this.logDebug("_applyCommonRules: " + PT_VERTICAL_ALIGN + "=" + align)
+            for (var layer of getRuleLayers(rule)) {
+                if ("middle" == align) {
+                    layer.frame.y = (layer.parent.frame.height - layer.frame.height) / 2
+                } else if ("bottom" == align) {
+                    layer.frame.y = layer.parent.frame.height - layer.frame.height
+                } else if ("top" == align) {
+                    layer.frame.y = 0
+                }
+            }
+        }
+
         //
         const mixBlendModeCSS = token['mix-blend-mode']
         if (undefined != mixBlendModeCSS) {
@@ -1656,19 +1674,6 @@ class DSApp {
             } else {
                 sStyle.blendingMode = mixBlendModeSketch;
             }
-        }
-
-        if (sLayer && null != token[PT_VERTICAL_ALIGN]) {
-            const align = token[PT_VERTICAL_ALIGN]
-            if (DEBUG) this.logDebug("_applyCommonRules: " + PT_VERTICAL_ALIGN + "=" + align)
-            if ("middle" == align) {
-                sLayer.frame.y = (sLayer.parent.frame.height - sLayer.frame.height) / 2
-            } else if ("bottom" == align) {
-                sLayer.frame.y = sLayer.parent.frame.height - sLayer.frame.height
-            } else if ("top" == align) {
-                sLayer.frame.y = 0
-            }
-
         }
 
         return true
