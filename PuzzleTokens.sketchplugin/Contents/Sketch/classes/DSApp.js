@@ -1589,10 +1589,7 @@ class DSApp {
 
                 if (null != height) {
                     l.frame.height = parseInt(height.replace('px', ""))
-<<<<<<< HEAD
-=======
                     if (DEBUG) this.logDebug("_applyCommonRules: set height to " + l.frame.height)
->>>>>>> master
                 }
                 if (null != width) {
                     l.frame.width = parseInt(width.replace('px', ""))
