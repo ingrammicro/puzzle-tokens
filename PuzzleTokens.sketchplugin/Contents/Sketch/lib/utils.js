@@ -365,10 +365,22 @@ class Utils {
         if (str.includes("transparent")) {
             return "#FFFFFF" + Utils.opacityToHex(0)
         }
+        if (str.startsWith('"')) {
+            const swatchName = str.substr(1, str.length - 2)
+            var swatches = app.sDoc.swatches
+            var s = swatches.find(sw => sw.name == swatchName)
+            if (!s) {
+                app.logError("strToHEXColor() Can not find color variable named as \"" + swatchName + "\"")
+                return "black"
+            }
+            return s.referencingColor
+        }
         if (str.toLowerCase().includes("hsla")) {
             str = Utils.HSLAToHexA(str)
         } else if (str.toLowerCase().includes("hsl")) {
             str = Utils.HSLToHex(str)
+        } else if (str.toLowerCase().includes("rgba")) {
+            str = Utils.RGBAToHexA(str)
         }
         if (str.includes(" ") && str.includes("%")) {
             const list = str.split(" ")
@@ -404,6 +416,16 @@ class Utils {
         var alpha = Math.round(i * 255);
         var hex = (alpha + 0x10000).toString(16).substr(-2).toUpperCase();
         return hex
+    }
+
+
+    // opacity: 0 .. 1.0(transparent) or 0(transparent)..100% to 1.0 
+    static cssOpacityToSketch(opacity) {
+        if (typeof opacity == 'string' && opacity.indexOf("%") >= 0) {
+            opacity = opacity.replace("%", "")
+            opacity = parseInt(opacity) / 100
+        }
+        return parseFloat(opacity)
     }
 
     static stripStr(str) {

@@ -1,6 +1,43 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+# Version 8.16.0 (11 Jan 2021)
+"border-position" activates border style
+"-pt-valign: middle/bottom/top;" rule has been added
+Other small improvements
+
+# Version 8.15.0 (25 Nov 2020)
+Now you can assign color variable to any style or layer color using double quotes to specify a color variable name.
+Example:background-color:  "Red-Colors/red01";
+
+Changed:
+Now exporter name destination file as "puzzle-tokens.less" or "puzzle-tokens.scss" (#26 fixed)
+
+Fixed issues:
+- "red","green",etc color value can not be assigned to color var
+
+# Version 8.14.4 (29 Oct 2020)
+Supported color var groups
+
+# Version 8.14.2 (29 Oct 2020)
+Fixed opacity for text layers
+
+# Version 8.14.1 (29 Oct 2020)
+Fixed color var updating
+Fixed support for image path in SASS/SCSS
+
+# Version 8.14.0 (28 Oct 2020)
+Added support for color variables
+Example: https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Releases/8.14.0
+
+# Version 8.13.0 (26 Oct 2020)
+Added support for mix-blend-mode CSS rule. 
+Example: https://github.com/ingrammicro/puzzle-tokens/tree/master/Styles/Releases/8.13.0
+
+##  Version 8.12.1 (10 Oct 2020)
+Author: Josh Clark  (https://github.com/bigmedium)
+Height/width dimensions have to be adjusted first, or bottom-margin and right-margin are incorrect.
+
 ##  Version 8.12.0 (15 Aug 2020)  (Цой жив)
 Added configuration setting to define a custom path to SASS module
 

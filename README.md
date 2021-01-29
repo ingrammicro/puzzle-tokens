@@ -29,7 +29,7 @@ npm i sass -g
 
 ## Features
 The following CSS styles are supporting.
-```
+```css
 // Text Layers
 
 .TextStyle {
@@ -43,7 +43,7 @@ The following CSS styles are supporting.
     font-weight:           bold;            // or extra-light, light, regular, medium, semibold, bold
     font-style:            italic;          // or normal
     line-height:           1.0;             // or 1.2 or 1.5 or any other mulitplier for font-size OR 10px
-    color:                 #FFFFFF;         // HEX value or any other CSS-compatible color values, such as red or black
+    color:                 #FFFFFF;         // HEX value OR any other CSS-compatible color values, such as red or black OR color variable name in double quotes
     opacity:               63%;             // supported "63%" or "0.42"
     text-transform:        uppercase;       // "uppercase", "lowercase", "none"
     text-decoration:       underline;       // "underline", "line-through"
@@ -61,17 +61,18 @@ The following CSS styles are supporting.
     border-line-join:           miter;     // miter / round / bevel
     border-start-arrowhead:     openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare
     border-end-arrowhead:       openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare            
-    -pt-shadow-update:          true;  // Use it if you want to replace any previous shadows, instead of adding a new one.
-
+    -pt-border-update:          true;  // Use it if you want to replace an existing border, instead of adding a new one.
 
     /// CSS native properties
     background-color:      #B0AFB1;
     background-color:      linear-gradient(45deg, #000000,#B0AFB4);
     background-color:      linear-gradient(134deg, #004B3A 0%, #2D8B61 51%, #9BD77E 100%);
+    background-color:      "mycolors/color01"; // assign color variable
     opacity:               63%;       // "63%" or "0.42"
     border-color:          #000000;
     border-color:          linear-gradient(45deg, #000000,#B0AFB4);
     border-color:          linear-gradient(134deg, #004B3A 0%, #2D8B61 51%, #9BD77E 100%);
+    border-color:          "mycolors/color01"; // assign color variable
     border-width:          2px;
     border-style:          dotted;    // dotted OR dashed
 
@@ -79,6 +80,10 @@ The following CSS styles are supporting.
     box-shadow:            0 10px 20px 2 #FF00FF;
     box-shadow:            inset 0 10px 20px 2 rgba(0,0,0,0.1);
     box-shadow:            0 10px 20px 2 rgba(0,0,0,0.1), inset 0 10px 20px 2 rgba(0,0,0,0.1);
+    -pt-shadow-update:          true;  // Use it if you want to replace any previous shadows, instead of adding a new one.
+
+    mix-blend-mode:         normal; // normal / darken / multiply / color-burn / lighten / screen / color-dodge / overlay / difference 
+                                    // exclusion / hue / saturation / color / luminosity
      
     // !!ATTENTION!!
     // Shared styles don't include radius property,
@@ -101,7 +106,9 @@ The following CSS styles are supporting.
     -pt-pin-bottom:          true; // "true" or "false
     -pt-fix-size-height:     true; // "true" or "false
     -pt-fix-size-width:      true; // "true" or "false
-    -pt-skip-missed:         true: // "true" or "false // Usefull to skip style if no layer found without an error
+    -pt-skip-missed:         true: // "true" or "false // Usefull to skip style if no layer
+                                                       // found without an error
+    -pt-resize-symbol:      true:  //  resize layer owner (symbol master) to a layer size
 
     // The following properties are not a part of shared styles.
     // Bu you can set these properties for a shared style.
@@ -139,26 +146,30 @@ The following CSS styles are supporting.
                                           // the "margin-relative-to" layer surround
                                           // the current layer at exactly the requested
                                           // margin.
+
+
+    -pt-valign:                     middle; // middle / top / bottom : align vertically inside a parent
 }
 
 // Group & SymbolMaster Properties
-.Group{
+#Group{
     -pt-smartlayout:         LeftToRight; // LeftToRight OR HorizontallyCenter OR RightToLeft OR TopToBottom 
                                           // OR VerticallyCenter OR BottomToTop OR None
 }
 
-// SymbolMaster and Artboard Properties
-    -pt-fit-content:        true;        // Resize the symbol or artboard to fit content
+// Group, SymbolMaster and Artboard Properties
+#Symbol{
+    -pt-fit-content:        true;        // Resize to fit content
 }
 
-// SymbolMaster Properties
+// SymbolMaster properties
+#Symbol{
     -pt-resize-instances:   true;        // Resize all instances of a symbol; the same as
                                          // clicking Sketch's "Shrink instance to fit
                                          // content" button in the Overrides section of
                                          // the instance. (This reapplies SmartLayout,
                                          // useful when you change the size of a symbol.)
 }
-
 
 #Image{
     // Required Properties
@@ -182,7 +193,7 @@ You can [look into more examples](https://github.com/ingrammicro/puzzle-tokens/t
 ## Supported Targets
 You can update the following Sketch objects.
 
-```
+```css
 // Update shared style
 .MyStyles .Group .Style1{
     color: #FFFFFF;
@@ -209,6 +220,16 @@ You can update the following Sketch objects.
     }
     .Back{
         sklayer-style: "MyStyle/Group/Back";
+    }
+}
+
+// Update color variables
+.--COLORS-{
+    .primary{
+        color:                                      black;
+    }
+    .secondary{
+        color:                                      grey;
     }
 }
 

@@ -30,6 +30,7 @@ var SettingKeys = {
     PLUGIN_SHOW_DOUBLESTYLES: "pluginDoubleStyles",
     PLUGIN_CREATE_SYMBOLS: "pluginCreateSymbols",
     PLUGIN_EXPORT_PATH_TO: "pluginExportPathTo",
+    PLUGIN_EXPORT_OPEN_FINDER: "PLUGIN_EXPORT_OPEN_FINDER",
     PLUGIN_EXPORT_FORMAT: "pluginExportFormat",
     PLUGIN_EXPORT_OPTS: "pluginExportOpts",
     PLUGIN_EXPORT_LIB_STYLES: "pluginExportLibStyles",
@@ -89,12 +90,15 @@ const PT_SKIP_MISSED = "-pt-skip-missed"
 const PT_SHADOW_UPDATE = "-pt-shadow-update"
 const PT_MARGIN_RELATIVE_TO = "-pt-margin-relative-to"
 const PT_MARGIN_RESIZE = "-pt-margin-resize"
+const PT_VERTICAL_ALIGN = "-pt-valign"
 const PT_FIT_CONTENT = "-pt-fit-content"
 const PT_RESIZE_INSTANCES = "-pt-resize-instances"
 const PT_DEBUG_OVERRIDES = "-pt-debug-overrides"
 const PT_OVERRIDE_TYPE = "-pt-override-type"
 const PT_OVERRIDE_VALUE = "-pt-override-value"
 const PT_OVERRIDE_LAYER = "-pt-override-layer"
+
+const SPACE_COLORS = ".--COLORS-"
 
 const THIS_NAME = "_This"
 
@@ -114,6 +118,27 @@ const FIXED_SIZE_BEHAVIOUR_MAP = {
     'auto-height': 1,
     'fixed-size': 2
 }
+
+
+const BLENDING_MODE_CSS_TO_SKETCH = {
+    "normal": Style.BlendingMode.Normal,
+    "darken": Style.BlendingMode.Darken,
+    "multiply": Style.BlendingMode.Multiply,
+    "color-burn": Style.BlendingMode.ColorBurn,
+    "lighten": Style.BlendingMode.Lighten,
+    "screen": Style.BlendingMode.Screen,
+    "color-dodge": Style.BlendingMode.ColorDodge,
+    "overlay": Style.BlendingMode.Overlay,
+    //"darken": Style.BlendingMode.SoftLight, // Not supported in CSS
+    //"darken": Style.BlendingMode.HardLight, // Not supported in CSS
+    "difference": Style.BlendingMode.Difference,
+    "exclusion": Style.BlendingMode.Exclusion,
+    "hue": Style.BlendingMode.Hue,
+    "saturation": Style.BlendingMode.Saturation,
+    "color": Style.BlendingMode.Color,
+    "luminosity": Style.BlendingMode.Luminosity,
+}
+
 
 const alignMap = {
     left: Text.Alignment.left,
@@ -150,12 +175,13 @@ const bordedLineJoinMap = {
 }
 
 const smartLayoutMap = {
-    "LeftToRight": SmartLayout.LeftToRight,
-    "HorizontallyCenter": SmartLayout.HorizontallyCenter,
-    "RightToLeft": SmartLayout.RightToLeft,
-    "TopToBottom": SmartLayout.TopToBottom,
-    "VerticallyCenter": SmartLayout.VerticallyCenter,
-    "BottomToTop": SmartLayout.BottomToTop,
+    "none": null,
+    "lefttoright": SmartLayout.LeftToRight,
+    "horizontallycenter": SmartLayout.HorizontallyCenter,
+    "righttoleft": SmartLayout.RightToLeft,
+    "toptobottom": SmartLayout.TopToBottom,
+    "verticallycenter": SmartLayout.VerticallyCenter,
+    "bottomtotop": SmartLayout.BottomToTop,
 }
 
 const bordedArrowheadMap = {
