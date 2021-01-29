@@ -93,10 +93,7 @@ const PT_MARGIN_RESIZE = "-pt-margin-resize"
 const PT_VERTICAL_ALIGN = "-pt-valign"
 const PT_FIT_CONTENT = "-pt-fit-content"
 const PT_RESIZE_INSTANCES = "-pt-resize-instances"
-const PT_DEBUG_OVERRIDES = "-pt-debug-overrides"
-const PT_OVERRIDE_TYPE = "-pt-override-type"
-const PT_OVERRIDE_VALUE = "-pt-override-value"
-const PT_OVERRIDE_LAYER = "-pt-override-layer"
+const PT_OVERRIDE_SYMBOL = "-pt-override-symbol"
 
 const SPACE_COLORS = ".--COLORS-"
 

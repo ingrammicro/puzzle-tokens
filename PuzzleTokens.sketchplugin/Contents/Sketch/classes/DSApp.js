@@ -1638,7 +1638,7 @@ class DSApp {
         }
         
         //update symbol overrides
-        if (token[PT_OVERRIDE_VALUE] && sLayer) {
+        if (token[PT_OVERRIDE_SYMBOL] && sLayer) {
             this._applySymbolOverrides(sLayer, token);
         }
 
@@ -1695,49 +1695,61 @@ class DSApp {
             return this.logError("Can't apply override because layer is not a symbol instance: " + layer.name)
         }
 
-        var otype = stripQuotes( token[PT_OVERRIDE_TYPE] );
-        var olayer;
-        if ( token[PT_OVERRIDE_LAYER] ) olayer = stripQuotes( token[PT_OVERRIDE_LAYER] );
-
+        // parse olayer and ovalue from token
+        var v = token[PT_OVERRIDE_SYMBOL]; // ('affectedLayerName', '#Path #To #Symbol')
+        v = v.replace(/^\s*\(\s*/, "");
+        v = v.replace(/\s*\)\s*$/, "");
+        var params = v.split(",");
+        var olayer = params[0], ovalue=params[1];
+        if ( ! (olayer && ovalue) ) {
+            return this.logError(layer.name + ": Usage is " + PT_OVERRIDE_SYMBOL + ": ");
+        }
+        olayer = stripQuotes( olayer.replace(/^\s+/, "").replace(/\s+$/, "") );
+        ovalue = stripQuotes( ovalue.replace(/^\s+/, "").replace(/\s+$/, "") );
+      
+        // just target symbolIDs for now, but could be expanded to
+        // target other override types, too
+        var otype = "symbolID";
+        
         var overrides = layer.overrides;
         var oride;
         for (var o of overrides) {
             // find override matching layer name and (if provided) override type
-if (DEBUG) this.logDebug("Checking override for " + layer.name);
-if (DEBUG) this.logDebug("Affected layer is " + o.affectedLayer.name);
-            if ( olayer && o.affectedLayer.name != olayer ) continue;
-if (DEBUG) this.logDebug("Examining override with property " + o.property);
-            if (!otype || (o.property == otype) ) {
+            if ( o.affectedLayer.name != olayer ) continue;
+            if ( o.property == otype ) {
                 oride = o;
                 break;
             }
         }
-
-        var orideValue = stripQuotes( token[PT_OVERRIDE_VALUE] );
-
+        
         if (!oride) {
             if (DEBUG) this.logDebug("No matching override for layer " + layer.name);
         }
-        else if ("symbolID" == oride.property) {
-            var symbolPath = orideValue;
-            if (symbolPath == "none") {
+        else {
+            var success = false;
+            if (ovalue.toLowerCase() == "none") {
                 oride.value = "";
+                success = true;
             }
             else {
-if (DEBUG) this.logDebug("Applying symbol override for layer " + layer.name);
-                symbolPath = symbolPath.replace(/\s+/g, "*");
+                var symbolPath = ovalue.replace(/\s+/g, "*");
                 symbolPath = this._transformRulePath(symbolPath);
                 var master = this._findLayerByPath(symbolPath);
                 if (!master && DEBUG) {
-                    this.logDebug("No symbol found at '" + token[PT_OVERRIDE_VALUE] + "'");
+                    this.logDebug("No symbol found for '" + ovalue + "'");
                 }
                 else {
                     oride.value = master.symbolId;
-                }
+                    success = true;
+              }
             }
-        }
-        else {
-
+            if (success) {
+                layer.resizeWithSmartLayout(); // "shrink to fit"
+                if (DEBUG) this.logDebug(
+                    "Symbol set to '" + ovalue + "' for layer '"
+                    + oride.affectedLayer.name + "' in instance " + layer.name
+                );
+            }
         }
     }
 
