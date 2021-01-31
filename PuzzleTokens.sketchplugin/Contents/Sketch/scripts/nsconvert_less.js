@@ -73,7 +73,7 @@ function injectTokensIntoLess(srcData, lastPath = null) {
         line = line.trim()
 
         // import file manually
-        if (line.startsWith("@import")) {
+        if (line.startsWith("@import") && !line.includes("{")) {
             // cut file name
             let parts = line.split("\"")
             if (!parts.length) parts = line.split("\'")
