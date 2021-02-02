@@ -1,0 +1,69 @@
+.mixin-colors-neutral(){
+// Neutral Colors
+
+    neutral-1000: #000000; // Do we put Solid Black in the Neutral Palette?
+    neutral-900: #040404;
+    neutral-800: #1A1A1A;
+    neutral-700: #2A2A2A;
+    neutral-600: #3C3C3C;
+    neutral-500: #4B4B4B;
+    neutral-400: #696969;
+    neutral-300: #A3A3A3;
+    neutral-200: #D1D1D1;
+    neutral-100: #E8E8E8;
+    neutral-50: #F5F5F5;
+    neutral-000: #FFFFFF; // Do we put Solid White in the Neutral Palette?
+}
+
+.mixin-colors-mist(){
+// Mist: These are white opacity Overlays
+
+    mist-900: rgba(255,255,255,0.90);
+    mist-800: rgba(255,255,255,0.80);
+    mist-700: rgba(255,255,255,0.70);
+    mist-600: rgba(255,255,255,0.60);
+    mist-500: rgba(255,255,255,0.50);
+    mist-400: rgba(255,255,255,0.40);
+    mist-300: rgba(255,255,255,0.30);
+    mist-200: rgba(255,255,255,0.20);
+    mist-100: rgba(255,255,255,0.10);
+}
+
+.mixin-colors-glass(){
+// Glass: These are black opacity Overlays
+
+    glass-900: rgba(0,0,0,0.90);
+    glass-800: rgba(0,0,0,0.80);
+    glass-700: rgba(0,0,0,0.70);
+    glass-600: rgba(0,0,0,0.60);
+    glass-500: rgba(0,0,0,0.50);
+    glass-400: rgba(0,0,0,0.40);
+    glass-300: rgba(0,0,0,0.30);
+    glass-200: rgba(0,0,0,0.20);
+    glass-100: rgba(0,0,0,0.10);
+}
+
+// Utility
+
+.mixin-colors-utility(){
+    utility-positive:    #64A541;
+    utility-warning:     #FFCC00;
+    utility-error:       #E5931D;
+}
+
+.mixin-colors-elevations (@theme) when (@theme = "dark") {
+    Elevation-0:    #130D13;
+    Elevation-1:    #1C141C;
+    Elevation-2:    #2B1E2B;
+    Elevation-3:    #2D202D;
+    Elevation-4:    #453845;
+    Elevation-5:    #979097;
+}
+.mixin-colors-elevations (@theme) when (@theme = "light") {
+    Elevation-0:    #FFFFFF;
+    Elevation-1:    #FFFFFF;
+    Elevation-2:    #FFFFFF;
+    Elevation-3:    #FFFFFF;
+    Elevation-4:    #DFDFDF;
+    Elevation-5:    #FFFFFF;
+}

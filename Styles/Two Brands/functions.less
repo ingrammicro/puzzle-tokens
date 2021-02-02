@@ -1,0 +1,41 @@
+@import ~"@{brand}.less";
+
+.--COLORS-{
+.Colors{    
+    .Neutral{
+        each(.mixin-colors-neutral(), {
+            .@{key}{
+                color: @value;
+            }
+        })
+    }
+    .Utility{
+        each(.mixin-colors-utility(), {
+            .@{key}{
+                color: @value;
+            }
+        })
+    }
+    .Mist{
+        each(.mixin-colors-mist(), {
+            .@{key}{
+                color: @value;
+            }
+        })
+    }
+    .Glass{
+        each(.mixin-colors-glass(), {
+            .@{key}{
+                color: @value;
+            }
+        })
+        }
+    .elevations{
+        each(.mixin-colors-elevations(@theme), {
+            .@{key}{
+                color: @value;
+            }
+        })
+        }
+    }
+}
