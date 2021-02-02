@@ -13,6 +13,11 @@ function cleanName(n) {
 
 }
 
+function stripQuotes(str) {
+        if (str.startsWith('"') || str.startsWith("'")) str = str.slice(1);
+        if (str.endsWith('"') || str.endsWith("'")) str = str.slice(0, -1);
+        return str;
+}
 
 class DSApp {
     constructor(context) {
@@ -387,11 +392,11 @@ class DSApp {
         return styles.length > 0
     }
 
-    _transformRulePath(sketchRule) {
-        sketchRule.path = sketchRule.path.split("*")
+    _transformRulePath(pathString) {
+        var pathArray = pathString.split("*")
         // Convert [ '#Symbol', '1', '.Back' ] to [ '#Symbol 1', '.Back' ],
-        if (sketchRule.path.filter(s => !(s.startsWith(".") || s.startsWith("#")))) {
-            let path = sketchRule.path.map(function (s, index, arr) {
+        if (pathArray.filter(s => !(s.startsWith(".") || s.startsWith("#")))) {
+            let path = pathArray.map(function (s, index, arr) {
                 if (!(s.startsWith(".") || s.startsWith("#"))) return ""
                 let i = index + 1
                 while (arr[i] != null && !(arr[i].startsWith("#") || arr[i].startsWith("."))) {
@@ -400,8 +405,9 @@ class DSApp {
                 }
                 return s
             }).filter(s => s != "")
-            sketchRule.path = path
+            pathArray = path
         }
+        return pathArray;
     }
 
 
@@ -409,7 +415,7 @@ class DSApp {
         this.logMsg("Started")
         for (const rule of this.rules) {
             //////////////////////
-            this._transformRulePath(rule)
+            rule.path = this._transformRulePath(rule.path)
             //////////////////////
             const sStyleName = this._pathToStr(rule.path)
             rule.name = sStyleName
@@ -1630,6 +1636,11 @@ class DSApp {
         if (null != currentResizesContent) {
             nLayer.setResizesContent(currentResizesContent)
         }
+        
+        //update symbol overrides
+        if (token[PT_OVERRIDE_SYMBOL] && sLayer) {
+            this._applySymbolOverrides(sLayer, token);
+        }
 
         // Adjust to fit content if selected for artboard or symbol
         if ("true" == token[PT_FIT_CONTENT]) {
@@ -1679,6 +1690,68 @@ class DSApp {
         return true
     }
 
+    _applySymbolOverrides(layer, token) {
+        if ("SymbolInstance" != layer.type) {
+            return this.logError("Can't apply override because layer is not a symbol instance: " + layer.name)
+        }
+
+        // parse olayer and ovalue from token
+        var v = token[PT_OVERRIDE_SYMBOL]; // ('affectedLayerName', '#Path #To #Symbol')
+        v = v.replace(/^\s*\(\s*/, "");
+        v = v.replace(/\s*\)\s*$/, "");
+        var params = v.split(",");
+        var olayer = params[0], ovalue=params[1];
+        if ( ! (olayer && ovalue) ) {
+            return this.logError(layer.name + ": Usage is " + PT_OVERRIDE_SYMBOL + ": ");
+        }
+        olayer = stripQuotes( olayer.replace(/^\s+/, "").replace(/\s+$/, "") );
+        ovalue = stripQuotes( ovalue.replace(/^\s+/, "").replace(/\s+$/, "") );
+      
+        // just target symbolIDs for now, but could be expanded to
+        // target other override types, too
+        var otype = "symbolID";
+        
+        var overrides = layer.overrides;
+        var oride;
+        for (var o of overrides) {
+            // find override matching layer name and (if provided) override type
+            if ( o.affectedLayer.name != olayer ) continue;
+            if ( o.property == otype ) {
+                oride = o;
+                break;
+            }
+        }
+        
+        if (!oride) {
+            if (DEBUG) this.logDebug("No matching override for layer " + layer.name);
+        }
+        else {
+            var success = false;
+            if (ovalue.toLowerCase() == "none") {
+                oride.value = "";
+                success = true;
+            }
+            else {
+                var symbolPath = ovalue.replace(/\s+/g, "*");
+                symbolPath = this._transformRulePath(symbolPath);
+                var master = this._findLayerByPath(symbolPath);
+                if (!master && DEBUG) {
+                    this.logDebug("No symbol found for '" + ovalue + "'");
+                }
+                else {
+                    oride.value = master.symbolId;
+                    success = true;
+              }
+            }
+            if (success) {
+                layer.resizeWithSmartLayout(); // "shrink to fit"
+                if (DEBUG) this.logDebug(
+                    "Symbol set to '" + ovalue + "' for layer '"
+                    + oride.affectedLayer.name + "' in instance " + layer.name
+                );
+            }
+        }
+    }
 
     parentOffsetInArtboard(layer) {
         var offset = { x: 0, y: 0 };

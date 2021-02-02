@@ -93,6 +93,7 @@ const PT_MARGIN_RESIZE = "-pt-margin-resize"
 const PT_VERTICAL_ALIGN = "-pt-valign"
 const PT_FIT_CONTENT = "-pt-fit-content"
 const PT_RESIZE_INSTANCES = "-pt-resize-instances"
+const PT_OVERRIDE_SYMBOL = "-pt-override-symbol"
 
 const SPACE_COLORS = ".--COLORS-"
 

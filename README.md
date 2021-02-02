@@ -171,6 +171,22 @@ The following CSS styles are supporting.
                                          // useful when you change the size of a symbol.)
 }
 
+// Symbol Instance Properties
+#Card .IconButton {                      // Path to a symbol-instance layer
+
+    // You can change the symbol source for a symbol override (for example, to switch
+    // the icon displayed in a symbol instance). Usage is:
+    // -pt-override-symbol: ('AffectedLayerName', '#Path #To #New #Symbol');
+    //
+    // In the example shown here, the Card symbol has a symbol instance in a layer named
+    // IconButton. If that IconButton instance has a symbol override in layer RightIcon,
+    // you can set the icon to a new icon by sharing its Puzzle Tokens path like so:
+    
+    -pt-override-symbol:    ('RightIcon ', '#Icons #Arrows #RightArrow');
+    
+    // Set the path to 'none' to disable the symbol override and show nothing at all.
+}
+
 #Image{
     // Required Properties
     image:                 ~"images/new-logo.jpg";  // OR transparent
