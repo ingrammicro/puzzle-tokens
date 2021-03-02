@@ -203,6 +203,7 @@ const weights = [
     { label: 'bold', sketch: 9, css: 700, title: "Bold" },
     { label: 'extra-bold', sketch: 10, css: 800, title: "Extra Bold" },
     { label: 'black', sketch: 12, css: 900, title: "Black" },
+    { label: 'fa-solid', sketch: 14, css: "fa-solid", title: "Font Awesome Solid" },
 ]
 
 // source: https://github.com/bahamas10/css-color-names/blob/master/css-color-names.json

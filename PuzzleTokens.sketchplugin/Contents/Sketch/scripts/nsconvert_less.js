@@ -373,6 +373,7 @@ function transformCustomLESStoCSS(pathToOrgLess, pathToCSS) {
     }
 
     // Convert LESS to pure CSS and save it to CSS file
+    pathToCSS = pathToCSS.replace(/\s/g, "\\ ")
     const result = require('child_process').execSync("node /usr/local/bin/lessc " + pathToCustomLess + " > " + pathToCSS, { env: process.env.PATH })
     console.log("Rendered CSS LESS to CSS: " + pathToCSS)
 }

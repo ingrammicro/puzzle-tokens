@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+# Version 8.16.2 (02 Mar 2021)
+Fixed minor issues
+
 # Version 8.16.1 (29 Jan 2021)
 Fixed @import "@{brand}.less" 
 

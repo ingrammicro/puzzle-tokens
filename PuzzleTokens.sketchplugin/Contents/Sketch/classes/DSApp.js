@@ -146,8 +146,9 @@ class DSApp {
                 return this.stopWithError("Can't create symbols & style file for Cloud file. Move it to local or disable symbols & style generation in Settings.")
             } else {
                 const pathDetails = path.parse(this.sDoc.path)
-                this.pathToDoc = pathDetails.dir + "/" + pathDetails.name
-                this.pathToAssets = pathDetails.dir + "/" + Constants.ASSETS_FOLDER_PREFIX + "/" + pathDetails.name
+                const dir = decodeURI(pathDetails.dir)
+                this.pathToDoc = dir + "/" + pathDetails.name
+                this.pathToAssets = dir + "/" + Constants.ASSETS_FOLDER_PREFIX + "/" + pathDetails.name
                 if (!Utils.createFolder(this.pathToAssets)) {
                     return this.stopWithError("Can't create '" + this.pathToAssets + "' folder to store symbols & style information. Save the document in some other place before or disable symbols & style generation in Settings.")
                 }
@@ -1501,7 +1502,6 @@ class DSApp {
 
         // SET TEXT SHADOW
         this._applyShadow(rule, sStyle, "text-shadow")
-
     }
 
     _applyCommonRules(rule, sSharedStyle, sStyle) {
