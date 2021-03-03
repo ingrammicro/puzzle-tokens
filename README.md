@@ -62,6 +62,7 @@ The following CSS styles are supporting.
     border-start-arrowhead:     openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare
     border-end-arrowhead:       openarrow; // none / openarrow / filledarrow / opencircle / filledcircle / opensquare / filledsquare            
     -pt-border-update:          true;  // Use it if you want to replace an existing border, instead of adding a new one.
+    -pt-fill-update:            true;  // Use it if you want to replace an existing fill, instead of adding a new one.
 
     /// CSS native properties
     background-color:      #B0AFB1;
