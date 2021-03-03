@@ -40,7 +40,7 @@ The following CSS styles are supporting.
     // CSS native styles
     font-size:             12px;   
     font-family:           "Open Sans";     // or "Open Sans","Times New Roman"
-    font-weight:           bold;            // or extra-light, light, regular, medium, semibold, bold
+    font-weight:           bold;            // or extra-light, light, regular, medium, semibold, bold OR fa-solid (special trick to define FontAwesome solid icon)
     font-style:            italic;          // or normal
     line-height:           1.0;             // or 1.2 or 1.5 or any other mulitplier for font-size OR 10px
     color:                 #FFFFFF;         // HEX value OR any other CSS-compatible color values, such as red or black OR color variable name in double quotes
