@@ -14,9 +14,9 @@ function cleanName(n) {
 }
 
 function stripQuotes(str) {
-        if (str.startsWith('"') || str.startsWith("'")) str = str.slice(1);
-        if (str.endsWith('"') || str.endsWith("'")) str = str.slice(0, -1);
-        return str;
+    if (str.startsWith('"') || str.startsWith("'")) str = str.slice(1);
+    if (str.endsWith('"') || str.endsWith("'")) str = str.slice(0, -1);
+    return str;
 }
 
 class DSApp {
@@ -1636,7 +1636,7 @@ class DSApp {
         if (null != currentResizesContent) {
             nLayer.setResizesContent(currentResizesContent)
         }
-        
+
         //update symbol overrides
         if (token[PT_OVERRIDE_SYMBOL] && sLayer) {
             this._applySymbolOverrides(sLayer, token);
@@ -1700,28 +1700,28 @@ class DSApp {
         v = v.replace(/^\s*\(\s*/, "");
         v = v.replace(/\s*\)\s*$/, "");
         var params = v.split(",");
-        var olayer = params[0], ovalue=params[1];
-        if ( ! (olayer && ovalue) ) {
+        var olayer = params[0], ovalue = params[1];
+        if (!(olayer && ovalue)) {
             return this.logError(layer.name + ": Usage is " + PT_OVERRIDE_SYMBOL + ": ");
         }
-        olayer = stripQuotes( olayer.replace(/^\s+/, "").replace(/\s+$/, "") );
-        ovalue = stripQuotes( ovalue.replace(/^\s+/, "").replace(/\s+$/, "") );
-      
+        olayer = stripQuotes(olayer.replace(/^\s+/, "").replace(/\s+$/, ""));
+        ovalue = stripQuotes(ovalue.replace(/^\s+/, "").replace(/\s+$/, ""));
+
         // just target symbolIDs for now, but could be expanded to
         // target other override types, too
         var otype = "symbolID";
-        
+
         var overrides = layer.overrides;
         var oride;
         for (var o of overrides) {
             // find override matching layer name and (if provided) override type
-            if ( o.affectedLayer.name != olayer ) continue;
-            if ( o.property == otype ) {
+            if (o.affectedLayer.name != olayer) continue;
+            if (o.property == otype) {
                 oride = o;
                 break;
             }
         }
-        
+
         if (!oride) {
             if (DEBUG) this.logDebug("No matching override for layer " + layer.name);
         }
@@ -1741,7 +1741,7 @@ class DSApp {
                 else {
                     oride.value = master.symbolId;
                     success = true;
-              }
+                }
             }
             if (success) {
                 layer.resizeWithSmartLayout(); // "shrink to fit"
@@ -1807,10 +1807,13 @@ class DSApp {
 
         if (DEBUG) this.logDebug("_applyPropsToColor: rule=" + rule.name)
 
+        if (colorValue.includes("gradient")) {
+            return this.logError("Sketch doesn't support gradients color variables. Fix '" + rule.name + "' color variable.")
+        }
+
         let opacity = token['opacity']
         let opacityHEX = undefined != opacity ? Utils.opacityToHex(opacity) : ''
         colorValue = Utils.strToHEXColor(colorValue + opacityHEX)
-
 
         var colors = this.sDoc.swatches
         var color = colors.find(c => c.name == colorName)
