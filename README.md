@@ -240,7 +240,7 @@ You can update the following Sketch objects.
     }
 }
 
-// Update color variables
+// Update color variables  !!!!!!!! DONT USE GRADIENTS FOR COLOR VARIABLES. SKETCH WILL CRASH !!!!! 
 .--COLORS-{
     .primary{
         color:                                      black;
