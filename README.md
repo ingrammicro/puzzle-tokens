@@ -299,3 +299,8 @@ context="${context},\"commands\":\"apply,save,close\"}"
 echo $context
 /Applications/Sketch.app/Contents/Resources/sketchtool/bin/sketchtool --without-activating=YES --new-instance=No run ~/Library/Application\ Support/com.bohemiancoding.sketch3/Plugins/PuzzleTokens.sketchplugin "cmdRun" --context=$context
 ```
+
+Compact variant:
+```
+/Applications/Sketch.app/Contents/Resources/sketchtool/bin/sketchtool --without-activating=YES --new-instance=No run ~/Library/Application\ Support/com.bohemiancoding.sketch3/Plugins/PuzzleTokens.sketchplugin "cmdRun" --context="{\"file\":\"${HOME}/GitHub/puzzle-tokens/Styles/material-palettes/palettes.sketch\",\"styles\":\"${HOME}/GitHub/puzzle-tokens/Styles/material-palettes/scss/palettes.scss\",\"commands\":\"apply,save,close\"}"
+```
