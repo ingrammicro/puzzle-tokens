@@ -289,6 +289,7 @@ Some styles, such as text font/transformation/etc require Sketch 53 or later. Yo
 https://www.dropbox.com/s/f25cfsm26vgeu62/Recording1.mov?dl=0
 
 ## Command line API
+```
 #!/bin/bash
 context="{\"file\":\"${HOME}/GitHub/puzzle-tokens/Styles/material-palettes/palettes.sketch\""
 # The following line is optional
@@ -297,3 +298,4 @@ context="${context},\"styles\":\"${HOME}/GitHub/puzzle-tokens/Styles/material-pa
 context="${context},\"commands\":\"apply,save,close\"}"
 echo $context
 /Applications/Sketch.app/Contents/Resources/sketchtool/bin/sketchtool --without-activating=YES --new-instance=No run ~/Library/Application\ Support/com.bohemiancoding.sketch3/Plugins/PuzzleTokens.sketchplugin "cmdRun" --context=$context
+```
