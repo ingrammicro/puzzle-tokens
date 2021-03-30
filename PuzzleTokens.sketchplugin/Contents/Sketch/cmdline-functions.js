@@ -3,9 +3,7 @@
 
 // osascript -e 'quit app "Sketch"'
 const example = `
-/Applications/Sketch.app/Contents/Resources/sketchtool/bin/sketchtool --without-activating=YES --new-instance=No run ~/Library/Application\ Support/com.bohemiancoding.sketch3/Plugins/PuzzleTokens.sketchplugin "cmdRun"  --context='{"file":"/Users/baza/GitHub/puzzle-tokens/Styles/material-palettes/palettes.sketch","styles":"/Users/baza/GitHub/puzzle-tokens/Styles/material-palettes/scss/palettes.scss","commands":"apply,save,close"}'
-or save as other file:
-/Applications/Sketch.app/Contents/Resources/sketchtool/bin/sketchtool --without-activating=YES --new-instance=No run ~/Library/Application\ Support/com.bohemiancoding.sketch3/Plugins/PuzzleTokens.sketchplugin "cmdRun"  --context='{"file":"/Users/baza/GitHub/puzzle-tokens/Styles/material-palettes/palettes.sketch","saveAs":"/Users/baza/GitHub/puzzle-tokens/Styles/material-palettes/palettes_new.sketch","styles":"/Users/baza/GitHub/puzzle-tokens/Styles/material-palettes/scss/palettes.scss","commands":"apply,save,close"}'
+See example here: https://github.com/ingrammicro/puzzle-tokens/blob/master/README.md#command-line-api
 `
 
 
