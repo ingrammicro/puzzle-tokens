@@ -3,7 +3,7 @@
 
 // osascript -e 'quit app "Sketch"'
 const example = `
-See example here: https://github.com/ingrammicro/puzzle-tokens/blob/master/README.md#command-line-api
+/Applications/Sketch.app/Contents/Resources/sketchtool/bin/sketchtool --without-activating=YES --new-instance=No run ~/Library/Application\ Support/com.bohemiancoding.sketch3/Plugins/PuzzleTokens.sketchplugin "cmdRun"  --context='{"file":"/Users/baza/GitHub/puzzle-tokens/Styles/material-palettes/palettes.sketch","styles":"/Users/baza/GitHub/puzzle-tokens/Styles/material-palettes/scss/palettes.scss","commands":"apply,save,close"}'
 `
 
 
@@ -35,8 +35,9 @@ function saveDocumentAs(document, filePath) {
     })*/
 
     var newFileURL = NSURL.fileURLWithPath(filePath)
-    document.sketchObject.writeToURL_ofType_forSaveOperation_originalContentsURL_error_(newFileURL, "com.bohemiancoding.sketch.drawing",
-        NSSaveOperation, nil, nil);
+  //  document.sketchObject.writeToURL_ofType_forSaveOperation_originalContentsURL_error_(newFileURL, "com.bohemiancoding.sketch.drawing",
+   //     NSSaveOperation, nil, nil);
+   document.sketchObject.saveToURL_ofType_forSaveOperation_delegate_didSaveSelector_contextInfo(newFileURL, "com.bohemiancoding.sketch.drawing", NSSaveAsOperation, nil, nil, nil);
 }
 
 
