@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+# Version 8.16.4 (11 May 2021)
+Updated to be compatible with Versions (by @vkoopmans-resoluut)
+
 # Version 8.16.3 (18 Mar 2021)
 Don't allow to use gradients in color variable value
 
