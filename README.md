@@ -1,8 +1,7 @@
 # Puzzle Tokens
 Puzzle Tokens is a Sketch plugin to specify and apply design tokens (in LESS or SCSS format) to Sketch layers (with shared styles) with auto styles preview generation.
 
-
-### [Check this article](https://medium.com/@akalenyuk/bringing-styles-preprocessing-to-sketch-9cdf0d0c49bd) to get a detailed overview with examples and join [Spectrum Chat](https://spectrum.chat/puzzle-tokens?) for live talk
+### [Check this article](https://medium.com/@akalenyuk/bringing-styles-preprocessing-to-sketch-9cdf0d0c49bd) to get a detailed overview with examples and join [Discussions](https://github.com/ingrammicro/puzzle-tokens/discussions) for live talk
 
 ## Installation
 1. Download [zip file](https://github.com/ingrammicro/puzzle-tokens/raw/master/PuzzleTokens.sketchplugin.zip)
