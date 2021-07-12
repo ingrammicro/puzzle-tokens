@@ -93,6 +93,10 @@ class Utils {
         }
     }
 
+    static RGBAStructToRGBAStr(rgba) {
+        return "rgba(" + rgba.join(",") + ")"
+    }
+
     static RGBAToHexA(rgba) {
         if (rgba.startsWith('#')) return rgba
 

@@ -5,6 +5,10 @@
     colourB: #CC2020;
 }
 
-.gradients .gradient-opacity {
-    background-color:      linear-gradient(@token[colourA], @token[colourB])     ;          
+.gradients .linear-gradient-opacity {
+    background-color:      linear-gradient(20deg,@token[colourA] 10%, @token[colourB] 80%);
+}
+
+.gradients .radial-gradient-opacity {
+    background-color:      radial-gradient(red 10px,@token[colourA] 10%, @token[colourB] 80%);
 }

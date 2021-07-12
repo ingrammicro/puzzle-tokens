@@ -576,6 +576,7 @@ class DSExporter {
                 }
                 g.stops.forEach(function (s, index) {
                     res += (index > 0 ? " ," : "") + this._getColorToken(s.color)
+                    if (undefined != s.position) res += " " + (s.position * 100) + "%"
                 }, this)
                 res += ")" + eol
             }

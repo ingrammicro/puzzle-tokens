@@ -3,8 +3,7 @@
 @import("lib/uidialog.js")
 @import("lib/ga.js")
 @import("lib/gradient-parser/parser.js")
-//@import("lib/gradient-parser/stringify.js")
-@import("classes/DSLayerCollector.js")
+]@import("classes/DSLayerCollector.js")
 
 var app = undefined
 
@@ -920,59 +919,42 @@ class DSApp {
 
     _buildGradientObject(rule, sStyle, colorsRaw) {
         const token = rule.props
-
-        var gr = GradientParser.parse(colorsRaw);
-
-        var gradient = {
-            gradientType: gradientTypes[ge.type],
-            stops: []
-        };
-
-        return gradient
-
-        // CHECK GRADIENT TYPE
+        const LINEAR = "linear-gradient"
         const gradientTypes = {
             'linear-gradient': Style.GradientType.Linear,
             'radial-gradient': Style.GradientType.Radial,
             'angular': Style.GradientType.Angular
         }
-        const gradientTypeSrc = colorsRaw.substring(0, colorsRaw.indexOf("("))
-        if ("" == gradientTypeSrc) {
-            return this.logError("Wrong gradient format: " + colorsRaw + ". Can't find gradient type for rule " + rule.name)
-        }
-        if (!(gradientTypeSrc in gradientTypes)) {
-            return this.logError('Uknown gradient type: ' + gradientTypeSrc)
-        }
 
-        // PARSE VALUE
-        // linear-gradient(45deg,#0071ba, black)  => 45deg,#0071ba,black
-        // linear-gradient(alfa(@token[colourA],0.1), @token[colourB])
-        log("+" + colorsRaw + "+")
-        const re = /(^[\w-]*[(]+))/
-        var sValues = colorsRaw.replace(re, "").slice(0, -1)
-        // rgba(32, 204, 32, 0.005), #CC2020
-        log(sValues)
-        var deg = 180
-        if (sValues.indexOf("deg") >= 0) {
-            var sDeg = sValues.replace(/(\n*)deg.*/, "")
-            sValues = sValues.substring(sValues.indexOf(",") + 1)
 
-            if ("" == sDeg) {
-                return this.logError("Wrong gradient format: " + colorsRaw + ". Can't find '[Number]deg' " + rule.name)
-            }
-            deg = parseFloat(sDeg, 10)
+        var grads = GradientParser.parse(colorsRaw);
+        if (undefined == grads || 0 == grads.length) {
+            return undefined
+        }
+        var gr = grads[0]
+
+        if ("" == gr.type) {
+            return this.logError("Wrong gradient format")
+        }
+        if (!(gr.type in gradientTypes)) {
+            return this.logError('Uknown gradient type: ' + gr.type)
         }
 
-        var aValues = sValues.split(",").map(s => Utils.stripStr(s))
-
-
-        var count = aValues.length
-        var lenA = 0.5
 
         var gradient = {
-            gradientType: gradientTypes[gradientTypeSrc],
+            gradientType: gradientTypes[gr.type],
             stops: []
         };
+
+
+        var deg = 180
+        if (LINEAR == gr.type && undefined != gr.orientation && 'angular' == gr.orientation.type) {
+            deg = parseFloat(gr.orientation.value, 10)
+        }
+
+        var count = gr.colorStops.length
+        var lenA = 0.5
+
 
         var delta = 1 / (count - 1)
 
@@ -1050,15 +1032,22 @@ class DSApp {
         gradient.to = to
         gradient.from = from
 
-        aValues.forEach(function (sColor, index) {
-            // detect linear-gradient(134deg, >>>>>#004B3A 0%<<<<<, #2D8B61 80%, #9BD77E 100%);
-            const colorOctets = sColor.split(' ')
+        gr.colorStops.forEach(function (sColor, index) {
+            var color = ""
+            if ('hex' == sColor.type) {
+                color = "#" + sColor.value
+            } else if ('literal' == sColor.type) {
+                color = sColor.value
+            } else if ('rgba' == sColor.type) {
+                color = Utils.RGBAToHexA(Utils.RGBAStructToRGBAStr(sColor.value))
+            }
             gradient.stops.push({
-                color: Utils.strToHEXColor(colorOctets[0]),
-                position: colorOctets.length > 1 ? colorOctets[1].replace("%", "") / 100 : index * delta
+                color: color,
+                position: undefined != sColor.length && "%" == sColor.length.type ? sColor.length.value / 100 : index * delta
             })
         })
-        return gradient;
+
+        return gradient
     }
 
 
