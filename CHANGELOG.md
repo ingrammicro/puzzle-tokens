@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+# Version 8.17.0 (12 Jul 2021)
+Moved gradient parsing from own code to 3d-party library
+
 # Version 8.16.4 (11 May 2021)
 Updated to be compatible with Versions (by @vkoopmans-resoluut)
 
