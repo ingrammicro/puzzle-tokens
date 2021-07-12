@@ -2,6 +2,8 @@
 @import("lib/utils.js")
 @import("lib/uidialog.js")
 @import("lib/ga.js")
+@import("lib/gradient-parser/parser.js")
+//@import("lib/gradient-parser/stringify.js")
 @import("classes/DSLayerCollector.js")
 
 var app = undefined
@@ -919,6 +921,15 @@ class DSApp {
     _buildGradientObject(rule, sStyle, colorsRaw) {
         const token = rule.props
 
+        var gr = GradientParser.parse(colorsRaw);
+
+        var gradient = {
+            gradientType: gradientTypes[ge.type],
+            stops: []
+        };
+
+        return gradient
+
         // CHECK GRADIENT TYPE
         const gradientTypes = {
             'linear-gradient': Style.GradientType.Linear,
@@ -935,7 +946,12 @@ class DSApp {
 
         // PARSE VALUE
         // linear-gradient(45deg,#0071ba, black)  => 45deg,#0071ba,black
-        var sValues = colorsRaw.replace(/(^[\w-]*\()/, "").replace(/(\)\w*)/, "").replace(" ", "")
+        // linear-gradient(alfa(@token[colourA],0.1), @token[colourB])
+        log("+" + colorsRaw + "+")
+        const re = /(^[\w-]*[(]+))/
+        var sValues = colorsRaw.replace(re, "").slice(0, -1)
+        // rgba(32, 204, 32, 0.005), #CC2020
+        log(sValues)
         var deg = 180
         if (sValues.indexOf("deg") >= 0) {
             var sDeg = sValues.replace(/(\n*)deg.*/, "")

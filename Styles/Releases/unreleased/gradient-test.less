@@ -1,0 +1,10 @@
+// Creating a gradient trying to add opacity
+
+@token: {
+    colourA: fade(#20CC20,0.5);
+    colourB: #CC2020;
+}
+
+.gradients .gradient-opacity {
+    background-color:      linear-gradient(@token[colourA], @token[colourB])     ;          
+}
