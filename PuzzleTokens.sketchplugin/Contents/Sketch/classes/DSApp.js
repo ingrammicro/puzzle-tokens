@@ -1116,6 +1116,9 @@ class DSApp {
                 if (undefined == l.points) {
                     l = l.layers[0]
                 }
+                if (!l.points) {
+                    return this.logError('_applyShapeRadius: empty points for ' + (l.parent.parent ? (l.parent.parent.name + " / ") : "") + (l.parent ? (l.parent.name + " / ") : "") + l.name)
+                }
                 l.points.forEach(function (point, index) {
                     point.cornerRadius = radiusList.length > 1 ? radiusList[index] : radiusList[0]
                 })
