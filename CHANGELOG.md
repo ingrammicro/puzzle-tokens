@@ -1,6 +1,10 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+# Version 8.17.1 (28 Sep 2021)
+Process the following style value in better way
+margin-top:                 @notification-padding + @tag-height-small + @notification-label-margin-top;
+
 # Version 8.17.0 (12 Jul 2021)
 Moved gradient parsing from own code to 3d-party library
 
