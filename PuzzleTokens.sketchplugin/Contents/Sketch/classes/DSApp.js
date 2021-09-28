@@ -37,6 +37,7 @@ class DSApp {
         this.elements = {
             styles: {},
             colors__: {},
+            attrs: {}
         }
         this.textStyles = {}
         this.layerStyles = {}
@@ -165,7 +166,9 @@ class DSApp {
             }
             this.logMsg("run(): loadRules: success")
             if (!this._applyRules()) break
-            if (this.genSymbTokens) this._saveElements()
+            if (this.genSymbTokens) {
+                this._saveElements()
+            }
 
             applied = true
             this.logMsg("Finished")
@@ -334,8 +337,9 @@ class DSApp {
         else
             this.logMsg("Save elements info")
         Utils.writeToFile(json, pathToRules)
-    }
+        ///
 
+    }
 
     _showDialog() {
         const dialog = new UIDialog("Apply LESS/SASS styles", NSMakeRect(0, 0, 600, 100), "Apply", "Load LESS or SASS file with style definions and create new Sketch styles (or update existing).")
@@ -424,6 +428,13 @@ class DSApp {
             rule.type = ""
             if (DEBUG) this.logDebug(rule.name)
 
+            //////////////////////            
+            if (PT_ATTR in rule.props) {
+                this._saveRuleAsAttr(rule, sStyleName)
+            }
+            ///            
+
+            // CHECK RULE TYPE
             if (rule.path[0].startsWith(SPACE_COLORS)) {
                 // will define color variable
                 rule.type = this._defineRuleTypeAsColor(rule)
@@ -432,7 +443,7 @@ class DSApp {
                     rule.isStandalone = true
                     rule.sLayer = this._findLayerByPath(rule.path)
                     if (null == rule.sLayer) {
-                        if (PT_SKIP_MISSED in rule.props) {
+                        if (PT_SKIP_MISSED in rule.props || PT_ATTR in rule.props) {
                             continue
                             /*} lse if (this.confCreateSymbols) {
                                 this.messages += "Will create new symbol " + rule.path + " of " + ruleType + " type \n"
@@ -448,7 +459,7 @@ class DSApp {
                 }
                 rule.type = this._defineRuleType(rule)
             }
-            //////////////////////
+
 
             if (rule.isColor) {
                 this._applyPropsToColor(rule)
@@ -459,7 +470,6 @@ class DSApp {
                 // Find or create new style
                 var sSharedStyle = null
                 var sStyle = null
-
 
                 if (rule.isStandalone) {
                     /*if (!rule.sLayer) {
@@ -486,7 +496,7 @@ class DSApp {
                     sStyle = rule.sLayer.style
                 } else {
                     if (!rule.isText && !rule.isLayer) {
-                        this.logError("Uknown type of rule " + rule.name)
+                        if (!(PT_ATTR in rule.props)) this.logError("Uknown type of rule " + rule.name)
                         continue
                     }
 
@@ -573,6 +583,15 @@ class DSApp {
             sStyle.fills = []
             sStyle.shadows = []
             sStyle.borderOptions = undefined
+        }
+    }
+
+    _saveRuleAsAttr(rule, strPath) {
+        const rawItems = rule.props[PT_ATTR].replaceAll('"', '').split("::")
+        if (rawItems.length) {
+            const [attrName, attrValue] = rawItems
+            if (undefined == this.elements.attrs[strPath]) this.elements.attrs[strPath] = {}
+            this.elements.attrs[strPath][attrName] = attrValue
         }
     }
 
@@ -868,6 +887,9 @@ class DSApp {
 
 
     _addTokenToStyle(token, sharedStyle) {
+        log("_addTokenToStyle ------------ ")
+        log(token)
+
         const tokenNames = Object.keys(token.__tokens)
         if (!tokenNames.length) return
 
@@ -881,10 +903,23 @@ class DSApp {
             this.elements.styles[sharedStyle.name] = styleInfo
         }
 
+        /*
+        token.__tokens.filter(s => s[1].startsWith("@@")).forEach(function (t) {
+            
+        })*/
+
+        log(token)
+
+        //
+
         Array.prototype.push.apply(styleInfo.tokens, token.__tokens)
     }
 
     _addTokenToSymbol(token, slayer) {
+
+        log("_addTokenToSymbol ------------ ")
+        log(token)
+
         if (!token.__tokens.length) return
 
         var nlayer = slayer.sketchObject.parentSymbol()
@@ -1657,10 +1692,11 @@ class DSApp {
                 nLayer.setResizesContent(false)
                 sLayer.adjustToFit()
                 nLayer.setResizesContent(currentResizesContent)
-            } else if ("Group" == sLayer.type)) {
+            } else if ("Group" == sLayer.type) {
                 sLayer.adjustToFit()
             }
         }
+
 
         // Resize instances if selected for symbol
         if ("true" == token[PT_RESIZE_INSTANCES] && sLayer && "SymbolMaster" == sLayer.type) {

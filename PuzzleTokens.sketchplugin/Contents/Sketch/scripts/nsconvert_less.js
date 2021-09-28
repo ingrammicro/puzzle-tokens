@@ -1,3 +1,5 @@
+const DEBUG = true;
+
 var fs = require('fs');
 var nodePath = require('path');
 
@@ -118,17 +120,28 @@ function injectTokensIntoLess(srcData, lastPath = null) {
         line = line.trim()
         if (line.startsWith("//")) return
 
-        var found = line.match(/@{1}([\w-]*)\w{0,};/)
-        if (null != found && found.length >= 1) {
-            var token = found[1]
+        if (line.includes("@")) {
             var commentPos = line.indexOf("//")
             if (commentPos > 0) {
                 line = line.substring(0, commentPos)
             }
-            line += " //!" + token + "!"
+
+            if (line.includes("+") || line.includes("/") || line.includes("*") || line.includes("/")) {
+                var found = line.split(":")
+                var s = found[1].trim().replace(";", "")
+                line += " //!" + found[1].trim().replace(";", "") + "!"
+            } else {
+                var found = line.match(/@{1}([\w-]*)\w{0,};/)
+                if (null != found && found.length >= 1) {
+                    var token = found[1]
+                    line += " //!" + token + "!"
+                }
+            }
         }
         newData += line + "\n"
     })
+
+    console.log(newData)
 
     return newData
 }
@@ -204,7 +217,7 @@ function transformLESStoJSON(data) {
             //console.log("----------------------------------------")
             //console.log(lessVars)
 
-            // completed            
+            // completed
             console.log("Completed")
             saveData(sketchRules, pathToJSON)
             console.log("Saved JSON")
@@ -269,8 +282,10 @@ function parseSketchRule(rule, elements, path) {
 }
 
 function saveSketchRule(rule, path) {
+    if (DEBUG) console.log("-----saveSketchRule")
+
     //var sketchPath = path.join("*")
-    //sketchPath = sketchPath.replace(/(\.)/g, '').replace(/^\./,'')    
+    //sketchPath = sketchPath.replace(/(\.)/g, '').replace(/^\./,'')
 
     // detect mixin by keyword and skip it
     if (path.length > 0 && path[0].startsWith(".mixin-")) return
@@ -305,7 +320,9 @@ function saveSketchRule(rule, path) {
         var token = ''
         var nextRule = rule.rules[index + 1]
         if (nextRule != null && nextRule.isLineComment) {
-            var res = nextRule.value.match(/!{1}([\w-]*)!{1}/)
+            if (DEBUG) console.log(nextRule.value)
+            var res = nextRule.value.match(/!{1}([\s\w-+\*//@]*)!{1}/)
+            if (DEBUG) console.log(res)
             if (null != res && null != res[1]) {
                 token = '@' + res[1]
             }
