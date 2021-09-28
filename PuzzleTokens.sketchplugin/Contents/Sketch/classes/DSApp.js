@@ -887,8 +887,7 @@ class DSApp {
 
 
     _addTokenToStyle(token, sharedStyle) {
-        log("_addTokenToStyle ------------ ")
-        log(token)
+        log("_addTokenToStyle z------------ ")
 
         const tokenNames = Object.keys(token.__tokens)
         if (!tokenNames.length) return
@@ -903,16 +902,15 @@ class DSApp {
             this.elements.styles[sharedStyle.name] = styleInfo
         }
 
-        /*
-        token.__tokens.filter(s => s[1].startsWith("@@")).forEach(function (t) {
-            
-        })*/
-
-        log(token)
-
+        token.__tokens.filter(s => s[1].startsWith("@@")).forEach(function (s) {
+            const propName = s[0]
+            const currentValue = token[propName]
+            s.push(currentValue)
+        })
         //
 
         Array.prototype.push.apply(styleInfo.tokens, token.__tokens)
+        log(this.elements.styles)
     }
 
     _addTokenToSymbol(token, slayer) {
