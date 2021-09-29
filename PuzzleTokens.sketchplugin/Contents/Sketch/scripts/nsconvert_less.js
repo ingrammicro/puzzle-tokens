@@ -1,4 +1,4 @@
-const DEBUG = true;
+const DEBUG = false;
 
 var fs = require('fs');
 var nodePath = require('path');
