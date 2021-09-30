@@ -887,8 +887,6 @@ class DSApp {
 
 
     _addTokenToStyle(token, sharedStyle) {
-        log("_addTokenToStyle z------------ ")
-
         const tokenNames = Object.keys(token.__tokens)
         if (!tokenNames.length) return
 
@@ -910,13 +908,9 @@ class DSApp {
         //
 
         Array.prototype.push.apply(styleInfo.tokens, token.__tokens)
-        log(this.elements.styles)
     }
 
     _addTokenToSymbol(token, slayer) {
-
-        log("_addTokenToSymbol ------------ ")
-        log(token)
 
         if (!token.__tokens.length) return
 
