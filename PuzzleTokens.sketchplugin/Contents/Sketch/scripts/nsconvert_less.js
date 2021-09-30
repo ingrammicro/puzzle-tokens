@@ -126,23 +126,20 @@ function injectTokensIntoLess(srcData, lastPath = null) {
                 line = line.substring(0, commentPos)
             }
 
-            if (line.includes("+") || line.includes("/") || line.includes("*") || line.includes("/")) {
-                var found = line.split(":")
+            var found = line.split(":")
+            if (found && found.length > 1 && (found[1].includes("+") || found[1].includes("/") || found[1].includes("*") || found.includes("/") || found[1].includes("-"))) {
                 var s = found[1].trim().replace(";", "")
-                line += " //!" + found[1].trim().replace(";", "") + "!"
+                line += " //!" + s + "!"
             } else {
-                var found = line.match(/@{1}([\w-]*)\w{0,};/)
-                if (null != found && found.length >= 1) {
-                    var token = found[1]
+                var tokenInfo = line.match(/@{1}([\w-]*)\w{0,};/)
+                if (null != tokenInfo && tokenInfo.length >= 1) {
+                    var token = tokenInfo[1]
                     line += " //!" + token + "!"
                 }
             }
         }
         newData += line + "\n"
     })
-
-    console.log(newData)
-
     return newData
 }
 
