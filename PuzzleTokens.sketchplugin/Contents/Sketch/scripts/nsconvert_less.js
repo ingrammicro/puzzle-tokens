@@ -201,7 +201,7 @@ function transformLESStoJSON(data) {
                     return
                 } else if (rule.variable === true) {
                     //  var name;
-                    name = rule.name.substr(1);
+                    let name = rule.name.substr(1);
 
                     var value = rule.value;
                     lessVars["@" + name] = value.toCSS(options);
@@ -317,11 +317,9 @@ function saveSketchRule(rule, path) {
         var token = ''
         var nextRule = rule.rules[index + 1]
         if (nextRule != null && nextRule.isLineComment) {
-            if (DEBUG) console.log(nextRule.value)
             var res = nextRule.value.match(/!{1}([\s\w-+\*//@]*)!{1}/)
-            if (DEBUG) console.log(res)
             if (null != res && null != res[1]) {
-                token = '@' + res[1]
+                token = res[1]
             }
         }
 
