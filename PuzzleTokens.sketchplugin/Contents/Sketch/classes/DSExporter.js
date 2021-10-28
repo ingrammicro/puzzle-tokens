@@ -417,7 +417,8 @@ class DSExporter {
         res += spaces + "font-family" + ": " + this._getFontFamilyToken(sStyle.fontFamily) + eol
         res += spaces + "font-size" + ": " + this._getFontSizeToken(sStyle.fontSize) + eol
         res += spaces + "color" + ": " + this._getColorToken(sStyle.textColor) + eol
-        res += spaces + "text-align" + ": " + alignMap2[sStyle.alignment] + eol
+        if (sStyle.alignment !== Text.Alignment.left)
+            res += spaces + "text-align" + ": " + alignMap2[sStyle.alignment] + eol
         res += spaces + "vertical-align" + ": " + vertAlignMap2[sStyle.verticalAlignment] + eol
         {
             var cssWeights = weights.filter(w => w.sketch == sStyle.fontWeight)
@@ -431,7 +432,7 @@ class DSExporter {
         }
         if (null != sStyle.lineHeight)
             res += spaces + "line-height" + ": " + sStyle.lineHeight + pxeol
-        if (undefined != sStyle.textTransform) {
+        if (undefined != sStyle.textTransform && sStyle.textTransform != 'none') {
             res += spaces + "text-transform" + ": " + sStyle.textTransform + eol
         }
         if (undefined != sStyle.textUnderline) {
