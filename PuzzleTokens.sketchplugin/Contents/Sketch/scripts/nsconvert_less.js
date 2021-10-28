@@ -136,7 +136,7 @@ function injectTokensIntoLess(srcData, lastPath = null) {
                     var token = tokenInfo[1]
                     line += " //!" + token + "!"
                     if (token.includes("--token")) {
-                        line += `\n-pt-${found[0].replace("@", "")}--token: @${token};\n`
+                        line += `\n-pt-${found[0].replace("@", "")}--token: @${token};`
                         //console.log(`\n-pt-${found[0]}--token: @${token};\n`)
                     }
                 }
@@ -335,6 +335,7 @@ function saveSketchRule(rule, path) {
                 }
             }
         }
+        if (!token.startsWith('@')) token = "@" + token
 
         sketchRule.props[String(oneRule.name)] = value
         if (token != '') sketchRule.props.__tokens.push([
