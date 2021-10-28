@@ -335,12 +335,13 @@ function saveSketchRule(rule, path) {
                 }
             }
         }
-        if (!token.startsWith('@')) token = "@" + token
-
         sketchRule.props[String(oneRule.name)] = value
-        if (token != '') sketchRule.props.__tokens.push([
-            oneRule.name, token
-        ])
+        if (token != '') {
+            if (!token.startsWith('@')) token = "@" + token
+            sketchRule.props.__tokens.push([
+                oneRule.name, token
+            ])
+        }
     })
     // we need more properties then only "__tokens"
     if (Object.keys(sketchRule.props).length > 1) sketchRules.push(sketchRule)
