@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+# Version 8.17.4 (28 Oct 2021)
+Fixed "@@blabla--token" correctly
+
 # Version 8.17.1 (28 Sep 2021)
 Process the following style value in better way
 margin-top:                 @notification-padding + @tag-height-small + @notification-label-margin-top;

@@ -127,7 +127,7 @@ function injectTokensIntoLess(srcData, lastPath = null) {
             }
 
             var found = line.split(":")
-            if (found && found.length > 1 && (found[1].includes("+") || found[1].includes("/") || found[1].includes("*") || found.includes("/") || found[1].includes("-"))) {
+            if (found && found.length > 1 && (found[1].includes("+") || found[1].includes("/") || found[1].includes("*") || found.includes("/") || found[1].includes(" - "))) {
                 var s = found[1].trim().replace(";", "")
                 line += " //!" + s + "!"
             } else {
@@ -135,6 +135,10 @@ function injectTokensIntoLess(srcData, lastPath = null) {
                 if (null != tokenInfo && tokenInfo.length >= 1) {
                     var token = tokenInfo[1]
                     line += " //!" + token + "!"
+                    if (token.includes("--token")) {
+                        line += `\n-pt-${found[0].replace("@", "")}--token: @${token};\n`
+                        //console.log(`\n-pt-${found[0]}--token: @${token};\n`)
+                    }
                 }
             }
         }
@@ -211,7 +215,6 @@ function transformLESStoJSON(data) {
                     parseSketchRule(rule, null, [])
                 }
             });
-            //console.log("----------------------------------------")
             //console.log(lessVars)
 
             // completed
@@ -312,17 +315,26 @@ function saveSketchRule(rule, path) {
         const s = typeof oneRule.name + ""
         if ("object" == s) return
         if (oneRule.name.startsWith("@")) return
+        if (oneRule.name.includes("--token")) return
 
-        // get token from rule comment
-        var token = ''
-        var nextRule = rule.rules[index + 1]
-        if (nextRule != null && nextRule.isLineComment) {
-            var res = nextRule.value.match(/!{1}([\s\w-+\*//@]*)!{1}/)
-            if (null != res && null != res[1]) {
-                token = res[1]
+        // Try to get token from special next line. Example:
+        //   font-size:                                  @@tag-text-font-size--token;
+        //   -pt-font-size--token:                           @tag-text-font-size--token;
+        const calcTokenName = `-pt-${oneRule.name}--token`
+        const nextNextRule = rule.rules[index + 2]
+        if (nextNextRule && nextNextRule.name != null && nextNextRule.name === calcTokenName && nextNextRule.value != null && nextNextRule.value.value != null) {
+            token = "@" + nextNextRule.value.value
+        } else {
+            // get token from rule comment
+            var token = ''
+            var nextRule = rule.rules[index + 1]
+            if (nextRule != null && nextRule.isLineComment) {
+                var res = nextRule.value.match(/!{1}([\s\w-+\*//@]*)!{1}/)
+                if (null != res && null != res[1]) {
+                    token = res[1]
+                }
             }
         }
-
 
         sketchRule.props[String(oneRule.name)] = value
         if (token != '') sketchRule.props.__tokens.push([
