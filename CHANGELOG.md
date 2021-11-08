@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+# Version 8.17.5 (08 Nov 2021)
+Minor issues fixed
+
 # Version 8.17.4 (28 Oct 2021)
 Fixed "@@blabla--token" correctly
 
