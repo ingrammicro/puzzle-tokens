@@ -516,7 +516,7 @@ class DSApp {
                 // drop existing (or new) style properties before first apply                
                 if ((rule.isText || rule.isLayer) &&
                     !this.appliedStyles[rule.isText][sStyleName] &&
-                    !(rule.sLayer && rule.sLayer.sharedStyle && this.appliedStyles[true][rule.sLayer.sharedStyle.name])
+                    !(rule.sLayer && rule.sLayer.sharedStyle && this.appliedStyles[rule.isText][rule.sLayer.sharedStyle.name])
                 ) {
                     this._resetStyle(rule, sStyle)
                     this.appliedStyles[rule.isText][sStyleName] = true
@@ -680,6 +680,7 @@ class DSApp {
 
 
     loadRules() {
+        if (DEBUG) this.logDebug("loadRules: started")
         const tempFolder = Utils.getPathToTempFolder()
         const pathToRulesJSON = tempFolder + "/nsdata.json"
 
@@ -746,6 +747,7 @@ class DSApp {
         try {
             this.rules = JSON.parse(rulesJSONStr)
         } catch (e) {
+            this.logError("loadRules: faled to parse JSON")
             this.logError(e)
             return false
         }
@@ -754,6 +756,7 @@ class DSApp {
             this._showDebug(rulesJSONStr)
         }
 
+        if (DEBUG) this.logDebug("loadRules: completed")
         return true
     }
 
@@ -1552,7 +1555,7 @@ class DSApp {
         const nLayer = rule.sLayer ? rule.sLayer.sketchObject : null
         let currentResizesContent = null
         const resizeSymbol = token[PT_RESIZE_SYMBOL]
-        if (DEBUG) this.logDebug("_applyCommonRules: rule=" + rule.name)
+        if (DEBUG) this.logDebug("_applyCommonRules: for rule=" + rule.name)
 
         if (!this.skipPos) {
 
@@ -1906,7 +1909,6 @@ class DSApp {
 
 
         if (null == sLayer) {
-            log(rule)
             return this.logError("Can't find layer by path " + rule.name)
         }
 
