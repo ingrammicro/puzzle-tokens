@@ -28,6 +28,7 @@ var SettingKeys = {
     PLUGIN_APPLY_CLEAR: "pluginApplyClear",
     PLUGIN_SHOW_JSON: "pluginDebug",
     PLUGIN_SHOW_DOUBLESTYLES: "pluginDoubleStyles",
+    PLUGIN_APPLY_IGNORE_MISSED: "PLUGIN_APPLY_IGNORE_MISSED",
     PLUGIN_CREATE_SYMBOLS: "pluginCreateSymbols",
     PLUGIN_EXPORT_PATH_TO: "pluginExportPathTo",
     PLUGIN_EXPORT_OPEN_FINDER: "PLUGIN_EXPORT_OPEN_FINDER",

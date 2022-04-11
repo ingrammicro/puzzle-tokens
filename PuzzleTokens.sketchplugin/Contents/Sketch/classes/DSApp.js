@@ -41,7 +41,9 @@ class DSApp {
         }
         this.textStyles = {}
         this.layerStyles = {}
-        this.appliedStyles = {}
+        this.appliedStyles = {
+            true: {}, false: {}
+        }
 
         this._symbolPage = undefined
 
@@ -77,6 +79,8 @@ class DSApp {
         this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS) == 1
         this.showDebug = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_JSON) == 1
         this.showDoubleStyleError = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DOUBLESTYLES) == 1
+        this.ignoreMissed = Settings.settingForKey(SettingKeys.PLUGIN_APPLY_IGNORE_MISSED) == 1
+        this.skipPos = true
         //this.confCreateSymbols = Settings.settingForKey(SettingKeys.PLUGIN_CREATE_SYMBOLS) == 1
         this.confClear = this.confClean = Settings.settingForKey(SettingKeys.PLUGIN_APPLY_CLEAR) == 1
 
@@ -443,7 +447,7 @@ class DSApp {
                     rule.isStandalone = true
                     rule.sLayer = this._findLayerByPath(rule.path)
                     if (null == rule.sLayer) {
-                        if (PT_SKIP_MISSED in rule.props || PT_ATTR in rule.props) {
+                        if (this.ignoreMissed || PT_SKIP_MISSED in rule.props || PT_ATTR in rule.props) {
                             continue
                             /*} lse if (this.confCreateSymbols) {
                                 this.messages += "Will create new symbol " + rule.path + " of " + ruleType + " type \n"
@@ -458,6 +462,7 @@ class DSApp {
                 } else {
                 }
                 rule.type = this._defineRuleType(rule)
+                if (DEBUG) this.logDebug(rule)
             }
 
 
@@ -509,11 +514,12 @@ class DSApp {
                 }
 
                 // drop existing (or new) style properties before first apply                
-                if (!this.appliedStyles[sStyleName] && (rule.isText || rule.isLayer) &&
-                    !(rule.sLayer && rule.sLayer.sharedStyle && this.appliedStyles[rule.sLayer.sharedStyle.name])
+                if ((rule.isText || rule.isLayer) &&
+                    !this.appliedStyles[rule.isText][sStyleName] &&
+                    !(rule.sLayer && rule.sLayer.sharedStyle && this.appliedStyles[true][rule.sLayer.sharedStyle.name])
                 ) {
                     this._resetStyle(rule, sStyle)
-                    this.appliedStyles[sStyleName] = true
+                    this.appliedStyles[rule.isText][sStyleName] = true
                 }
 
                 // Apply rule properties
@@ -539,6 +545,7 @@ class DSApp {
                 } else {
                     // Create new shared style
                     if (!sSharedStyle) {
+                        if (this.ignoreMissed) continue
                         // create
                         sSharedStyle = SharedStyle.fromStyle({
                             name: sStyleName,
@@ -1108,7 +1115,7 @@ class DSApp {
         }
 
         const token = rule.props
-        let reset = token[PT_SHADOW_UPDATE] == 'true' || !this.appliedStyles[rule.name]
+        let reset = token[PT_SHADOW_UPDATE] == 'true' || !this.appliedStyles[rule.isText][rule.name]
         let resetInset = true
 
 
@@ -1267,7 +1274,7 @@ class DSApp {
                 border = null
             }
 
-            if (this.appliedStyles[rule.name] != undefined && sStyle.borders != null) {
+            if (this.appliedStyles[rule.isText][rule.name] != undefined && sStyle.borders != null) {
                 // already added border, now add one more
                 if (border) {
                     sStyle.borders.push(border)
@@ -1298,7 +1305,7 @@ class DSApp {
             if (updateFill) {
                 // get existing fill to update it
                 if (sStyle.fills != null && sStyle.fills.length > 0) {
-                    fill = sStyle.fills[sStyle.fills.length - 1]
+                    fill = sStyle.fills.slice(-1)
                 } else {
                     updateFill = false
                 }
@@ -1311,11 +1318,11 @@ class DSApp {
                 fill.color = Utils.strToHEXColor(backColor, token['opacity'])
             }
             if (!updateFill) {
-                if (fill.fill != undefined) sStyle.fills.push(fill)
+                sStyle.fills.push(fill)
             } else {
                 if (fill.fill == undefined) {
                     //drop the last fill
-                    sStyle.fills.pop()
+                    if (sStyle.fills !== undefined) sStyle.fills.pop()
                 }
             }
         } else {
@@ -1426,7 +1433,7 @@ class DSApp {
             sStyle.fontSize = parseFloat(fontSize.replace("px", ""))
 
             // If applied font size at first time then drop line-height
-            if (!this.appliedStyles[rule.name]) {
+            if (!this.appliedStyles[rule.isText][rule.name]) {
                 sStyle.lineHeight = null
             }
         }
@@ -1545,169 +1552,171 @@ class DSApp {
         const nLayer = rule.sLayer ? rule.sLayer.sketchObject : null
         let currentResizesContent = null
         const resizeSymbol = token[PT_RESIZE_SYMBOL]
-
         if (DEBUG) this.logDebug("_applyCommonRules: rule=" + rule.name)
 
-        // Switch "Adjust Content on resize" off before resizing
-        if (null != resizeSymbol && (sLayer && ("SymbolMaster" == sLayer.type || "Artboard" == sLayer.type))) {
-            currentResizesContent = nLayer.resizesContent()
-            nLayer.setResizesContent(false)
-        }
+        if (!this.skipPos) {
 
-        const getRuleLayers = function (rule, sSharedStyle) {
-            return rule.sLayer ? [rule.sLayer] : sSharedStyle ? sSharedStyle.getAllInstancesLayers() : []
-        }
-
-        // SET MARGINS
-        while (true) {
-
-            var margin = {
-                "top": token['margin-top'],
-                "right": token['margin-right'],
-                "bottom": token['margin-bottom'],
-                "left": token['margin-left']
-            };
-            var height = token['height']
-            var width = token['width']
-
-            var relativeTo = token[PT_MARGIN_RELATIVE_TO];
-            var resize = token[PT_MARGIN_RESIZE];
-            if (relativeTo) {
-                if (relativeTo.startsWith('"') || relativeTo.startsWith("'")) {
-                    relativeTo = relativeTo.slice(1);
-                }
-                if (relativeTo.endsWith('"') || relativeTo.endsWith("'")) {
-                    relativeTo = relativeTo.slice(0, -1);
-                }
-            }
-
-            var gotMargin;
-            for (var m in margin) {
-                if (margin[m] == null) continue
-                margin[m] = parseInt(margin[m].replace('px', ""));
-                gotMargin = true;
-            }
-
-            if (null == gotMargin && null == height && null == width) break
-            if (null == sSharedStyle && null == rule.sLayer) break
-
-            for (var l of getRuleLayers(rule, sSharedStyle)) {
-                // if margin-relative-to is set, find that sibling elemet
-                // and set as topParent for relative positioning
-                var xOffset = 0;
-                var yOffset = 0;
-                var topParent;
-                if (relativeTo != null) {
-                    var siblings = l.parent.layers;
-                    for (var sib of siblings) {
-                        if (sib.name == relativeTo) {
-                            topParent = sib;
-                            xOffset = topParent.frame.x;
-                            yOffset = topParent.frame.y;
-                            break;
-                        }
-                    }
-                }
-                // ...otherwise set to top parent 
-                if (!topParent) {
-                    topParent = this._findLayerTopParent(l);
-                }
-
-                const parentFrame = topParent.frame
-                const moveTop = topParent != l.parent;
-
-                if (DEBUG) this.logDebug("_applyCommonRules for layer: " + l.name)
-
-                let nRect = Utils.copyRect(topParent.sketchObject.absoluteRect())
-                let x = null
-                let y = null
-
-                if (null != height) {
-                    l.frame.height = parseInt(height.replace('px', ""))
-                    if (DEBUG) this.logDebug("_applyCommonRules: set height to " + l.frame.height)
-                }
-                if (null != width) {
-                    l.frame.width = parseInt(width.replace('px', ""))
-                }
-
-                if (null != margin["top"]) { // prefer top positioning to bottom
-                    y = margin["top"] + yOffset;
-                }
-                else if (null != margin["bottom"]) {
-                    y = parentFrame.height + yOffset - (margin["bottom"] + l.frame.height)
-                }
-                if (null != margin["left"]) { // prefer left positioning to right
-                    x = margin["left"] + xOffset;
-                }
-                else if (null != margin["right"]) {
-                    x = parentFrame.width + xOffset - (margin["right"] + l.frame.width)
-                }
-
-                if (x != null || y != null) this.positionInArtboard(l, x, y)
-
-                if (resizeSymbol != null && "true" == resizeSymbol) {
-                    if (null != height) parentFrame.height = l.frame.height
-                    if (null != width) parentFrame.width = l.frame.width
-                }
-
-                if (resize == "true") {
-                    parentFrame.height = l.frame.height + (margin["top"] || 0) + (margin["bottom"] || 0);
-                    parentFrame.width = l.frame.width + (margin["left"] || 0) + (margin["right"] || 0);
-                }
-
-            }
-            break
-        }
-
-        // SET FIX SIZE AND PIN CORNERS
-        if (nLayer) {
-            for (let k in edgeFixdMap) {
-                if (null == token[k]) continue
-                nLayer.setFixed_forEdge_('true' == token[k], edgeFixdMap[k])
-            }
-        }
-
-        // Switch "Adjust Content on resize" to old state
-        if (null != currentResizesContent) {
-            nLayer.setResizesContent(currentResizesContent)
-        }
-
-        //update symbol overrides
-        if (token[PT_OVERRIDE_SYMBOL] && sLayer) {
-            this._applySymbolOverrides(sLayer, token);
-        }
-
-        // Adjust to fit content if selected for artboard or symbol
-        if ("true" == token[PT_FIT_CONTENT]) {
-            if (sLayer && ("SymbolMaster" == sLayer.type || "Artboard" == sLayer.type)) {
+            // Switch "Adjust Content on resize" off before resizing
+            if (null != resizeSymbol && (sLayer && ("SymbolMaster" == sLayer.type || "Artboard" == sLayer.type))) {
                 currentResizesContent = nLayer.resizesContent()
                 nLayer.setResizesContent(false)
-                sLayer.adjustToFit()
+            }
+
+            const getRuleLayers = function (rule, sSharedStyle) {
+                return rule.sLayer ? [rule.sLayer] : sSharedStyle ? sSharedStyle.getAllInstancesLayers() : []
+            }
+
+            // SET MARGINS
+            while (true) {
+
+                var margin = {
+                    "top": token['margin-top'],
+                    "right": token['margin-right'],
+                    "bottom": token['margin-bottom'],
+                    "left": token['margin-left']
+                };
+                var height = token['height']
+                var width = token['width']
+
+                var relativeTo = token[PT_MARGIN_RELATIVE_TO];
+                var resize = token[PT_MARGIN_RESIZE];
+                if (relativeTo) {
+                    if (relativeTo.startsWith('"') || relativeTo.startsWith("'")) {
+                        relativeTo = relativeTo.slice(1);
+                    }
+                    if (relativeTo.endsWith('"') || relativeTo.endsWith("'")) {
+                        relativeTo = relativeTo.slice(0, -1);
+                    }
+                }
+
+                var gotMargin;
+                for (var m in margin) {
+                    if (margin[m] == null) continue
+                    margin[m] = parseInt(margin[m].replace('px', ""));
+                    gotMargin = true;
+                }
+
+                if (null == gotMargin && null == height && null == width) break
+                if (null == sSharedStyle && null == rule.sLayer) break
+
+                for (var l of getRuleLayers(rule, sSharedStyle)) {
+                    // if margin-relative-to is set, find that sibling elemet
+                    // and set as topParent for relative positioning
+                    var xOffset = 0;
+                    var yOffset = 0;
+                    var topParent;
+                    if (relativeTo != null) {
+                        var siblings = l.parent.layers;
+                        for (var sib of siblings) {
+                            if (sib.name == relativeTo) {
+                                topParent = sib;
+                                xOffset = topParent.frame.x;
+                                yOffset = topParent.frame.y;
+                                break;
+                            }
+                        }
+                    }
+                    // ...otherwise set to top parent 
+                    if (!topParent) {
+                        topParent = this._findLayerTopParent(l);
+                    }
+
+                    const parentFrame = topParent.frame
+                    const moveTop = topParent != l.parent;
+
+                    if (DEBUG) this.logDebug("_applyCommonRules for layer: " + l.name)
+
+                    let nRect = Utils.copyRect(topParent.sketchObject.absoluteRect())
+                    let x = null
+                    let y = null
+
+                    if (null != height) {
+                        l.frame.height = parseInt(height.replace('px', ""))
+                        if (DEBUG) this.logDebug("_applyCommonRules: set height to " + l.frame.height)
+                    }
+                    if (null != width) {
+                        l.frame.width = parseInt(width.replace('px', ""))
+                    }
+
+                    if (null != margin["top"]) { // prefer top positioning to bottom
+                        y = margin["top"] + yOffset;
+                    }
+                    else if (null != margin["bottom"]) {
+                        y = parentFrame.height + yOffset - (margin["bottom"] + l.frame.height)
+                    }
+                    if (null != margin["left"]) { // prefer left positioning to right
+                        x = margin["left"] + xOffset;
+                    }
+                    else if (null != margin["right"]) {
+                        x = parentFrame.width + xOffset - (margin["right"] + l.frame.width)
+                    }
+
+                    if (x != null || y != null) this.positionInArtboard(l, x, y)
+
+                    if (resizeSymbol != null && "true" == resizeSymbol) {
+                        if (null != height) parentFrame.height = l.frame.height
+                        if (null != width) parentFrame.width = l.frame.width
+                    }
+
+                    if (resize == "true") {
+                        parentFrame.height = l.frame.height + (margin["top"] || 0) + (margin["bottom"] || 0);
+                        parentFrame.width = l.frame.width + (margin["left"] || 0) + (margin["right"] || 0);
+                    }
+
+                }
+                break
+            }
+
+            // SET FIX SIZE AND PIN CORNERS
+            if (nLayer) {
+                for (let k in edgeFixdMap) {
+                    if (null == token[k]) continue
+                    nLayer.setFixed_forEdge_('true' == token[k], edgeFixdMap[k])
+                }
+            }
+
+            // Switch "Adjust Content on resize" to old state
+            if (null != currentResizesContent) {
                 nLayer.setResizesContent(currentResizesContent)
-            } else if ("Group" == sLayer.type) {
-                sLayer.adjustToFit()
             }
-        }
 
-
-        // Resize instances if selected for symbol
-        if ("true" == token[PT_RESIZE_INSTANCES] && sLayer && "SymbolMaster" == sLayer.type) {
-            for (var inst of sLayer.getAllInstances()) {
-                inst.resizeWithSmartLayout();
+            //update symbol overrides
+            if (token[PT_OVERRIDE_SYMBOL] && sLayer) {
+                this._applySymbolOverrides(sLayer, token);
             }
-        }
 
-        // apply vertical align
-        if (null != token[PT_VERTICAL_ALIGN]) {
-            const align = token[PT_VERTICAL_ALIGN]
-            if (DEBUG) this.logDebug("_applyCommonRules: " + PT_VERTICAL_ALIGN + "=" + align)
-            for (var layer of getRuleLayers(rule, sSharedStyle)) {
-                if ("middle" == align) {
-                    layer.frame.y = (layer.parent.frame.height - layer.frame.height) / 2
-                } else if ("bottom" == align) {
-                    layer.frame.y = layer.parent.frame.height - layer.frame.height
-                } else if ("top" == align) {
-                    layer.frame.y = 0
+            // Adjust to fit content if selected for artboard or symbol
+            if ("true" == token[PT_FIT_CONTENT]) {
+                if (sLayer && ("SymbolMaster" == sLayer.type || "Artboard" == sLayer.type)) {
+                    currentResizesContent = nLayer.resizesContent()
+                    nLayer.setResizesContent(false)
+                    sLayer.adjustToFit()
+                    nLayer.setResizesContent(currentResizesContent)
+                } else if ("Group" == sLayer.type) {
+                    sLayer.adjustToFit()
+                }
+            }
+
+
+            // Resize instances if selected for symbol
+            if ("true" == token[PT_RESIZE_INSTANCES] && sLayer && "SymbolMaster" == sLayer.type) {
+                for (var inst of sLayer.getAllInstances()) {
+                    inst.resizeWithSmartLayout();
+                }
+            }
+
+            // apply vertical align
+            if (null != token[PT_VERTICAL_ALIGN]) {
+                const align = token[PT_VERTICAL_ALIGN]
+                if (DEBUG) this.logDebug("_applyCommonRules: " + PT_VERTICAL_ALIGN + "=" + align)
+                for (var layer of getRuleLayers(rule, sSharedStyle)) {
+                    if ("middle" == align) {
+                        layer.frame.y = (layer.parent.frame.height - layer.frame.height) / 2
+                    } else if ("bottom" == align) {
+                        layer.frame.y = layer.parent.frame.height - layer.frame.height
+                    } else if ("top" == align) {
+                        layer.frame.y = 0
+                    }
                 }
             }
         }

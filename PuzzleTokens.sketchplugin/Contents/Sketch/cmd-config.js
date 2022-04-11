@@ -15,6 +15,7 @@ var onRun = function (context) {
     let logDebug = Settings.settingForKey(SettingKeys.PLUGIN_LOGDEBUG_ENABLED) == 1
     let showJSON = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_JSON) == 1
     let showDoubleStyle = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DOUBLESTYLES) == 1
+    let ignoreMissed = Settings.settingForKey(SettingKeys.PLUGIN_APPLY_IGNORE_MISSED) == 1
     let genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS) == 1
     let gaEnabled = !Settings.settingForKey(SettingKeys.PLUGIN_GA_DISABLED)
     let nodeJSPAth = Settings.settingForKey(SettingKeys.PLUGIN_NODEJS_PATH)
@@ -23,10 +24,11 @@ var onRun = function (context) {
     if (undefined == sassModulePath) sassModulePath = ""
 
     // Build dialog
-    const dialog = new UIDialog("Configure", NSMakeRect(0, 0, 400, 340), "Save", "Edit Puzzle Tokens common configuration settings.")
+    const dialog = new UIDialog("Configure", NSMakeRect(0, 0, 450, 340), "Save", "Edit Puzzle Tokens common configuration settings.")
 
     dialog.addLeftLabel("", "Apply Options")
     dialog.addCheckbox("showDoubleStyle", "Warn about style name duplicates", showDoubleStyle)
+    dialog.addCheckbox("ignoreMissed", "Don't create new styles and ignore missed symbols", ignoreMissed)
     dialog.addCheckbox("showJSON", "Show internal JSON data", showJSON)
     dialog.addCheckbox("logDebug", "Enable debug logging", logDebug)
 
@@ -55,6 +57,7 @@ var onRun = function (context) {
             return false
         }
         showDoubleStyle = dialog.views['showDoubleStyle'].state() == 1
+        ignoreMissed = dialog.views['ignoreMissed'].state() == 1
         logDebug = dialog.views['logDebug'].state() == 1
         showJSON = dialog.views['showJSON'].state() == 1
         genSymbTokens = dialog.views['genSymbTokens'].state() == 1
@@ -69,6 +72,7 @@ var onRun = function (context) {
     // Save updated settings
     Settings.setSettingForKey(SettingKeys.PLUGIN_LOGDEBUG_ENABLED, logDebug)
     Settings.setSettingForKey(SettingKeys.PLUGIN_SHOW_DOUBLESTYLES, showDoubleStyle)
+    Settings.setSettingForKey(SettingKeys.PLUGIN_APPLY_IGNORE_MISSED, ignoreMissed)
     Settings.setSettingForKey(SettingKeys.PLUGIN_SHOW_JSON, showJSON)
     Settings.setSettingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS, genSymbTokens)
     Settings.setSettingForKey(SettingKeys.PLUGIN_GA_DISABLED, !gaEnabled)
