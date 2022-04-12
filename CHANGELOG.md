@@ -1,6 +1,11 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+# Version 8.18.0 (12 Apr 2022)
+New settings added:
+- Don't create new styles and ignore missed symbols
+- Don't apply sizes and margins
+
 # Version 8.17.5 (08 Nov 2021)
 Minor issues fixed
 

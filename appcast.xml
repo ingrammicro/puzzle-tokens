@@ -6,9 +6,9 @@
         <description>Apply tokens to Sketch layers and styles</description>
         <language>en</language>
          <item>
-            <title>Version 8.17.5</title>
-            <date>8 Nov 2021</date>
-            <enclosure url="https://github.com/ingrammicro/puzzle-tokens/raw/master/PuzzleTokens.sketchplugin.zip" sparkle:version="8.17.5"/>
+            <title>Version 8.18.0</title>
+            <date>12 Apr 2022</date>
+            <enclosure url="https://github.com/ingrammicro/puzzle-tokens/raw/master/PuzzleTokens.sketchplugin.zip" sparkle:version="8.18.0"/>
         </item>         
     </channel>
 </rss>
