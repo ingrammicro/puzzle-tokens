@@ -3,7 +3,7 @@
 @import("lib/uidialog.js")
 @import("lib/ga.js")
 @import("lib/gradient-parser/parser.js")
-]@import("classes/DSLayerCollector.js")
+] @import("classes/DSLayerCollector.js")
 
 var app = undefined
 
@@ -42,7 +42,8 @@ class DSApp {
         this.textStyles = {}
         this.layerStyles = {}
         this.appliedStyles = {
-            true: {}, false: {}
+            true: {},
+            false: {}
         }
 
         this._symbolPage = undefined
@@ -76,13 +77,13 @@ class DSApp {
         this.pathToDoc = ""
         this.pathToAssets = ""
 
-        this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS) == 1
-        this.showDebug = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_JSON) == 1
-        this.showDoubleStyleError = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DOUBLESTYLES) == 1
-        this.ignoreMissed = Settings.settingForKey(SettingKeys.PLUGIN_APPLY_IGNORE_MISSED) == 1
-        this.skipPos = true
-        //this.confCreateSymbols = Settings.settingForKey(SettingKeys.PLUGIN_CREATE_SYMBOLS) == 1
-        this.confClear = this.confClean = Settings.settingForKey(SettingKeys.PLUGIN_APPLY_CLEAR) == 1
+        this.genSymbTokens = Settings.settingForKey(SettingKeys.PLUGIN_GENERATE_SYMBOLTOKENS) === 1
+        this.showDebug = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_JSON) === 1
+        this.showDoubleStyleError = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DOUBLESTYLES) === 1
+        this.ignoreMissed = Settings.settingForKey(SettingKeys.PLUGIN_APPLY_IGNORE_MISSED) === 1
+        this.skipPos = Settings.settingForKey(SettingKeys.PLUGIN_APPLY_SKIP_SIZES) === 1
+            //this.confCreateSymbols = Settings.settingForKey(SettingKeys.PLUGIN_CREATE_SYMBOLS) == 1
+        this.confClear = this.confClean = Settings.settingForKey(SettingKeys.PLUGIN_APPLY_CLEAR) === 1
 
         // Check if we in Cloud
         this._initStyles()
@@ -108,7 +109,7 @@ class DSApp {
     stopWithError(error) {
         const UI = require('sketch/ui')
         UI.alert('Error', error)
-        //exit = true        
+            //exit = true        
     }
 
     // Public methods
@@ -119,7 +120,7 @@ class DSApp {
         this.pathToStyles = pathToStyles
         if ('' == this.pathToStyles) return false
         const success = this.run(false)
-        //UI.message(this._getResultSummary())        
+            //UI.message(this._getResultSummary())        
         return success
     }
 
@@ -196,14 +197,14 @@ class DSApp {
         const showError = Settings.PLUGIN_SHOW_DOUBLESTYLES
 
         this.textStyles = {}
-        this.sDoc.sharedTextStyles.filter(s => null == s.getLibrary()).forEach(function (sStyle) {
+        this.sDoc.sharedTextStyles.filter(s => null == s.getLibrary()).forEach(function(sStyle) {
             if (this.showDoubleStyleError && sStyle.name in this.textStyles) {
                 this.logError("Found multiply text styles with name '" + sStyle.name + "'")
             }
             this.textStyles[sStyle.name] = sStyle
         }, this)
         this.layerStyles = {}
-        this.sDoc.sharedLayerStyles.filter(s => null == s.getLibrary()).forEach(function (sStyle) {
+        this.sDoc.sharedLayerStyles.filter(s => null == s.getLibrary()).forEach(function(sStyle) {
             if (this.showDoubleStyleError && sStyle.name in this.layerStyles) {
                 this.logError("Found multiply layer styles with name '" + sStyle.name + "'")
             }
@@ -238,10 +239,10 @@ class DSApp {
     _findStyleByNameInLibrary(styleName, isLayerStyle, jsLib) {
         let sFoundStyle = undefined
         const sStyleRefs = isLayerStyle ?
-            jsLib.sLib.getImportableLayerStyleReferencesForDocument(this.sDoc)
-            : jsLib.sLib.getImportableTextStyleReferencesForDocument(this.sDoc)
+            jsLib.sLib.getImportableLayerStyleReferencesForDocument(this.sDoc) :
+            jsLib.sLib.getImportableTextStyleReferencesForDocument(this.sDoc)
 
-        sStyleRefs.forEach(function (sStyleRef) {
+        sStyleRefs.forEach(function(sStyleRef) {
             if (sStyleRef.name == styleName) {
                 sFoundStyle = sStyleRef.import()
                 return
@@ -341,7 +342,7 @@ class DSApp {
         else
             this.logMsg("Save elements info")
         Utils.writeToFile(json, pathToRules)
-        ///
+            ///
 
     }
 
@@ -352,13 +353,17 @@ class DSApp {
         this.pathToStylesList = this.pathToStylesList.slice(0, 20)
 
         dialog.addPathInput({
-            id: "pathToStyles", label: "Style File", labelSelect: "Select",
-            textValue: this.pathToStyles, inlineHint: 'e.g. /Work/ui-tokens.less',
-            width: 580, askFilePath: true,
-            comboBoxOptions: this.pathToStylesList
-        })
-        //dialog.addDivider()
-        //dialog.addCheckbox("confCreateSymbols", "Create missed master symbols", this.confCreateSymbols)
+                id: "pathToStyles",
+                label: "Style File",
+                labelSelect: "Select",
+                textValue: this.pathToStyles,
+                inlineHint: 'e.g. /Work/ui-tokens.less',
+                width: 580,
+                askFilePath: true,
+                comboBoxOptions: this.pathToStylesList
+            })
+            //dialog.addDivider()
+            //dialog.addCheckbox("confCreateSymbols", "Create missed master symbols", this.confCreateSymbols)
 
         track(TRACK_APPLY_DIALOG_SHOWN)
         while (true) {
@@ -370,7 +375,7 @@ class DSApp {
 
             this.pathToStyles = dialog.views['pathToStyles'].stringValue() + ""
             if ("" == this.pathToStyles) continue
-            ////
+                ////
             const pathIndex = this.pathToStylesList.indexOf(this.pathToStyles)
             if (pathIndex < 0) {
                 this.pathToStylesList.splice(0, 0, this.pathToStyles)
@@ -389,7 +394,7 @@ class DSApp {
 
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS_LIST, this.pathToStylesList)
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToStyles)
-        //Settings.setSettingForKey(SettingKeys.PLUGIN_CREATE_SYMBOLS, this.confCreateSymbols)
+            //Settings.setSettingForKey(SettingKeys.PLUGIN_CREATE_SYMBOLS, this.confCreateSymbols)
 
 
         return true
@@ -404,9 +409,9 @@ class DSApp {
 
     _transformRulePath(pathString) {
         var pathArray = pathString.split("*")
-        // Convert [ '#Symbol', '1', '.Back' ] to [ '#Symbol 1', '.Back' ],
+            // Convert [ '#Symbol', '1', '.Back' ] to [ '#Symbol 1', '.Back' ],
         if (pathArray.filter(s => !(s.startsWith(".") || s.startsWith("#")))) {
-            let path = pathArray.map(function (s, index, arr) {
+            let path = pathArray.map(function(s, index, arr) {
                 if (!(s.startsWith(".") || s.startsWith("#"))) return ""
                 let i = index + 1
                 while (arr[i] != null && !(arr[i].startsWith("#") || arr[i].startsWith("."))) {
@@ -426,7 +431,7 @@ class DSApp {
         for (const rule of this.rules) {
             //////////////////////
             rule.path = this._transformRulePath(rule.path)
-            //////////////////////
+                //////////////////////
             const sStyleName = this._pathToStr(rule.path)
             rule.name = sStyleName
             rule.type = ""
@@ -459,8 +464,7 @@ class DSApp {
                             continue
                         }
                     }
-                } else {
-                }
+                } else {}
                 rule.type = this._defineRuleType(rule)
                 if (DEBUG) this.logDebug(rule)
             }
@@ -495,8 +499,7 @@ class DSApp {
                         l.sharedStyle = sAttachToExistingStyle
                         l.style.syncWithSharedStyle(sAttachToExistingStyle)
                         this.result.assignedStyles++
-                    } else {
-                    }
+                    } else {}
                     //                
                     sStyle = rule.sLayer.style
                 } else {
@@ -535,8 +538,8 @@ class DSApp {
                     this._applyRuleToGroup(rule)
                 }
                 this.result.updatedLayers++
-                // SET MARGINS
-                this._applyCommonRules(rule, sSharedStyle, sStyle)
+                    // SET MARGINS
+                    this._applyCommonRules(rule, sSharedStyle, sStyle)
 
 
                 if (rule.isStandalone) {
@@ -546,7 +549,7 @@ class DSApp {
                     // Create new shared style
                     if (!sSharedStyle) {
                         if (this.ignoreMissed) continue
-                        // create
+                            // create
                         sSharedStyle = SharedStyle.fromStyle({
                             name: sStyleName,
                             style: sStyle,
@@ -557,7 +560,7 @@ class DSApp {
                         else
                             this.layerStyles[sStyleName] = sSharedStyle
                         this.result.createdStyles++
-                        this.logMsg("[Created] new shared style " + sStyleName)
+                            this.logMsg("[Created] new shared style " + sStyleName)
 
                     } else {
                         sSharedStyle.sketchObject.resetReferencingInstances()
@@ -572,7 +575,7 @@ class DSApp {
 
         // clean style names
         {
-            const f = function (sStyle) {
+            const f = function(sStyle) {
                 const i = sStyle.name.lastIndexOf("--PTD-")
                 if (i < 0) return
                 sStyle.name = sStyle.name.slice(0, i < 0)
@@ -628,7 +631,7 @@ class DSApp {
         // cut first path element '.--COLORS-'
         rule.path.splice(0, 1)
         rule.name = cleanName(rule.path.map(cleanName).join("/"))
-        //
+            //
         rule.isColor = true
         rule.isStandalone = false
         rule.isText = false
@@ -646,16 +649,16 @@ class DSApp {
         if (null != props['image'])
             res += "image"
 
-        if (null != props['color'] || null != props['font-family'] || null != props['font-style'] || null != props['font-size']
-            || null != props['font-weight'] || null != props['text-transform'] || null != props['text-align'] || null != props['vertical-align']
-            || null != props['text-decoration'] || null != props['letter-spacing'] || null != props[PT_PARAGRAPH_SPACING] || null != props['line-height']
-            || (PT_TEXT in props)
+        if (null != props['color'] || null != props['font-family'] || null != props['font-style'] || null != props['font-size'] ||
+            null != props['font-weight'] || null != props['text-transform'] || null != props['text-align'] || null != props['vertical-align'] ||
+            null != props['text-decoration'] || null != props['letter-spacing'] || null != props[PT_PARAGRAPH_SPACING] || null != props['line-height'] ||
+            (PT_TEXT in props)
         )
             res += "text"
         if (null != props['image'])
             res += "image"
-        if (null != props['background-color'] || null != props['border-color'] || null != props['box-shadow']
-            || null != props['border-radius'] || null != props['border-position']
+        if (null != props['background-color'] || null != props['border-color'] || null != props['box-shadow'] ||
+            null != props['border-radius'] || null != props['border-position']
         ) res += "layer"
         if (null != props['opacity'])
             if ("" == res)
@@ -827,7 +830,7 @@ class DSApp {
         if (this._symbolPage) return this._symbolPage
 
         // try to find existing
-        this.sDoc.pages.forEach(function (sPage) {
+        this.sDoc.pages.forEach(function(sPage) {
             if (Constants.SYMBOLPAGE_NAME == sPage.name) this._symbolPage = sPage
             return
         }, this)
@@ -910,12 +913,12 @@ class DSApp {
             this.elements.styles[sharedStyle.name] = styleInfo
         }
 
-        token.__tokens.filter(s => s[1].startsWith("@@")).forEach(function (s) {
-            const propName = s[0]
-            const currentValue = token[propName]
-            s.push(currentValue)
-        })
-        //
+        token.__tokens.filter(s => s[1].startsWith("@@")).forEach(function(s) {
+                const propName = s[0]
+                const currentValue = token[propName]
+                s.push(currentValue)
+            })
+            //
 
         Array.prototype.push.apply(styleInfo.tokens, token.__tokens)
     }
@@ -1069,7 +1072,7 @@ class DSApp {
         gradient.to = to
         gradient.from = from
 
-        gr.colorStops.forEach(function (sColor, index) {
+        gr.colorStops.forEach(function(sColor, index) {
             var color = ""
             if ('hex' == sColor.type) {
                 color = "#" + sColor.value
@@ -1122,7 +1125,7 @@ class DSApp {
         let resetInset = true
 
 
-        shadows.forEach(function (shadow) {
+        shadows.forEach(function(shadow) {
             if (shadow.inset) {
                 if (resetInset || null == sStyle.innerShadows) {
                     sStyle.innerShadows = [shadow]
@@ -1156,7 +1159,7 @@ class DSApp {
                 if (!l.points) {
                     return this.logError('_applyShapeRadius: empty points for ' + (l.parent.parent ? (l.parent.parent.name + " / ") : "") + (l.parent ? (l.parent.name + " / ") : "") + l.name)
                 }
-                l.points.forEach(function (point, index) {
+                l.points.forEach(function(point, index) {
                     point.cornerRadius = radiusList.length > 1 ? radiusList[index] : radiusList[0]
                 })
             }
@@ -1300,7 +1303,7 @@ class DSApp {
         if (DEBUG) this.logDebug("_applyRuleToLayerStyle: rule=" + rule.name)
 
         const token = rule.props
-        // SET COLOR        
+            // SET COLOR        
         let backColor = token['background-color']
         var updateFill = token[PT_FILL_UPDATE] == 'true'
         if (backColor != null) {
@@ -1385,7 +1388,7 @@ class DSApp {
         const sParent = sCurrLayer.parent
         const parentFrame = new Rectangle(sParent.frame)
 
-        sParent.layers.forEach(function (sLayer) {
+        sParent.layers.forEach(function(sLayer) {
             if (sLayer.id == sCurrLayer.id) return
             sLayer.frame.x = pleft
             sLayer.frame.y = ptop
@@ -1565,7 +1568,7 @@ class DSApp {
                 nLayer.setResizesContent(false)
             }
 
-            const getRuleLayers = function (rule, sSharedStyle) {
+            const getRuleLayers = function(rule, sSharedStyle) {
                 return rule.sLayer ? [rule.sLayer] : sSharedStyle ? sSharedStyle.getAllInstancesLayers() : []
             }
 
@@ -1643,14 +1646,12 @@ class DSApp {
 
                     if (null != margin["top"]) { // prefer top positioning to bottom
                         y = margin["top"] + yOffset;
-                    }
-                    else if (null != margin["bottom"]) {
+                    } else if (null != margin["bottom"]) {
                         y = parentFrame.height + yOffset - (margin["bottom"] + l.frame.height)
                     }
                     if (null != margin["left"]) { // prefer left positioning to right
                         x = margin["left"] + xOffset;
-                    }
-                    else if (null != margin["right"]) {
+                    } else if (null != margin["right"]) {
                         x = parentFrame.width + xOffset - (margin["right"] + l.frame.width)
                     }
 
@@ -1748,7 +1749,8 @@ class DSApp {
         v = v.replace(/^\s*\(\s*/, "");
         v = v.replace(/\s*\)\s*$/, "");
         var params = v.split(",");
-        var olayer = params[0], ovalue = params[1];
+        var olayer = params[0],
+            ovalue = params[1];
         if (!(olayer && ovalue)) {
             return this.logError(layer.name + ": Usage is " + PT_OVERRIDE_SYMBOL + ": ");
         }
@@ -1772,21 +1774,18 @@ class DSApp {
 
         if (!oride) {
             if (DEBUG) this.logDebug("No matching override for layer " + layer.name);
-        }
-        else {
+        } else {
             var success = false;
             if (ovalue.toLowerCase() == "none") {
                 oride.value = "";
                 success = true;
-            }
-            else {
+            } else {
                 var symbolPath = ovalue.replace(/\s+/g, "*");
                 symbolPath = this._transformRulePath(symbolPath);
                 var master = this._findLayerByPath(symbolPath);
                 if (!master && DEBUG) {
                     this.logDebug("No symbol found for '" + ovalue + "'");
-                }
-                else {
+                } else {
                     oride.value = master.symbolId;
                     success = true;
                 }
@@ -1794,8 +1793,8 @@ class DSApp {
             if (success) {
                 layer.resizeWithSmartLayout(); // "shrink to fit"
                 if (DEBUG) this.logDebug(
-                    "Symbol set to '" + ovalue + "' for layer '"
-                    + oride.affectedLayer.name + "' in instance " + layer.name
+                    "Symbol set to '" + ovalue + "' for layer '" +
+                    oride.affectedLayer.name + "' in instance " + layer.name
                 );
             }
         }
@@ -1873,9 +1872,9 @@ class DSApp {
                 color: colorValue
             })
             colors.push(color)
-            //
+                //
             this.result.createdColors++
-            this.logMsg("[Created] color variable " + colorName)
+                this.logMsg("[Created] color variable " + colorName)
         } else {
             let opacity = 1.0
             if (colorValue in COLOR_NAMES) {
@@ -1888,14 +1887,14 @@ class DSApp {
             let myNewColor = MSColor.colorWithHex_alpha(colorValue, opacity)
             let swatchContainer = this.nDoc.documentData().sharedSwatches()
             swatchContainer.swatches().forEach((s) => {
-                if (s.name() == colorName) {
-                    s.updateWithColor(myNewColor)
-                    swatchContainer.updateReferencesToSwatch(s)
-                }
-            })
-            //
+                    if (s.name() == colorName) {
+                        s.updateWithColor(myNewColor)
+                        swatchContainer.updateReferencesToSwatch(s)
+                    }
+                })
+                //
             this.result.updatedColors++
-            this.logMsg("[Updated] color variable " + colorName)
+                this.logMsg("[Updated] color variable " + colorName)
         }
         this.elements.colors__[colorName] = token.__tokens
     }
@@ -1945,9 +1944,9 @@ class DSApp {
                     svgLayer.setName(sLayer.name);
 
                     sNewImage = Sketch.fromNative(svgLayer)
-                    /*
-                                    sNewImage = Sketch.ShapePath.fromSVGPath(svgPath)
-                    */
+                        /*
+                                        sNewImage = Sketch.ShapePath.fromSVGPath(svgPath)
+                        */
                     sNewImage.frame = sLayer.frame.copy()
                     rawImageSize = sNewImage.frame
                 } else {
@@ -1974,23 +1973,22 @@ class DSApp {
                     const width = parseInt(token.width.replace(/([px|\%])/, ""), 10)
                     if (token.width.indexOf("px") > 0) {
                         newWidth = width
-                    } if (token.width.indexOf("%") > 0) {
-                        newWidth = Math.floor(rawImageSize.width / 100 * width)
-                    } else {
                     }
+                    if (token.width.indexOf("%") > 0) {
+                        newWidth = Math.floor(rawImageSize.width / 100 * width)
+                    } else {}
                 }
                 if (null != token.height) {
                     const height = parseInt(token.height.replace(/([px|\%])/, ""), 10)
                     if (token.height.indexOf("px") > 0) {
                         newHeight = height
-                    } if (token.height.indexOf("%") > 0) {
-                        newHeight = Math.floor(rawImageSize.height / 100 * height)
-                    } else {
                     }
+                    if (token.height.indexOf("%") > 0) {
+                        newHeight = Math.floor(rawImageSize.height / 100 * height)
+                    } else {}
                 }
 
-                if (null != newWidth && null != newHeight) {
-                } else if (null != newWidth) {
+                if (null != newWidth && null != newHeight) {} else if (null != newWidth) {
                     newHeight = rawImageSize.height * (newWidth / rawImageSize.width)
                 } else if (null != newHeight) {
                     newWidth = rawImageSize.width * (newHeight / rawImageSize.height)
@@ -2028,7 +2026,7 @@ class DSApp {
 
                 // apply additional styles
                 this._applyShadow(rule, sStyle, 'box-shadow')
-                //this._applyCommonRules(rule, null)
+                    //this._applyCommonRules(rule, null)
                 this._applyBorderStyle(rule, sStyle)
 
             }
