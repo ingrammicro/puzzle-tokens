@@ -1411,29 +1411,32 @@ class DSApp {
         // SET COLOR        
         let backColor = token['background-color']
         var updateFill = token[PT_FILL_UPDATE] == 'true'
-        if (backColor != null && backColor != "none") {
+        if (backColor != null) {
             let fill = {}
             if (updateFill) {
                 // get existing fill to update it
                 if (sStyle.fills != null && sStyle.fills.length > 0) {
-                    fill = sStyle.fills.slice(-1)
+                    fill = sStyle.fills.slice(-1)[0]
                 } else {
                     updateFill = false
                 }
             }
-            if (backColor.indexOf("gradient") > 0) {
+            if (backColor === "" || backColor === "none") {
+                fill = undefined
+            }else if (backColor.indexOf("gradient") > 0) {
                 fill.fill = Style.FillType.Gradient
                 fill.gradient = this._buildGradientObject(rule, sStyle, backColor)
-            } else if (backColor != "" && backColor != "none") {
+            } else {
                 fill.fill = Style.FillType.Color
                 fill.color = Utils.strToHEXColor(backColor, token['opacity'])
             }
+            //
             if (!updateFill) {
                 if (sStyle.fills === undefined) sStyle.fills = []
-                sStyle.fills.push(fill)
+                if(fill) sStyle.fills.push(fill)
             } else {
-                if (fill.fill == undefined) {
-                    //drop the last fill
+                if (fill===undefined || fill.fill === undefined) {
+                    //drop the last fill                    
                     if (sStyle.fills !== undefined) sStyle.fills.pop()
                 }
             }
