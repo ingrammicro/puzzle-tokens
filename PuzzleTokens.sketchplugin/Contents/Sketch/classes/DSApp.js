@@ -445,9 +445,9 @@ class DSApp {
             const tokens = inspector.styles[styleName].tokens
             const rule = {
                 props: this._onlyUpdateStyles_tokensToProps(tokens),
-                name: styleName            
+                name: styleName
             }
-            this._defineRuleType(rule)                    
+            this._defineRuleType(rule)
             if (!rule.isText && !rule.isLayer) continue;
 
             // apply text tokens          
@@ -468,7 +468,7 @@ class DSApp {
                 }, this)
             }
             // apply layer tokens
-            if (rule.isLayer) {              
+            if (rule.isLayer) {
 
                 const layerTokenNames = ["background-color", "border-color"]
                 const layerTokens = tokens.filter(t => layerTokenNames.includes(t[0]))
@@ -508,10 +508,10 @@ class DSApp {
     }
 
     _onlyUpdateStyles_tokensToProps(tokens) {
-        const props={}
-        tokens.forEach(t=>{
-            const n=t[0]
-            props[ n ] = t[1]
+        const props = {}
+        tokens.forEach(t => {
+            const n = t[0]
+            props[n] = t[1]
         })
         return props
     }
@@ -1429,6 +1429,7 @@ class DSApp {
                 fill.color = Utils.strToHEXColor(backColor, token['opacity'])
             }
             if (!updateFill) {
+                if (sStyle.fills === undefined) sStyle.fills = []
                 sStyle.fills.push(fill)
             } else {
                 if (fill.fill == undefined) {
