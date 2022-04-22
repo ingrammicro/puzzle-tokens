@@ -7,14 +7,14 @@
 
 var app = undefined
 
-function cleanName(n) {
+function cleanName (n) {
     if (n.startsWith('"')) n = n.slice(1)
     if (n.endsWith('"')) n = n.slice(0, -1)
     return n.replace(/^[\.#]/, '').replace(/(_{2})/g, ' ').replace(/(-DOT-)/g, '.').replace(/(--PT-)/g, '')
 
 }
 
-function stripQuotes(str) {
+function stripQuotes (str) {
     if (str.startsWith('"') || str.startsWith("'")) str = str.slice(1);
     if (str.endsWith('"') || str.endsWith("'")) str = str.slice(0, -1);
     return str;
@@ -93,22 +93,22 @@ class DSApp {
 
     // Tools
 
-    logMsg(msg) {
+    logMsg (msg) {
         if (DEBUG) log(msg)
         if (!this.isQuick) this.messages += msg + "\n"
     }
 
-    logDebug(msg) {
+    logDebug (msg) {
         log(msg)
     }
 
-    logError(error) {
+    logError (error) {
         this.logMsg("[ ERROR ] " + error)
         this.errors.push(error)
         return false
     }
 
-    stopWithError(error) {
+    stopWithError (error) {
         const UI = require('sketch/ui')
         UI.alert('Error', error)
         //exit = true        
@@ -117,7 +117,7 @@ class DSApp {
     // Public methods
 
 
-    runFromCmd(pathToStyles) {
+    runFromCmd (pathToStyles) {
         this.runFromCmd = true
         this.pathToStyles = pathToStyles
         if ('' == this.pathToStyles) return false
@@ -126,7 +126,7 @@ class DSApp {
         return success
     }
 
-    runQuick() {
+    runQuick () {
         this.isQuick = true
         if ('' == this.pathToStyles) return this.runDialog()
         const success = this.run(false)
@@ -136,7 +136,7 @@ class DSApp {
         return success
     }
 
-    runDialog() {
+    runDialog () {
         if (!this._showDialog()) return false
         const success = this.run()
         if (success) {
@@ -145,7 +145,7 @@ class DSApp {
         return success
     }
 
-    run() {
+    run () {
         this.pathToTokens = this.pathToStyles.substring(0, this.pathToStyles.lastIndexOf("/"));
 
         if (this.genSymbTokens) {
@@ -200,7 +200,7 @@ class DSApp {
 
     // Internal
 
-    _initStyles() {
+    _initStyles () {
         const showError = Settings.PLUGIN_SHOW_DOUBLESTYLES
 
         this.textStyles = {}
@@ -221,7 +221,7 @@ class DSApp {
     }
 
     // return Sketch native object
-    _findStyleByName(styleName, isLayerStyle) {
+    _findStyleByName (styleName, isLayerStyle) {
         if (DEBUG) this.logDebug("_findStyleByName running...  styleName:" + styleName)
 
         const localStyle = !isLayerStyle ? this.textStyles[styleName] : this.layerStyles[styleName]
@@ -243,7 +243,7 @@ class DSApp {
         return sStyle
     }
 
-    _findStyleByNameInLibrary(styleName, isLayerStyle, jsLib) {
+    _findStyleByNameInLibrary (styleName, isLayerStyle, jsLib) {
         let sFoundStyle = undefined
         const sStyleRefs = isLayerStyle ?
             jsLib.sLib.getImportableLayerStyleReferencesForDocument(this.sDoc) :
@@ -258,7 +258,7 @@ class DSApp {
         return sFoundStyle
     }
 
-    _getLibraries() {
+    _getLibraries () {
         if (undefined != this.jsLibs) return this.jsLibs
 
         if (DEBUG) this.logDebug("_getLibraries: start")
@@ -283,7 +283,7 @@ class DSApp {
         return this.jsLibs
     }
 
-    _getResultSummary() {
+    _getResultSummary () {
         var msg = ""
         if (this.result.createdColors) msg += "Created " + this.result.createdColors + " color(s). "
         if (this.result.updatedColors) msg += "Updated " + this.result.updatedColors + " color(s). "
@@ -306,7 +306,7 @@ class DSApp {
     }
 
 
-    _showMessages() {
+    _showMessages () {
         const dialog = new UIDialog("Styles have been successfully applied", NSMakeRect(0, 0, 800, 400), "Dismiss", "", "")
         dialog.removeLeftColumn()
         dialog.addTextViewBox("messages", "See what has been changed:", this._getResultSummary() + "\n------------------\n" + this.messages, 400)
@@ -314,7 +314,7 @@ class DSApp {
         dialog.finish()
     }
 
-    _showDebug(rulesJSONStr) {
+    _showDebug (rulesJSONStr) {
         const dialog = new UIDialog("Debug Information", NSMakeRect(0, 0, 600, 600), "Ok", "", "")
         dialog.removeLeftColumn()
 
@@ -327,7 +327,7 @@ class DSApp {
         dialog.finish()
     }
 
-    _showErrors() {
+    _showErrors () {
         var errorsText = this.errors.join("\n\n")
 
         if (this.fromCmd) {
@@ -341,7 +341,7 @@ class DSApp {
         }
     }
 
-    _saveElements() {
+    _saveElements () {
         const pathToRules = this.pathToAssets + "/" + Constants.SYMBOLTOKENFILE_POSTFIX
         const json = JSON.stringify(this.elements, null, null)
         if (DEBUG)
@@ -353,7 +353,7 @@ class DSApp {
 
     }
 
-    _showDialog() {
+    _showDialog () {
         const dialog = new UIDialog("Apply LESS/SASS styles", NSMakeRect(0, 0, 600, 100), "Apply", "Load LESS or SASS file with style definions and create new Sketch styles (or update existing).")
         dialog.removeLeftColumn()
 
@@ -409,12 +409,12 @@ class DSApp {
 
     ////////////////////////////////////////////////////////////////
 
-    _isStylePropExisting(props) {
+    _isStylePropExisting (props) {
         let styles = Object.keys(props).filter(name => !(name.startsWith("@") || name.startsWith("__")))
         return styles.length > 0
     }
 
-    _transformRulePath(pathString) {
+    _transformRulePath (pathString) {
         var pathArray = pathString.split("*")
         // Convert [ '#Symbol', '1', '.Back' ] to [ '#Symbol 1', '.Back' ],
         if (pathArray.filter(s => !(s.startsWith(".") || s.startsWith("#")))) {
@@ -432,7 +432,7 @@ class DSApp {
         return pathArray;
     }
 
-    _onlyUpdateStyles() {
+    _onlyUpdateStyles () {
         this.logMsg("_onlyUpdateStyles: started")
         /// Load inspector.json and vars.json files generated by loadRules()
         const inspector = this._onlyUpdateStyles_loadJSON(Constants.SYMBOLTOKENFILE_POSTFIX)
@@ -484,18 +484,25 @@ class DSApp {
                 }
 
                 // Update     
-                function getTokenValue(name) {
-                    const res = tokens.filter(t => t[0] == name)
-                    if (!res.length) return null
-                    const tokenName = res[res.length - 1][1]
-                    return vars[tokenName]
+                function processTokens (names) {
+                    names.forEach(name => {
+                        if (name.includes("*")) {
+                            const nameCleared = name.replace("*", "")
+                            const maskNames = tokens.filter(t => t[0].includes(nameCleared))
+                            return processTokens(maskNames)
+                        }
+                        //
+                        const res = tokens.filter(t => t[0] == name)
+                        if (!res.length) return
+                        const tokenName = res[res.length - 1][1]
+                        if (!(tokenName in vars)) return
+                        //
+                        rule.props[tokenName] = vars[tokenName]
+                    })
                 }
                 //                
-                const backColor = getTokenValue("background-color")
-                if (backColor !== null) rule.props["background-color"] = backColor
-                //
-                const borderColor = getTokenValue("border-color")
-                if (borderColor !== null) rule.props["border-color"] = borderColor
+                processTokens(["background-color", "border-*"])
+                log(rule.props)
                 //
                 this._applyRuleToLayerStyle(rule, sharedStyle, sharedStyle.style)
                 sharedStyle.sketchObject.resetReferencingInstances()
@@ -507,7 +514,7 @@ class DSApp {
         return true
     }
 
-    _onlyUpdateStyles_tokensToProps(tokens) {
+    _onlyUpdateStyles_tokensToProps (tokens) {
         const props = {}
         tokens.forEach(t => {
             const n = t[0]
@@ -516,7 +523,7 @@ class DSApp {
         return props
     }
 
-    _onlyUpdateStyles_loadJSON(fileName) {
+    _onlyUpdateStyles_loadJSON (fileName) {
         const path = this.pathToAssets + "/" + fileName
         let json = Utils.readFile(path)
         let error = null
@@ -529,7 +536,7 @@ class DSApp {
         }
     }
 
-    _applyRules(justCheck) {
+    _applyRules (justCheck) {
         this.logMsg("Started")
         for (const rule of this.rules) {
             //////////////////////
@@ -689,7 +696,7 @@ class DSApp {
         return true
     }
 
-    _resetStyle(rule, sStyle) {
+    _resetStyle (rule, sStyle) {
         if (rule.isLayer && sStyle) {
             sStyle.borders = []
             sStyle.fills = []
@@ -698,7 +705,7 @@ class DSApp {
         }
     }
 
-    _saveRuleAsAttr(rule, strPath) {
+    _saveRuleAsAttr (rule, strPath) {
         const rawItems = rule.props[PT_ATTR].replaceAll('"', '').split("::")
         if (rawItems.length) {
             const [attrName, attrValue] = rawItems
@@ -708,7 +715,7 @@ class DSApp {
     }
 
 
-    _getFindSharedStyleByRule(rule) {
+    _getFindSharedStyleByRule (rule) {
         let sStyleNameSrc = ""
         let isText = false
         if (SKTEXT_STYLE in rule.props) {
@@ -730,7 +737,7 @@ class DSApp {
 
 
     // mutable
-    _defineRuleTypeAsColor(rule) {
+    _defineRuleTypeAsColor (rule) {
         // cut first path element '.--COLORS-'
         rule.path.splice(0, 1)
         rule.name = cleanName(rule.path.map(cleanName).join("/"))
@@ -745,7 +752,7 @@ class DSApp {
     }
 
     // mutable
-    _defineRuleType(rule) {
+    _defineRuleType (rule) {
         var res = ""
         const props = rule.props
 
@@ -785,7 +792,7 @@ class DSApp {
 
 
 
-    loadRules() {
+    loadRules () {
         if (DEBUG) this.logDebug("loadRules: started")
         const tempFolder = Utils.getPathToTempFolder()
         const pathToRulesJSON = tempFolder + "/nsdata.json"
@@ -869,14 +876,14 @@ class DSApp {
 
 
     // stylePath: [str,str]
-    _pathToStr(objPath) {
+    _pathToStr (objPath) {
         objPath = objPath.map(cleanName)
         var objPathStr = objPath.join("/")
         return objPathStr
     }
 
     // objPath: [#Controls,#Buttons,Text]
-    _findLayerByPath(path) {
+    _findLayerByPath (path) {
         // get 'Controls / Buttons' name of symbol master
         const symbolPaths = this._buildSymbolPathFromPath(path)
 
@@ -931,7 +938,7 @@ class DSApp {
     */
 
     // get existing or just create new Page with Symbols
-    _getSymbolPage() {
+    _getSymbolPage () {
         if (this._symbolPage) return this._symbolPage
 
         // try to find existing
@@ -952,7 +959,7 @@ class DSApp {
         return this._symbolPage
     }
 
-    _createNewSymbolMaster(name) {
+    _createNewSymbolMaster (name) {
         const page = this._getSymbolPage()
 
         var master = new SymbolMaster({
@@ -964,15 +971,15 @@ class DSApp {
     }
 
 
-    _buildSymbolPathFromPath(path) {
+    _buildSymbolPathFromPath (path) {
         return path.filter(s => s.startsWith('#')).map(cleanName)
     }
-    _buildSymbolChildPathFromPath(path) {
+    _buildSymbolChildPathFromPath (path) {
         return path.filter(s => s.startsWith('.')).map(cleanName)
     }
 
 
-    _findLayerChildByPath(sLayerParent, path) {
+    _findLayerChildByPath (sLayerParent, path) {
         if (undefined == sLayerParent.layers) {
             return null
         }
@@ -994,7 +1001,7 @@ class DSApp {
         return null
     }
 
-    _saveTokensForStyleAndSymbols(token, sharedStyle) {
+    _saveTokensForStyleAndSymbols (token, sharedStyle) {
         // process all layers which are using this shared style
         for (var layer of sharedStyle.getAllInstancesLayers()) {
             this._addTokenToSymbol(token, layer)
@@ -1004,7 +1011,7 @@ class DSApp {
     }
 
 
-    _addTokenToStyle(token, sharedStyle) {
+    _addTokenToStyle (token, sharedStyle) {
         const tokenNames = Object.keys(token.__tokens)
         if (!tokenNames.length) return
 
@@ -1028,7 +1035,7 @@ class DSApp {
         Array.prototype.push.apply(styleInfo.tokens, token.__tokens)
     }
 
-    _addTokenToSymbol(token, slayer) {
+    _addTokenToSymbol (token, slayer) {
 
         if (!token.__tokens.length) return
 
@@ -1062,7 +1069,7 @@ class DSApp {
         return true
     }
 
-    _buildGradientObject(rule, sStyle, colorsRaw) {
+    _buildGradientObject (rule, sStyle, colorsRaw) {
         const token = rule.props
         const LINEAR = "linear-gradient"
         const gradientTypes = {
@@ -1196,7 +1203,7 @@ class DSApp {
     }
 
 
-    _applyFillGradientProcessColor(rule, sStyle, colorType) {
+    _applyFillGradientProcessColor (rule, sStyle, colorType) {
         const token = rule.props
         var color = token['fill-' + colorType + '-color']
         var opacity = token['fill-' + colorType + '-color-opacity']
@@ -1210,7 +1217,7 @@ class DSApp {
         return color
     }
 
-    _applyShadow(rule, sStyle, shadowPropName) {
+    _applyShadow (rule, sStyle, shadowPropName) {
         var shadows = null
 
         var shadowCSS = rule.props[shadowPropName]
@@ -1247,7 +1254,7 @@ class DSApp {
         })
     }
 
-    _applyShapeRadius(rule, sSharedStyle, sStyle) {
+    _applyShapeRadius (rule, sSharedStyle, sStyle) {
         const token = rule.props
 
         if (null == sSharedStyle && null == rule.sLayer) return true
@@ -1274,7 +1281,7 @@ class DSApp {
         return true
     }
 
-    _applyBorderStyle(rule, sStyle) {
+    _applyBorderStyle (rule, sStyle) {
         if (DEBUG) this.logDebug("_applyBorderStyle: rule=" + rule.name)
 
         const token = rule.props
@@ -1397,14 +1404,14 @@ class DSApp {
         }
     }
 
-    _setTextStyleParagraph(sStyle, value) {
+    _setTextStyleParagraph (sStyle, value) {
         sStyle.paragraphSpacing = value
         sStyle.lineHeight = sStyle.lineHeight
     }
 
     ////////////////////////////////////////////////////////////////////////////
 
-    _applyRuleToLayerStyle(rule, sSharedStyle, sStyle) {
+    _applyRuleToLayerStyle (rule, sSharedStyle, sStyle) {
         if (DEBUG) this.logDebug("_applyRuleToLayerStyle: rule=" + rule.name)
 
         const token = rule.props
@@ -1423,7 +1430,7 @@ class DSApp {
             }
             if (backColor === "" || backColor === "none") {
                 fill = undefined
-            }else if (backColor.indexOf("gradient") > 0) {
+            } else if (backColor.indexOf("gradient") > 0) {
                 fill.fill = Style.FillType.Gradient
                 fill.gradient = this._buildGradientObject(rule, sStyle, backColor)
             } else {
@@ -1433,9 +1440,9 @@ class DSApp {
             //
             if (!updateFill) {
                 if (sStyle.fills === undefined) sStyle.fills = []
-                if(fill) sStyle.fills.push(fill)
+                if (fill) sStyle.fills.push(fill)
             } else {
-                if (fill===undefined || fill.fill === undefined) {
+                if (fill === undefined || fill.fill === undefined) {
                     //drop the last fill                    
                     if (sStyle.fills !== undefined) sStyle.fills.pop()
                 }
@@ -1469,7 +1476,7 @@ class DSApp {
     }
 
 
-    _applyRuleToGroup(rule) {
+    _applyRuleToGroup (rule) {
         const token = rule.props
         const l = rule.sLayer
 
@@ -1484,7 +1491,7 @@ class DSApp {
         }
     }
 
-    _applyPaddingToLayer(rule, paddingSrc) {
+    _applyPaddingToLayer (rule, paddingSrc) {
 
         let paddingValues = paddingSrc.spit(" ")
 
@@ -1508,7 +1515,7 @@ class DSApp {
 
 
 
-    _applyRuleToTextStyle(rule, sSharedStyle, sStyle) {
+    _applyRuleToTextStyle (rule, sSharedStyle, sStyle) {
         const token = rule.props
 
         if (DEBUG) this.logDebug("_applyRuleToTextStyle: rule=" + rule.name)
@@ -1661,7 +1668,7 @@ class DSApp {
         this._applyShadow(rule, sStyle, "text-shadow")
     }
 
-    _applyCommonRules(rule, sSharedStyle, sStyle) {
+    _applyCommonRules (rule, sSharedStyle, sStyle) {
         const token = rule.props
         const sLayer = rule.sLayer
         const nLayer = rule.sLayer ? rule.sLayer.sketchObject : null
@@ -1848,7 +1855,7 @@ class DSApp {
         return true
     }
 
-    _applySymbolOverrides(layer, token) {
+    _applySymbolOverrides (layer, token) {
         if ("SymbolInstance" != layer.type) {
             return this.logError("Can't apply override because layer is not a symbol instance: " + layer.name)
         }
@@ -1909,7 +1916,7 @@ class DSApp {
         }
     }
 
-    parentOffsetInArtboard(layer) {
+    parentOffsetInArtboard (layer) {
         var offset = { x: 0, y: 0 };
         if (layer.type == 'Artboard' || layer.type === 'SymbolMaster') return
         var parent = layer.parent;
@@ -1921,7 +1928,7 @@ class DSApp {
         return offset;
     }
 
-    positionInArtboard(layer, x, y) {
+    positionInArtboard (layer, x, y) {
         var parentOffset = this.parentOffsetInArtboard(layer);
         var newFrame = new Rectangle(layer.frame);
         if (x != null) newFrame.x = x - parentOffset.x;
@@ -1930,7 +1937,7 @@ class DSApp {
         this.updateParentFrames(layer);
     }
 
-    updateParentFrames(layer) {
+    updateParentFrames (layer) {
         if (layer.type == 'Artboard' || layer.type === 'SymbolMaster') return
         var parent = layer.parent;
         while (parent && parent.name && (parent.type !== 'Artboard' && parent.type !== 'SymbolMaster')) {
@@ -1940,13 +1947,13 @@ class DSApp {
     }
 
 
-    _findLayerTopParent(l) {
+    _findLayerTopParent (l) {
         if (!l.parent) return l
         if ('Group' == l.parent.type) return this._findLayerTopParent(l.parent)
         return l.parent
     }
 
-    _applyOpacityToLayer(rule) {
+    _applyOpacityToLayer (rule) {
         const token = rule.props
         const sLayer = rule.sLayer
         const opacity = token['opacity']
@@ -1956,7 +1963,7 @@ class DSApp {
     }
 
 
-    _applyPropsToColor(colorName, colorValue, rule = null) {
+    _applyPropsToColor (colorName, colorValue, rule = null) {
         const token = rule ? rule.props : null
 
         if (DEBUG) this.logDebug("_applyPropsToColor: rule=" + colorName)
@@ -2006,7 +2013,7 @@ class DSApp {
         if (token) this.elements.colors__[colorName] = token.__tokens
     }
 
-    _applyPropsToImage(rule) {
+    _applyPropsToImage (rule) {
         const token = rule.props
         let imageName = token['image']
         var sLayer = rule.sLayer
