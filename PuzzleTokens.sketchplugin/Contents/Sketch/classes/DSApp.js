@@ -3,9 +3,12 @@
 @import("lib/uidialog.js")
 @import("lib/ga.js")
 @import("lib/gradient-parser/parser.js")
-]@import("classes/DSLayerCollector.js")
+@import("classes/DSLayerCollector.js")
 
 var app = undefined
+
+
+const LAYER_PROPS = ["background-color", "border-color", "box-shadow", "border-radius", "border-position"]
 
 function cleanName (n) {
     if (n.startsWith('"')) n = n.slice(1)
@@ -440,9 +443,11 @@ class DSApp {
         if (inspector === null || vars === null) return this.logError("_onlyUpdateStyles: failed")
         /// Iterate styles to update the Sketch styles
         for (const styleName in inspector.styles) {
+            this.logDebug(`Update ${styleName}`)
             //if (styleName !== "_atoms/form/switch/large-on-back") continue //debug   
             // Init rule
-            const tokens = inspector.styles[styleName].tokens
+            const inspectorStyle = inspector.styles[styleName]
+            const tokens = inspectorStyle.tokens
             const rule = {
                 props: this._onlyUpdateStyles_tokensToProps(tokens),
                 name: styleName
@@ -483,12 +488,12 @@ class DSApp {
                     this.appliedStyles[rule.isLayer][styleName] = true
                 }
 
-                // Update     
+                // Apply tokens     
                 function processTokens (names) {
                     names.forEach(name => {
                         if (name.includes("*")) {
                             const nameCleared = name.replace("*", "")
-                            const maskNames = tokens.filter(t => t[0].includes(nameCleared))
+                            const maskNames = tokens.map(t => t[0]).filter(tokenName => tokenName.startsWith(nameCleared))
                             return processTokens(maskNames)
                         }
                         //
@@ -497,16 +502,15 @@ class DSApp {
                         const tokenName = res[res.length - 1][1]
                         if (!(tokenName in vars)) return
                         //
-                        rule.props[tokenName] = vars[tokenName]
+                        rule.props[name] = vars[tokenName]
                     })
                 }
-                //                
                 processTokens(["background-color", "border-*"])
-                log(rule.props)
+                // Apply static values
+                if (inspectorStyle.static !== undefined) rule.props = Object.assign(rule.props, inspectorStyle.static)
                 //
                 this._applyRuleToLayerStyle(rule, sharedStyle, sharedStyle.style)
                 sharedStyle.sketchObject.resetReferencingInstances()
-                //log(borderColor)
             }
         }
         ///
@@ -767,9 +771,7 @@ class DSApp {
             res += "text"
         if (null != props['image'])
             res += "image"
-        if (null != props['background-color'] || null != props['border-color'] || null != props['box-shadow'] ||
-            null != props['border-radius'] || null != props['border-position']
-        ) res += "layer"
+        if (LAYER_PROPS.filter(p => p in props).length) res += "layer"
         if (null != props['opacity'])
             if ("" == res)
                 res += "single_opacity layer"
@@ -1020,19 +1022,29 @@ class DSApp {
             styleInfo = this.elements.styles[sharedStyle.name]
         } else {
             styleInfo = {
-                tokens: []
+                tokens: [],
+                //static: {} will be inited on a place
             }
             this.elements.styles[sharedStyle.name] = styleInfo
         }
 
+        // Save tokens
         token.__tokens.filter(s => s[1].startsWith("@@")).forEach(function (s) {
             const propName = s[0]
             const currentValue = token[propName]
             s.push(currentValue)
         })
-        //
-
         Array.prototype.push.apply(styleInfo.tokens, token.__tokens)
+
+        // Find non-tokenized properties and save also in style info
+        Object.keys(token).filter(n => n != "__tokens").forEach(function (propName) {
+            // test do we have the same property in tokenized
+            const foundInTokens = token.__tokens.filter(tokenProp => tokenProp[0] === propName)
+            if (foundInTokens.length) return
+            // save as static
+            if (styleInfo.static === undefined) styleInfo.static = {}
+            styleInfo.static[propName] = token[propName]
+        })
     }
 
     _addTokenToSymbol (token, slayer) {
@@ -1418,7 +1430,9 @@ class DSApp {
         // SET COLOR        
         let backColor = token['background-color']
         var updateFill = token[PT_FILL_UPDATE] == 'true'
-        if (backColor != null) {
+        // skip color with wrong "@token" value
+        //log(backColor)
+        if (backColor != null && !backColor.startsWith("@")) {
             let fill = {}
             if (updateFill) {
                 // get existing fill to update it
@@ -1450,6 +1464,7 @@ class DSApp {
         } else {
             //sStyle.fills = []
         }
+
 
 
         if (rule.type.includes("single_opacity")) {
