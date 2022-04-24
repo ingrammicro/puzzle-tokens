@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+# Version 8.18.3 (24 Apr 2022)
+Bug fixed
+
 # Version 8.18.2 (13 Apr 2022)
 Handle multi backgrounds correctly
 

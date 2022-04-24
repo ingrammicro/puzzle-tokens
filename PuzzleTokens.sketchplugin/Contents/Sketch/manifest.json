@@ -7,9 +7,10 @@
     "appcast": "https://raw.githubusercontent.com/ingrammicro/puzzle-tokens/master/appcast.xml",
     "compatibleVersion": 3,
     "bundleVersion": 1,
-    "version": "8.18.2",
+    "version": "8.18.3",
     "icon": "icon.png",
-    "commands": [{
+    "commands": [
+        {
             "script": "cmd-actions.js",
             "name": "My Action Listener",
             "handlers": {
