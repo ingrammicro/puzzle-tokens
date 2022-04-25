@@ -74,11 +74,16 @@ class DSApp {
         // load settings       
         this.pathToStyles = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS)
         this.pathToStyles = this.pathToStyles || ''
-
         this.pathToStylesList = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS_LIST)
         this.pathToStylesList = this.pathToStylesList || []
         if (this.pathToStylesList.length == 0 && this.pathToStyles != '') this.pathToStylesList.push(this.pathToStyles)
 
+        this.pathToTokens = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS)
+        this.pathToTokens = this.pathToTokens || this.pathToStyles
+        this.pathToTokensList = Settings.settingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LIST)
+        this.pathToTokensList = this.pathToTokensList || []
+        if (this.pathToTokensList.length == 0 && this.pathToTokens != '') this.pathToTokensList.push(this.pathToStyles)
+        
         this.pathToDoc = ""
         this.pathToAssets = ""
 
@@ -87,10 +92,12 @@ class DSApp {
         this.showDoubleStyleError = Settings.settingForKey(SettingKeys.PLUGIN_SHOW_DOUBLESTYLES) === true
         this.ignoreMissed = Settings.settingForKey(SettingKeys.PLUGIN_APPLY_IGNORE_MISSED) === true
         this.skipPos = Settings.settingForKey(SettingKeys.PLUGIN_APPLY_SKIP_SIZES) === true
-        this.confClear = this.confClean = Settings.settingForKey(SettingKeys.PLUGIN_APPLY_CLEAR) === true
-        this.onlyUpdateStyles = Settings.settingForKey(SettingKeys.PLUGIN_APPLY_ONLY_UPDATE_STYLES) === true
+        this.confClear = Settings.settingForKey(SettingKeys.PLUGIN_APPLY_CLEAR) === true        
+        this.onlyUpdateStyles = false
+    }
 
-        // Check if we in Cloud
+    init () {
+        this.pathToSource = this.onlyUpdateStyles? this.pathToTokens:this.pathToStyles
         this._initStyles()
     }
 
@@ -110,6 +117,7 @@ class DSApp {
         this.errors.push(error)
         return false
     }
+
 
     stopWithError (error) {
         const UI = require('sketch/ui')
@@ -131,8 +139,8 @@ class DSApp {
 
     runQuick () {
         this.isQuick = true
-        if ('' == this.pathToStyles) return this.runDialog()
-        const success = this.run(false)
+        if ('' == this.pathToSource) return this.runDialog()
+        const success = this.run()        
 
         UI.message(this._getResultSummary())
 
@@ -140,7 +148,10 @@ class DSApp {
     }
 
     runDialog () {
-        if (!this._showDialog()) return false
+        const pathToSource = (this.onlyUpdateStyles && this._askPathToSourceOnlyUpdate()) || (!this.onlyUpdateStyles && this._askPathToSourceStyle())
+        if (pathToSource === false) return false
+        this.pathToSource = pathToSource        
+
         const success = this.run()
         if (success) {
             this._showMessages()
@@ -149,7 +160,9 @@ class DSApp {
     }
 
     run () {
-        this.pathToTokens = this.pathToStyles.substring(0, this.pathToStyles.lastIndexOf("/"));
+        this.pathToSourceFolder = this.pathToSource.substring(0, this.pathToSource.lastIndexOf("/"))
+
+        Settings.setSettingForKey(SettingKeys.PLUGIN_LAST_ONLY_UPDATE, this.onlyUpdateStyles)
 
         if (this.genSymbTokens) {
             if (!this.sDoc.path) {
@@ -356,8 +369,9 @@ class DSApp {
 
     }
 
-    _showDialog () {
-        const dialog = new UIDialog("Apply LESS/SASS styles", NSMakeRect(0, 0, 600, 100), "Apply", "Load LESS or SASS file with style definions and create new Sketch styles (or update existing).")
+    _askPathToSourceStyle () {
+        const dialogLabel = "Load LESS or SASS file with style definions and create new Sketch styles (or update existing)."
+        const dialog = new UIDialog("Apply LESS/SASS styles", NSMakeRect(0, 0, 600, 100), "Apply", dialogLabel)
         dialog.removeLeftColumn()
 
         this.pathToStylesList = this.pathToStylesList.slice(0, 20)
@@ -372,8 +386,7 @@ class DSApp {
             askFilePath: true,
             comboBoxOptions: this.pathToStylesList
         })
-        //dialog.addDivider()
-        dialog.addCheckbox("onlyUpdateStyles", "Run style updating only", this.onlyUpdateStyles)
+
 
         track(TRACK_APPLY_DIALOG_SHOWN)
         while (true) {
@@ -396,7 +409,6 @@ class DSApp {
             this.pathToStylesList = this.pathToStylesList.slice(0, 20)
 
             ///
-            this.onlyUpdateStyles = dialog.views['onlyUpdateStyles'].state() == 1
             break
         }
         dialog.finish()
@@ -404,10 +416,60 @@ class DSApp {
 
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS_LIST, this.pathToStylesList)
         Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LESS, this.pathToStyles)
-        Settings.setSettingForKey(SettingKeys.PLUGIN_APPLY_ONLY_UPDATE_STYLES, this.onlyUpdateStyles)
+
+        return this.pathToStyles
+    }
 
 
-        return true
+    _askPathToSourceOnlyUpdate () {
+        const dialogLabel = "Load LESS or SASS file with design tokens and update related styles"
+        const dialog = new UIDialog("Apply design tokens", NSMakeRect(0, 0, 600, 100), "Apply", dialogLabel)
+        dialog.removeLeftColumn()
+
+        this.pathToTokensList = this.pathToTokensList.slice(0, 20)
+
+        dialog.addPathInput({
+            id: "pathToTokens",
+            label: "Style File",
+            labelSelect: "Select",
+            textValue: this.pathToTokens,
+            inlineHint: 'e.g. /Work/ui-tokens.less',
+            width: 580,
+            askFilePath: true,
+            comboBoxOptions: this.pathToTokensList
+        })
+
+
+        track(TRACK_APPLY_DIALOG_SHOWN)
+        while (true) {
+            const result = dialog.run()
+            if (!result) {
+                track(TRACK_APPLY_DIALOG_CLOSED, { "cmd": "cancel" })
+                return false
+            }
+
+            this.pathToTokens = dialog.views['pathToTokens'].stringValue() + ""
+            if ("" == this.pathToTokens) continue
+            ////
+            const pathIndex = this.pathToTokensList.indexOf(this.pathToTokens)
+            if (pathIndex < 0) {
+                this.pathToTokensList.splice(0, 0, this.pathToTokens)
+            } else {
+                this.pathToTokensList.splice(pathIndex, 1)
+                this.pathToTokensList.splice(0, 0, this.pathToTokens)
+            }
+            this.pathToTokensList = this.pathToTokensList.slice(0, 20)
+
+            ///
+            break
+        }
+        dialog.finish()
+        track(TRACK_APPLY_DIALOG_CLOSED, { "cmd": "ok" })
+
+        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS_LIST, this.pathToTokensList)
+        Settings.setSettingForKey(SettingKeys.PLUGIN_PATH_TO_TOKENS, this.pathToTokens)
+
+        return this.pathToTokens
     }
 
     ////////////////////////////////////////////////////////////////
@@ -800,14 +862,14 @@ class DSApp {
         const pathToRulesJSON = tempFolder + "/nsdata.json"
 
         // check files
-        if (!Utils.fileExistsAtPath(this.pathToStyles)) {
-            this.logError("Can not find styles file by path: " + this.pathToStyles)
+        if (!Utils.fileExistsAtPath(this.pathToSource)) {
+            this.logError("Can not find styles file by path: " + this.pathToSource)
             return false
         }
 
         let runResult = null
         try {
-            const stylesType = this.pathToStyles.endsWith(".less") ? "less" : "sass"
+            const stylesType = this.pathToSource.endsWith(".less") ? "less" : "sass"
             this.isLess = "less" == stylesType
             this.isSass = "sass" == stylesType
 
@@ -817,7 +879,7 @@ class DSApp {
 
             // Run script 
             var args = [scriptPath]
-            args.push("-styles=" + this.pathToStyles)
+            args.push("-styles=" + this.pathToSource)
             args.push("-json=" + pathToRulesJSON)
 
             if (this.isSass) {
@@ -2045,7 +2107,7 @@ class DSApp {
                 sLayer.style.opacity = 0
             } else {
                 imageName = imageName.replace(/^\"/, "").replace(/\"$/, "")
-                let path = this.pathToTokens + "/" + imageName
+                let path = this.pathToSourceFolder + "/" + imageName
 
                 var fileManager = [NSFileManager defaultManager];
                 if (![fileManager fileExistsAtPath: path]) {

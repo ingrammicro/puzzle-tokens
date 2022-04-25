@@ -4,21 +4,25 @@
 @import "constants.js";
 
 
-function runApp(context, isQuick = false) {
+var onRunDialog = function (context) {
     UIDialog.setUp(context);
     var myless = new DSApp(context)
-
-    if (isQuick)
-        myless.runQuick()
-    else
-        myless.runDialog()
+    myless.init()    
+    myless.runDialog()
 }
 
-var onRunDialog = function (context) {
-    runApp(context)
-};
+var onRunDialogOnlyStyles = function (context) {
+    UIDialog.setUp(context);
+    var myless = new DSApp(context)
+    myless.onlyUpdateStyles = true
+    myless.init()
+    myless.runDialog()
+}
 
 var onRunQuick = function (context) {
-    runApp(context, true)
-
-};
+    UIDialog.setUp(context);
+    var myless = new DSApp(context)
+    myless.onlyUpdateStyles = Settings.settingForKey(SettingKeys.PLUGIN_LAST_ONLY_UPDATE) === true
+    myless.init()
+    myless.runQuick()
+}
