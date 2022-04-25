@@ -7,7 +7,7 @@
     "appcast": "https://raw.githubusercontent.com/ingrammicro/puzzle-tokens/master/appcast.xml",
     "compatibleVersion": 3,
     "bundleVersion": 1,
-    "version": "8.18.3",
+    "version": "8.19.0",
     "icon": "icon.png",
     "commands": [
         {
@@ -35,8 +35,14 @@
         },
         {
             "script": "cmd-apply-less.js",
+            "handler": "onRunDialogOnlyStyles",
+            "name": "Apply to existing styles only",
+            "identifier": "cmApplyOnlyUpdateLess"
+        },
+        {
+            "script": "cmd-apply-less.js",
             "handler": "onRunQuick",
-            "name": "Quick Apply",
+            "name": "Repeat last applying in headless mode",
             "shortcut": "command alt k",
             "identifier": "cmQuickApply"
         },
@@ -70,6 +76,8 @@
         "title": "📦 Puzzle Tokens",
         "items": [
             "cmApplyLess",
+            "cmApplyOnlyUpdateLess",
+            "-",
             "cmQuickApply",
             "-",
             "cmdGeneratePreview",

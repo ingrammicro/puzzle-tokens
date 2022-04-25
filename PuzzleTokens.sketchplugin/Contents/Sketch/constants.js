@@ -22,8 +22,11 @@ var Constants = {
 
 var SettingKeys = {
     PLUGIN_PREVIEWER_DEF: "pluginPreviewerDef",
+    PLUGIN_LAST_ONLY_UPDATE: "PLUGIN_LAST_ONLY_UPDATE",
     PLUGIN_PATH_TO_TOKENS_LESS: "pluginPathToTokensLess",
     PLUGIN_PATH_TO_TOKENS_LESS_LIST: "pluginPathToTokensLessList",
+    PLUGIN_PATH_TO_TOKENS: "PLUGIN_PATH_TO_TOKENS",
+    PLUGIN_PATH_TO_TOKENS_LIST: "PLUGIN_PATH_TO_TOKENS_LIST",
     PLUGIN_GENERATE_SYMBOLTOKENS: "pluginGenSymbTokens",
     PLUGIN_APPLY_CLEAR: "pluginApplyClear",
     PLUGIN_SHOW_JSON: "pluginDebug",
@@ -362,6 +365,6 @@ const COLOR_NAMES = {
     "yellowgreen": "#9acd32"
 }
 
-function degToRad(deg) {
+function degToRad (deg) {
     return deg * Math.PI / 180;
 }
