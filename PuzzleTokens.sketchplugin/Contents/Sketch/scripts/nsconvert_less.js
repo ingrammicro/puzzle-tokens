@@ -363,14 +363,15 @@ function saveData(data, pathToJSON) {
 
 function saveVarsToSASS(data, pathToSASS) {
     var json = ""
-    for (let propName in data) {
+    Object.keys(data).sort().forEach(propName=>{
+    //for (let propName in data) {
         let value = data[propName]
         if (value.indexOf("/") >= 0) {
             // quote file name
             value = '"' + value + '"'
         }
         json += '$' + propName.slice(1) + ": " + value + ";\n"
-    }
+    })
 
     if (pathToSASS && pathToSASS != '') {
         fs.writeFileSync(pathToSASS, json, 'utf8');
