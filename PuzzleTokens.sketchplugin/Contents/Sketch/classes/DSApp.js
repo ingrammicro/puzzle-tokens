@@ -1152,7 +1152,6 @@ class DSApp {
             'angular': Style.GradientType.Angular
         }
 
-
         var grads = GradientParser.parse(colorsRaw);
         if (undefined == grads || 0 == grads.length) {
             return undefined
@@ -1299,7 +1298,10 @@ class DSApp {
         if (shadowCSS != null && shadowCSS != "" && shadowCSS != "none") {
             shadows = Utils.splitCSSShadows(shadowCSS)
         } else {
-            if (shadowCSS == 'none') sStyle.shadows = [] //clear any existing shadows
+            if (shadowCSS == 'none'){
+                sStyle.shadows = [] //clear any existing shadows     
+                sStyle.innerShadows = [] //clear any existing shadows                
+            }
         }
 
         if (!shadows || !shadows.length) {
