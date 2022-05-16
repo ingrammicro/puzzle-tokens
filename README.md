@@ -290,7 +290,7 @@ https://www.dropbox.com/s/f25cfsm26vgeu62/Recording1.mov?dl=0
 ## Command line API
 ```
 #!/bin/bash
-context="{\"file\":\"${HOME}/GitHub/puzzle-tokens/Styles/material-palettes/palettes.sketch\""
+context="{\"file\":\"${HOME}/GitHub/puzzle-tokens/Styles/material-palettes/palettes.sketch\"}"
 # The following line is optional
 context="${context},\"saveAs\":\"${HOME}/GitHub/puzzle-tokens/Styles/material-palettes/palettes_new.sketch\""
 context="${context},\"styles\":\"${HOME}/GitHub/puzzle-tokens/Styles/material-palettes/scss/palettes.scss\""
