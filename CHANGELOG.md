@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+# Version 8.19.1 (16 May 2022)
+Cmd-line fixed
+
 # Version 8.19.0 (25 Apr 2022)
 Split apply command to two commands
 
