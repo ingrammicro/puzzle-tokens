@@ -144,6 +144,7 @@ class DSApp
         this.runFromCmd = true
         this.pathToSource = pathToSource
         if ('' == this.pathToSource) return false
+        this.init()
         const success = this.run(false)
         //UI.message(this._getResultSummary())        
         return success
@@ -245,6 +246,8 @@ class DSApp
 
     _initStyles()
     {
+        if (DEBUG) this.logDebug("_initStyles")
+
         const showError = Settings.PLUGIN_SHOW_DOUBLESTYLES
 
         this.textStyles = {}
@@ -254,6 +257,7 @@ class DSApp
             {
                 this.logError("Found multiply text styles with name '" + sStyle.name + "'")
             }
+            if (DEBUG) this.logDebug("Load text style " + sStyle.name)
             this.textStyles[sStyle.name] = sStyle
         }, this)
         this.layerStyles = {}
@@ -263,6 +267,7 @@ class DSApp
             {
                 this.logError("Found multiply layer styles with name '" + sStyle.name + "'")
             }
+            if (DEBUG) this.logDebug("Load layer style " + sStyle.name)
             this.layerStyles[sStyle.name] = sStyle
 
         }, this)
