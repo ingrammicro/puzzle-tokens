@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+# Version 8.19.3 (15 Jun 2022)
+Removed debug info
+
 # Version 8.19.1 (16 May 2022)
 Cmd-line fixed
 

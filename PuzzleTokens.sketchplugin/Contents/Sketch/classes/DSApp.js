@@ -118,7 +118,7 @@ class DSApp
 
     logDebug(msg)
     {
-        log(msg)
+        if (DEBUG) log(msg)
     }
 
     logError(error)
@@ -1727,7 +1727,6 @@ class DSApp
         let backColor = token['background-color']
         var updateFill = token[PT_FILL_UPDATE] == 'true'
         // skip color with wrong "@token" value
-        //log(backColor)
         if (backColor != null && !backColor.startsWith("@"))
         {
             let fill = {}

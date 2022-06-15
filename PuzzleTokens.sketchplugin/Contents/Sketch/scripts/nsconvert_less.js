@@ -19,7 +19,7 @@ var parseOptions = null
 var _lookups = {}
 
 /////////////////////////////////////////////
-console.log("Started")
+if (DEBUG) console.log("Started")
 
 // INIT DATA
 if (!initPaths()) process.exit(0)
@@ -39,9 +39,11 @@ if (undefined != pathToResultCSS)
     transformCustomLESStoCSS(pathToLess, pathToResultCSS)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function parseArgs(args) {
+function parseArgs(args)
+{
     let list = []
-    args.forEach(function (arg) {
+    args.forEach(function (arg)
+    {
         const v = arg.split("=")
         if (0 == v.length) return
         list[v[0]] = v[1]
@@ -49,14 +51,17 @@ function parseArgs(args) {
     return list
 }
 
-function initPaths() {
-    if (undefined == pathToLess) {
+function initPaths()
+{
+    if (undefined == pathToLess)
+    {
         console.log("nsconvert_less.js -styles=<PATH_TO_LESS_FILE> -json=<PATH_TO_JSON_FILE> -css=<pathToResultCSS> -vars=<pathToResultVars> -plugins=[plugin1,plugin2]")
         return false
     }
 
     // REMOVE OLD RESULTS
-    if (pathToJSON && fs.existsSync(pathToJSON)) {
+    if (pathToJSON && fs.existsSync(pathToJSON))
+    {
         fs.unlinkSync(pathToJSON)
     }
 
@@ -67,37 +72,46 @@ function initPaths() {
     return true
 }
 
-function injectTokensIntoLess(srcData, lastPath = null) {
+function injectTokensIntoLess(srcData, lastPath = null)
+{
     var lessLines = srcData.split("\n")
     var newData = ""
 
-    lessLines.forEach(function (line) {
+    lessLines.forEach(function (line)
+    {
         line = line.trim()
 
         // import file manually
-        if (line.startsWith("@import") && !line.includes("{")) {
+        if (line.startsWith("@import") && !line.includes("{"))
+        {
             // cut file name
             let parts = line.split("\"")
             if (!parts.length) parts = line.split("\'")
             const importFileName = parts[1]
-            console.log("importFileName=" + importFileName)
+            if (DEBUG) console.log("importFileName=" + importFileName)
             // construct path to imported filed
             let importPath = ""
-            if (importFileName.startsWith("/")) {
+            if (importFileName.startsWith("/"))
+            {
                 importPath = importFileName
                 //
                 const dirInfo = nodePath.parse(importPath)
-                if (!dirInfo) {
+                if (!dirInfo)
+                {
                     console.log("Failed to scan path:" + importPath)
                     process.exit(-1)
                 }
                 lastPath = dirInfo.dir
-            } else {
-                if (null != lastPath) {
+            } else
+            {
+                if (null != lastPath)
+                {
                     importPath = lastPath + "/" + importFileName
-                } else {
+                } else
+                {
                     const dirInfo = nodePath.parse(pathToLess)
-                    if (!dirInfo) {
+                    if (!dirInfo)
+                    {
                         console.log("Failed to scan path:" + pathToLess)
                         process.exit(-1)
                     }
@@ -105,9 +119,10 @@ function injectTokensIntoLess(srcData, lastPath = null) {
                 }
             }
             // load file
-            console.log("importFilePath=" + importPath)
+            if (DEBUG) console.log("importFilePath=" + importPath)
             const strSrcLess = loadLessFromFiles(importPath)
-            if (null == strSrcLess) {
+            if (null == strSrcLess)
+            {
                 console.log("Failed to load import by path:" + importPath)
                 process.exit(-1)
             }
@@ -120,22 +135,28 @@ function injectTokensIntoLess(srcData, lastPath = null) {
         line = line.trim()
         if (line.startsWith("//")) return
 
-        if (line.includes("@")) {
+        if (line.includes("@"))
+        {
             var commentPos = line.indexOf("//")
-            if (commentPos > 0) {
+            if (commentPos > 0)
+            {
                 line = line.substring(0, commentPos)
             }
 
             var found = line.split(":")
-            if (found && found.length > 1 && (found[1].includes("+") || found[1].includes("/") || found[1].includes("*") || found.includes("/") || found[1].includes(" - "))) {
+            if (found && found.length > 1 && (found[1].includes("+") || found[1].includes("/") || found[1].includes("*") || found.includes("/") || found[1].includes(" - ")))
+            {
                 var s = found[1].trim().replace(";", "")
                 line += " //!" + s + "!"
-            } else {
+            } else
+            {
                 var tokenInfo = line.match(/@{1}([\w-]*)\w{0,};/)
-                if (null != tokenInfo && tokenInfo.length >= 1) {
+                if (null != tokenInfo && tokenInfo.length >= 1)
+                {
                     var token = tokenInfo[1]
                     line += " //!" + token + "!"
-                    if (token.includes("--token")) {
+                    if (token.includes("--token"))
+                    {
                         line += `\n-pt-${found[0].replace("@", "")}--token: @${token};`
                         //console.log(`\n-pt-${found[0]}--token: @${token};\n`)
                     }
@@ -147,31 +168,37 @@ function injectTokensIntoLess(srcData, lastPath = null) {
     return newData
 }
 
-function loadLessFromFiles(fileName1, fileName2) {
-    console.log("Read LESS: running...")
+function loadLessFromFiles(fileName1, fileName2)
+{
+    if (DEBUG) console.log("Read LESS: running...")
 
     var data = ''
     const data1 = fs.readFileSync(fileName1, 'utf8');
-    if (null == data1) {
+    if (null == data1)
+    {
         console.log("Can't open file by path:" + fileName1)
         return null
     }
     data = data + data1;
-    if (fileName2 != undefined) {
+    if (fileName2 != undefined)
+    {
         data = data + "\n" + fs.readFileSync(fileName2, 'utf8');
     }
 
     return data
 }
 
-function transformLESStoJSON(data) {
+function transformLESStoJSON(data)
+{
 
     var passToNodeModules = _getPathToNodeModules()
     less = require(passToNodeModules + "/less")
 
     var pluginModules = []
-    if (undefined != pluginNames) {
-        pluginNames.forEach(function (pluginName) {
+    if (undefined != pluginNames)
+    {
+        pluginNames.forEach(function (pluginName)
+        {
             const pluginModule = require(passToNodeModules + "/" + pluginName);
             pluginModules.push(pluginModule)
         })
@@ -183,15 +210,18 @@ function transformLESStoJSON(data) {
         plugins: pluginModules,
     }
 
-    process.on('unhandledRejection', error => {
+    process.on('unhandledRejection', error =>
+    {
         // Will print "unhandledRejection err is not defined"
         console.log('Failed to parse LESS with error message:', error.message);
         process.exit(-1)
     });
 
 
-    try {
-        less.parse(data, options1, function (err, root, imports, options) {
+    try
+    {
+        less.parse(data, options1, function (err, root, imports, options)
+        {
             parseOptions = options
             //console.log(options.pluginManagermixin)
             if (undefined != err) console.log(err)
@@ -200,10 +230,13 @@ function transformLESStoJSON(data) {
             var evaldRoot = root.eval(evalEnv);
             var ruleset = evaldRoot.rules;
 
-            ruleset.forEach(function (rule) {
-                if (rule.isLineComment) {
+            ruleset.forEach(function (rule)
+            {
+                if (rule.isLineComment)
+                {
                     return
-                } else if (rule.variable === true) {
+                } else if (rule.variable === true)
+                {
                     //  var name;
                     let name = rule.name.substr(1);
 
@@ -211,77 +244,93 @@ function transformLESStoJSON(data) {
                     lessVars["@" + name] = value.toCSS(options);
 
                     //console.log(name + " : " + value.toCSS(options))
-                } else {
+                } else
+                {
                     parseSketchRule(rule, null, [])
                 }
             });
             //console.log(lessVars)
 
             // completed
-            console.log("Completed")
+            if (DEBUG) console.log("Completed")
             saveData(sketchRules, pathToJSON)
-            console.log("Saved JSON")
-            if (pathToResultSASS != null) {
+            if (DEBUG) console.log("Saved JSON")
+            if (pathToResultSASS != null)
+            {
                 saveVarsToSASS(lessVars, pathToResultSASS)
-                console.log("Saved SASS")
+                if (DEBUG) console.log("Saved SASS")
             }
-            if (pathToResultVars != undefined) {
+            if (pathToResultVars != undefined)
+            {
                 saveData(lessVars, pathToResultVars)
             }
         });
-    } catch (e) {
+    } catch (e)
+    {
         console.log("Failed to parse LESS with error message:\n")
         console.log(e.message)
         process.exit(-1)
     }
 
-    console.log(sketchRules)
-
-
-    console.log("Read LESS: done")
+    if (DEBUG) console.log(sketchRules)
+    if (DEBUG) console.log("Read LESS: done")
 }
 
 
-function parseSketchRule(rule, elements, path) {
+function parseSketchRule(rule, elements, path)
+{
 
     // save info about enabled mixins to ignore them
-    if (rule._lookups && Object.keys(rule._lookups).length > 0) {
-        Object.keys(rule._lookups).forEach(function (s) {
+    if (rule._lookups && Object.keys(rule._lookups).length > 0)
+    {
+        Object.keys(rule._lookups).forEach(function (s)
+        {
             _lookups[s.trim()] = true
         })
     }
 
-    if (null != elements) {
+    if (null != elements)
+    {
         var foundMixin = false
-        elements.forEach(function (el) {
+        elements.forEach(function (el)
+        {
             path = path.concat([el.value])
-            if (el.value in _lookups) {
+            if (el.value in _lookups)
+            {
                 foundMixin = true
                 return
             }
         })
         if (foundMixin) return
-    } else {
-        if (rule.selectors != null && rule.selectors.length > 0) {
-            rule.selectors.forEach(function (sel) {
+    } else
+    {
+        if (rule.selectors != null && rule.selectors.length > 0)
+        {
+            rule.selectors.forEach(function (sel)
+            {
                 parseSketchRule(rule, sel.elements, path)
             })
             return
         }
     }
     ///
-    if (rule.rules && rule.rules.length > 0) {
-        if (!(rule.rules[0].rules)) {
+    if (rule.rules && rule.rules.length > 0)
+    {
+        if (!(rule.rules[0].rules))
+        {
             saveSketchRule(rule, path)
-        } else {
-            rule.rules.forEach(function (oneRule) {
+        } else
+        {
+            rule.rules.forEach(function (oneRule)
+            {
                 parseSketchRule(oneRule, null, path)
             })
         }
     }
 }
 
-function saveSketchRule(rule, path) {
+function saveSketchRule(rule, path)
+{
     if (DEBUG) console.log("-----saveSketchRule")
 
     //var sketchPath = path.join("*")
@@ -297,11 +346,13 @@ function saveSketchRule(rule, path) {
             __tokens: []
         }
     }
-    rule.rules.forEach(function (oneRule, index) {
+    rule.rules.forEach(function (oneRule, index)
+    {
         // drop comment
         if (oneRule.isLineComment) return
 
-        if (null != oneRule.selectors) {
+        if (null != oneRule.selectors)
+        {
             parseSketchRule(oneRule, null, path)
             return
         }
@@ -322,21 +373,26 @@ function saveSketchRule(rule, path) {
         //   -pt-font-size--token:                           @tag-text-font-size--token;
         const calcTokenName = `-pt-${oneRule.name}--token`
         const nextNextRule = rule.rules[index + 2]
-        if (nextNextRule && nextNextRule.name != null && nextNextRule.name === calcTokenName && nextNextRule.value != null && nextNextRule.value.value != null) {
+        if (nextNextRule && nextNextRule.name != null && nextNextRule.name === calcTokenName && nextNextRule.value != null && nextNextRule.value.value != null)
+        {
             token = "@" + nextNextRule.value.value
-        } else {
+        } else
+        {
             // get token from rule comment
             var token = ''
             var nextRule = rule.rules[index + 1]
-            if (nextRule != null && nextRule.isLineComment) {
+            if (nextRule != null && nextRule.isLineComment)
+            {
                 var res = nextRule.value.match(/!{1}([\s\w-+\*//@]*)!{1}/)
-                if (null != res && null != res[1]) {
+                if (null != res && null != res[1])
+                {
                     token = res[1]
                 }
             }
         }
         sketchRule.props[String(oneRule.name)] = value
-        if (token != '') {
+        if (token != '')
+        {
             if (!token.startsWith('@')) token = "@" + token
             sketchRule.props.__tokens.push([
                 oneRule.name, token
@@ -349,33 +405,41 @@ function saveSketchRule(rule, path) {
 
 
 
-function saveData(data, pathToJSON) {
+function saveData(data, pathToJSON)
+{
     var json = JSON.stringify(data, null) //, '    ')
 
-    if (pathToJSON && pathToJSON != '') {
+    if (pathToJSON && pathToJSON != '')
+    {
         fs.writeFileSync(pathToJSON, json, 'utf8');
-    } else {
+    } else
+    {
         //console.log(json)
     }
 
     return true
 }
 
-function saveVarsToSASS(data, pathToSASS) {
+function saveVarsToSASS(data, pathToSASS)
+{
     var json = ""
-    Object.keys(data).sort().forEach(propName=>{
-    //for (let propName in data) {
+    Object.keys(data).sort().forEach(propName =>
+    {
+        //for (let propName in data) {
         let value = data[propName]
-        if (value.indexOf("/") >= 0) {
+        if (value.indexOf("/") >= 0)
+        {
             // quote file name
             value = '"' + value + '"'
         }
         json += '$' + propName.slice(1) + ": " + value + ";\n"
     })
 
-    if (pathToSASS && pathToSASS != '') {
+    if (pathToSASS && pathToSASS != '')
+    {
         fs.writeFileSync(pathToSASS, json, 'utf8');
-    } else {
+    } else
+    {
         //console.log(json)
     }
 
@@ -383,18 +447,21 @@ function saveVarsToSASS(data, pathToSASS) {
 }
 
 
-function _getPathToNodeModules() {
+function _getPathToNodeModules()
+{
     var result = require('child_process').execSync("node /usr/local/bin/npm -g root", { env: process.env.PATH })
     var path = result.toString().replace("\n", "")
     return path
 }
 
 
-function transformCustomLESStoCSS(pathToOrgLess, pathToCSS) {
+function transformCustomLESStoCSS(pathToOrgLess, pathToCSS)
+{
     const pathToCustomLess = pathToOrgLess.replace(".less", ".css.less")
 
     // Check file existing
-    if (!fs.existsSync(pathToCustomLess)) {
+    if (!fs.existsSync(pathToCustomLess))
+    {
         // no file with name <LESS_FILE>.css.less
         return true
     }
@@ -402,5 +469,5 @@ function transformCustomLESStoCSS(pathToOrgLess, pathToCSS) {
     // Convert LESS to pure CSS and save it to CSS file
     pathToCSS = pathToCSS.replace(/\s/g, "\\ ")
     const result = require('child_process').execSync("node /usr/local/bin/lessc " + pathToCustomLess + " > " + pathToCSS, { env: process.env.PATH })
-    console.log("Rendered CSS LESS to CSS: " + pathToCSS)
+    if (DEBUG) console.log("Rendered CSS LESS to CSS: " + pathToCSS)
 }

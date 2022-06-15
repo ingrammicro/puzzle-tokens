@@ -1,28 +1,34 @@
 @import "constants.js";
 var DEBUG = Constants.LOGGING || require('sketch/settings').settingForKey(SettingKeys.PLUGIN_LOGDEBUG_ENABLED)
 
-Rectangle.prototype.round = function () {
+Rectangle.prototype.round = function ()
+{
     this.x = Math.round(this.x)
     this.y = Math.round(this.y)
     this.height = Math.round(this.height)
     this.width = Math.round(this.width)
 }
 
-Rectangle.prototype.insideRectangle = function (r) {
+Rectangle.prototype.insideRectangle = function (r)
+{
     return this.x >= r.x && this.y >= r.y
         && ((this.x + this.width) <= (r.x + r.width))
         && ((this.y + this.height) <= (r.y + r.height))
 }
 
-Rectangle.prototype.copy = function () {
+Rectangle.prototype.copy = function ()
+{
     return new Rectangle(this.x, this.y, this.width, this.height)
 }
-Rectangle.prototype.copyToRect = function () {
+Rectangle.prototype.copyToRect = function ()
+{
     return NSMakeRect(this.x, this.y, this.width, this.height)
 }
 
-class Utils {
-    static askPath(currentPath = null, buttonName = "Select") {
+class Utils
+{
+    static askPath(currentPath = null, buttonName = "Select")
+    {
         let panel = NSOpenPanel.openPanel()
         panel.setTitle("Choose a location...")
         panel.setPrompt(buttonName)
@@ -31,7 +37,8 @@ class Utils {
         panel.setAllowsMultipleSelection(false)
         panel.setShowsHiddenFiles(false)
         panel.setExtensionHidden(false)
-        if (currentPath != null && currentPath != undefined) {
+        if (currentPath != null && currentPath != undefined)
+        {
             let url = [NSURL fileURLWithPath: currentPath]
             panel.setDirectoryURL(url)
         }
@@ -39,13 +46,15 @@ class Utils {
         const newURL = panel.URL()
         panel.close()
         panel = null
-        if (buttonPressed == NSFileHandlingPanelOKButton) {
+        if (buttonPressed == NSFileHandlingPanelOKButton)
+        {
             return newURL.path() + ''
         }
         return null
     }
 
-    static askFilePath(currentPath = null, buttonName = "Select") {
+    static askFilePath(currentPath = null, buttonName = "Select")
+    {
         let panel = NSOpenPanel.openPanel()
         panel.setTitle("Choose a file...")
         panel.setPrompt(buttonName)
@@ -54,7 +63,8 @@ class Utils {
         panel.setAllowsMultipleSelection(false)
         panel.setShowsHiddenFiles(false)
         panel.setExtensionHidden(false)
-        if (currentPath != null && currentPath != undefined) {
+        if (currentPath != null && currentPath != undefined)
+        {
             let url = [NSURL fileURLWithPath: currentPath]
             panel.setDirectoryURL(url)
         }
@@ -62,42 +72,51 @@ class Utils {
         const newURL = panel.URL()
         panel.close()
         panel = null
-        if (buttonPressed == NSFileHandlingPanelOKButton) {
+        if (buttonPressed == NSFileHandlingPanelOKButton)
+        {
             return newURL.path() + ''
         }
         return null
     }
 
-    static writeToFile(str, filePath) {
+    static writeToFile(str, filePath)
+    {
         const objcStr = NSString.stringWithFormat("%@", str);
         return objcStr.writeToFile_atomically_encoding_error(filePath, true, NSUTF8StringEncoding, null);
     }
 
-    static readFile(path) {
+    static readFile(path)
+    {
         return NSString.stringWithContentsOfFile_encoding_error(path, NSUTF8StringEncoding, null);
     }
 
-    static fileExistsAtPath(filePath) {
+    static fileExistsAtPath(filePath)
+    {
         const fileManager = NSFileManager.defaultManager();
         return fileManager.fileExistsAtPath(filePath);
     }
 
-    static deleteFile(filePath) {
+    static deleteFile(filePath)
+    {
         const fileManager = NSFileManager.defaultManager();
 
         let error = MOPointer.alloc().init();
-        if (fileManager.fileExistsAtPath(filePath)) {
-            if (!fileManager.removeItemAtPath_error(filePath, error)) {
+        if (fileManager.fileExistsAtPath(filePath))
+        {
+            if (!fileManager.removeItemAtPath_error(filePath, error))
+            {
                 log(error.value().localizedDescription());
             }
         }
     }
 
-    static RGBAStructToRGBAStr(rgba) {
+    static RGBAStructToRGBAStr(rgba)
+    {
         return "rgba(" + rgba.join(",") + ")"
     }
 
-    static RGBAToHexA(rgba) {
+    static RGBAToHexA(rgba)
+    {
         if (rgba.startsWith('#')) return rgba
 
         let sep = rgba.indexOf(",") > -1 ? "," : " ";
@@ -109,14 +128,18 @@ class Utils {
         if (rgba.indexOf("/") > -1)
             rgba.splice(3, 1);
 
-        for (let R in rgba) {
+        for (let R in rgba)
+        {
             let r = rgba[R];
-            if (r.indexOf("%") > -1) {
+            if (r.indexOf("%") > -1)
+            {
                 let p = r.substr(0, r.length - 1) / 100;
 
-                if (R < 3) {
+                if (R < 3)
+                {
                     rgba[R] = Math.round(p * 255);
-                } else {
+                } else
+                {
                     rgba[R] = p;
                 }
             }
@@ -141,13 +164,15 @@ class Utils {
 
     // tries to split >> 0 7px 40px 0 rgba(0,0,0,0.13), 0 2px 8px 0 rgba(0,0,0,0.24) <<
     // return array of {}
-    static splitCSSShadows(src) {
+    static splitCSSShadows(src)
+    {
         const parsed = Utils.parseBoxShadow(src)
         return parsed.map(s => Utils.splitCSSShadow(s))
     }
 
     // > object from parseBoxShadow()
-    static splitCSSShadow(s) {
+    static splitCSSShadow(s)
+    {
         return {
             'enabled': true,
             'type': 'Shadow',
@@ -167,12 +192,14 @@ class Utils {
     //   blurRadius: 0,
     //   spreadRadius: 32,
     //   color: 'tomato' }]
-    static parseBoxShadow(str) {
+    static parseBoxShadow(str)
+    {
         //  do workaround to support invalid REGEXP
         str = str.replace(/\(/g, "X").replace(/\)/g, "Z")
 
         const isLength = v => v === '0' || LENGTH_REG.test(v)
-        const toNum = v => {
+        const toNum = v =>
+        {
             if (!/px$/.test(v) && v !== '0') return v
             const n = parseFloat(v)
             return !isNaN(n) ? n : v
@@ -186,7 +213,8 @@ class Utils {
         //const PARTS_REG = /\s(?![^(]*\))/
 
 
-        const parseValue = str => {
+        const parseValue = str =>
+        {
             const parts = str.split(PARTS_REG)
             const inset = parts.includes('inset')
             const last = parts.slice(-1)[0]
@@ -214,7 +242,8 @@ class Utils {
     }
 
 
-    static hexColorToRGBA(hex) {
+    static hexColorToRGBA(hex)
+    {
         return {
             r: parseInt(hex.substr(1, 2), 16),
             g: parseInt(hex.substr(3, 2), 16),
@@ -224,15 +253,18 @@ class Utils {
     }
 
     // it will drop optional opacity
-    static invertHexColor(hex) {
+    static invertHexColor(hex)
+    {
         hex = hex.substr(0, 7)
         return '#' + hex.match(/[a-f0-9]{2}/ig).map(e => (255 - parseInt(e, 16) | 0).toString(16).replace(/^([a-f0-9])$/, '0$1')).join('')
     }
 
     // source: https://codepen.io/jkantner/pen/VVEMRK    
-    static HSLAToHexA(hsla) {
+    static HSLAToHexA(hsla)
+    {
         let ex = /^hsla\(((((([12]?[1-9]?\d)|[12]0\d|(3[0-5]\d))(\.\d+)?)|(\.\d+))(deg)?|(0|0?\.\d+)turn|(([0-6](\.\d+)?)|(\.\d+))rad)(((,\s?(([1-9]?\d(\.\d+)?)|100|(\.\d+))%){2},\s?)|((\s(([1-9]?\d(\.\d+)?)|100|(\.\d+))%){2}\s\/\s))((0?\.\d+)|[01]|(([1-9]?\d(\.\d+)?)|100|(\.\d+))%)\)$/i;
-        if (ex.test(hsla)) {
+        if (ex.test(hsla))
+        {
             let sep = hsla.indexOf(",") > -1 ? "," : " ";
             hsla = hsla.substr(5).split(")")[0].split(sep);
 
@@ -266,17 +298,23 @@ class Utils {
                 g = 0,
                 b = 0;
 
-            if (0 <= h && h < 60) {
+            if (0 <= h && h < 60)
+            {
                 r = c; g = x; b = 0;
-            } else if (60 <= h && h < 120) {
+            } else if (60 <= h && h < 120)
+            {
                 r = x; g = c; b = 0;
-            } else if (120 <= h && h < 180) {
+            } else if (120 <= h && h < 180)
+            {
                 r = 0; g = c; b = x;
-            } else if (180 <= h && h < 240) {
+            } else if (180 <= h && h < 240)
+            {
                 r = 0; g = x; b = c;
-            } else if (240 <= h && h < 300) {
+            } else if (240 <= h && h < 300)
+            {
                 r = x; g = 0; b = c;
-            } else if (300 <= h && h < 360) {
+            } else if (300 <= h && h < 360)
+            {
                 r = c; g = 0; b = x;
             }
             r = Math.round((r + m) * 255).toString(16);
@@ -294,16 +332,19 @@ class Utils {
                 a = "0" + a;
 
             return "#" + r + g + b + a;
-        } else {
+        } else
+        {
             app.logError("HSLAToHexA() Invalid input color: " + hsla)
             return "#000000FF"
         }
     }
 
     // source: https://codepen.io/jkantner/pen/VVEMRK    
-    static HSLToHex(hsl) {
+    static HSLToHex(hsl)
+    {
         let ex = /^hsl\(((((([12]?[1-9]?\d)|[12]0\d|(3[0-5]\d))(\.\d+)?)|(\.\d+))(deg)?|(0|0?\.\d+)turn|(([0-6](\.\d+)?)|(\.\d+))rad)((,\s?(([1-9]?\d(\.\d+)?)|100|(\.\d+))%){2}|(\s(([1-9]?\d(\.\d+)?)|100|(\.\d+))%){2})\)$/i;
-        if (ex.test(hsl)) {
+        if (ex.test(hsl))
+        {
             let sep = hsl.indexOf(",") > -1 ? "," : " ";
             hsl = hsl.substr(4).split(")")[0].split(sep);
 
@@ -328,17 +369,23 @@ class Utils {
                 g = 0,
                 b = 0;
 
-            if (0 <= h && h < 60) {
+            if (0 <= h && h < 60)
+            {
                 r = c; g = x; b = 0;
-            } else if (60 <= h && h < 120) {
+            } else if (60 <= h && h < 120)
+            {
                 r = x; g = c; b = 0;
-            } else if (120 <= h && h < 180) {
+            } else if (120 <= h && h < 180)
+            {
                 r = 0; g = c; b = x;
-            } else if (180 <= h && h < 240) {
+            } else if (180 <= h && h < 240)
+            {
                 r = 0; g = x; b = c;
-            } else if (240 <= h && h < 300) {
+            } else if (240 <= h && h < 300)
+            {
                 r = x; g = 0; b = c;
-            } else if (300 <= h && h < 360) {
+            } else if (300 <= h && h < 360)
+            {
                 r = c; g = 0; b = x;
             }
             // having obtained RGB, convert channels to hex
@@ -356,7 +403,8 @@ class Utils {
 
             return "#" + r + g + b;
 
-        } else {
+        } else
+        {
             app.logError("HSLToHex() Invalid input color: " + hsl)
             return "#000000"
         }
@@ -364,42 +412,53 @@ class Utils {
 
     // str: white or #32333 or #12345678 or #112233 %10
     // opacity: see opacityToHex()
-    static strToHEXColor(str, opacity = undefined) {
+    static strToHEXColor(str, opacity = undefined)
+    {
         // process #112233 %10
-        if (str.includes("transparent")) {
+        if (str.includes("transparent"))
+        {
             return "#FFFFFF" + Utils.opacityToHex(0)
         }
-        if (str.startsWith('"')) {
+        if (str.startsWith('"'))
+        {
             const swatchName = str.substr(1, str.length - 2)
             var swatches = app.sDoc.swatches
             var s = swatches.find(sw => sw.name == swatchName)
-            if (!s) {
+            if (!s)
+            {
                 app.logError("strToHEXColor() Can not find color variable named as \"" + swatchName + "\"")
                 return "black"
             }
             return s.referencingColor
         }
-        if (str.toLowerCase().includes("hsla")) {
+        if (str.toLowerCase().includes("hsla"))
+        {
             str = Utils.HSLAToHexA(str)
-        } else if (str.toLowerCase().includes("hsl")) {
+        } else if (str.toLowerCase().includes("hsl"))
+        {
             str = Utils.HSLToHex(str)
-        } else if (str.toLowerCase().includes("rgba")) {
+        } else if (str.toLowerCase().includes("rgba"))
+        {
             str = Utils.RGBAToHexA(str)
         }
-        if (str.includes(" ") && str.includes("%")) {
+        if (str.includes(" ") && str.includes("%"))
+        {
             const list = str.split(" ")
             let color = Utils.stripStr(list[0])
             // convert color from "white" to "#ffffff"
-            if (!color.startsWith("#")) {
+            if (!color.startsWith("#"))
+            {
                 if (color in COLOR_NAMES)
                     color = COLOR_NAMES[color]
             }
             str = color + Utils.opacityToHex(list[1])
         }
-        if (undefined != opacity) {
+        if (undefined != opacity)
+        {
             str = Utils.stripStr(str);
             // convert color from "white" to "#ffffff"
-            if (!str.startsWith("#")) {
+            if (!str.startsWith("#"))
+            {
                 if (str in COLOR_NAMES)
                     str = COLOR_NAMES[str]
             }
@@ -409,8 +468,10 @@ class Utils {
     }
 
     // opacity: 0 .. 1.0(transparent) or 0(transparent)..100%
-    static opacityToHex(opacity) {
-        if (typeof opacity == 'string' && opacity.indexOf("%") >= 0) {
+    static opacityToHex(opacity)
+    {
+        if (typeof opacity == 'string' && opacity.indexOf("%") >= 0)
+        {
             opacity = opacity.replace("%", "")
             opacity = parseInt(opacity) / 100
         }
@@ -424,46 +485,56 @@ class Utils {
 
 
     // opacity: 0 .. 1.0(transparent) or 0(transparent)..100% to 1.0 
-    static cssOpacityToSketch(opacity) {
-        if (typeof opacity == 'string' && opacity.indexOf("%") >= 0) {
+    static cssOpacityToSketch(opacity)
+    {
+        if (typeof opacity == 'string' && opacity.indexOf("%") >= 0)
+        {
             opacity = opacity.replace("%", "")
             opacity = parseInt(opacity) / 100
         }
         return parseFloat(opacity)
     }
 
-    static stripStr(str) {
+    static stripStr(str)
+    {
         return str.replace(/^\s+|\s+$/g, '');
     }
 
-    static cloneDict(dict) {
+    static cloneDict(dict)
+    {
         return Object.assign({}, dict);
     }
 
 
-    static copyRect(rect) {
+    static copyRect(rect)
+    {
         return NSMakeRect(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height)
     }
 
     // rect: GRect instnct
-    static copyRectToRectangle(rect) {
+    static copyRectToRectangle(rect)
+    {
         return new Rectangle(rect.x(), rect.y(), rect.width(), rect.height())
     }
 
     // rect: Rectangle instance
-    static transformRect(rect, cw, ch) {
+    static transformRect(rect, cw, ch)
+    {
         rect.x = rect.x * cw
         rect.y = rect.y * ch
         rect.width = rect.width * cw
         rect.width = rect.height * ch
     }
 
-    static quoteString(str) {
+    static quoteString(str)
+    {
         return str.split('"').join('\\"')
     }
 
-    static toFilename(name, dasherize = true) {
-        if (dasherize == null) {
+    static toFilename(name, dasherize = true)
+    {
+        if (dasherize == null)
+        {
             dasherize = true;
         }
         const dividerCharacter = dasherize ? "-" : "_"
@@ -471,12 +542,15 @@ class Utils {
     }
 
 
-    static getArtboardGroups(artboards, context) {
+    static getArtboardGroups(artboards, context)
+    {
         const artboardGroups = [];
 
-        artboards.forEach(function (artboard) {
+        artboards.forEach(function (artboard)
+        {
             // skip marked by '*'
-            if (artboard.name().indexOf("*") == 0) {
+            if (artboard.name().indexOf("*") == 0)
+            {
                 return
             }
             artboardGroups.push([{ artboard: artboard, baseName: artboard.name() }]);
@@ -486,17 +560,22 @@ class Utils {
 
 
 
-    static isSymbolsPage(page) {
+    static isSymbolsPage(page)
+    {
         return page.artboards()[0].isKindOfClass(MSSymbolMaster);
     }
 
-    static removeFilesWithExtension(path, extension) {
+    static removeFilesWithExtension(path, extension)
+    {
         const error = MOPointer.alloc().init();
         const fileManager = NSFileManager.defaultManager();
         const files = fileManager.contentsOfDirectoryAtPath_error(path, null);
-        files.forEach(function (file) {
-            if (file.pathExtension() == extension) {
-                if (!fileManager.removeItemAtPath_error(path + "/" + file, error)) {
+        files.forEach(function (file)
+        {
+            if (file.pathExtension() == extension)
+            {
+                if (!fileManager.removeItemAtPath_error(path + "/" + file, error))
+                {
                     log(error.value().localizedDescription());
                 }
             }
@@ -504,13 +583,16 @@ class Utils {
     }
 
 
-    static runCommand(command, args) {
-        if (DEBUG) {
+    static runCommand(command, args)
+    {
+        if (DEBUG)
+        {
             log(command + " " + args.join(" "))
         }
 
         // check if launch path exists
-        if (!Utils.fileExistsAtPath(command)) {
+        if (!Utils.fileExistsAtPath(command))
+        {
             return {
                 result: false,
                 output: command + "does not exists"
@@ -536,12 +618,14 @@ class Utils {
         }
     }
 
-    static getPathToTempFolder() {
+    static getPathToTempFolder()
+    {
         const fileManager = NSFileManager.defaultManager()
         return fileManager.temporaryDirectory().path() + ""
     }
 
-    static copyScript(scriptName, pathTo) {
+    static copyScript(scriptName, pathTo)
+    {
 
         const fileManager = NSFileManager.defaultManager()
 
@@ -556,7 +640,8 @@ class Utils {
         let error = MOPointer.alloc().init()
 
 
-        if (!fileManager.copyItemAtPath_toPath_error(sourcePath, targetPath, error)) {
+        if (!fileManager.copyItemAtPath_toPath_error(sourcePath, targetPath, error))
+        {
             app.logError('Can`t copy script', error.value().localizedDescription())
             return undefined
         }
@@ -566,15 +651,18 @@ class Utils {
     }
 
 
-    static createFolder(path) {
+    static createFolder(path)
+    {
         let error;
         const fileManager = NSFileManager.defaultManager();
 
-        if (fileManager.fileExistsAtPath(path)) {
+        if (fileManager.fileExistsAtPath(path))
+        {
             return true
         }
         error = MOPointer.alloc().init();
-        if (!fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(path, true, null, error)) {
+        if (!fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(path, true, null, error))
+        {
             log(error.value().localizedDescription());
         }
         return true

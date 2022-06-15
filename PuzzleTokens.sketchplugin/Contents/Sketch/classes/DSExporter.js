@@ -61,8 +61,10 @@ const formatDefs = {
     }
 }
 
-class DSExporter {
-    constructor(context) {
+class DSExporter
+{
+    constructor(context)
+    {
         this.nDoc = context.document
         this.sDoc = Sketch.fromNative(context.document)
         this.context = context
@@ -96,7 +98,8 @@ class DSExporter {
 
     }
 
-    init() {
+    init()
+    {
         this.pathTo = Settings.settingForKey(SettingKeys.PLUGIN_EXPORT_PATH_TO)
         if (undefined == this.pathTo) this.pathTo = ""
 
@@ -121,7 +124,8 @@ class DSExporter {
         app = this
     }
 
-    initForPublisher() {
+    initForPublisher()
+    {
         this.format = Constants.EXPORT_FORMAT_LESS
         this.confOpts = {}
         this.runningForTokens = false
@@ -131,38 +135,47 @@ class DSExporter {
     }
 
     // Tools
-    logMsg(msg) {
-        if (this.runningForTokens) {
+    logMsg(msg)
+    {
+        if (this.runningForTokens)
+        {
             this.messages += msg + "\n"
-        } else {
+        } else
+        {
             log(msg)
         }
     }
 
 
-    logError(error) {
+    logError(error)
+    {
         this.logMsg("[ ERROR ] " + error)
         this.errors.push(error)
     }
 
-    stopWithError(error) {
+    stopWithError(error)
+    {
         this.UI.alert('Error', error)
         exit = true
     }
 
     // Public methods
 
-    run() {
+    run()
+    {
         const res = this._showDialog()
         if ('cancel' == res) return false
 
         var success = this._export()
 
         // show final message
-        if (this.errors.length > 0) {
+        if (this.errors.length > 0)
+        {
             this._showErrors()
-        } else {
-            if (success) {
+        } else
+        {
+            if (success)
+            {
                 track(TRACK_EXPORT_COMPLETED)
                 this.UI.message("Completed")
                 if (this.openFinder) this._openFinder()
@@ -174,14 +187,17 @@ class DSExporter {
 
     // Internal
 
-    _openFinder() {
+    _openFinder()
+    {
         NSWorkspace.sharedWorkspace().openFile(this.pathTo);
     }
 
-    _clearCloudName(cloudName) {
+    _clearCloudName(cloudName)
+    {
         let name = cloudName
         let posSketch = name.indexOf(".sketch")
-        if (posSketch > 0) {
+        if (posSketch > 0)
+        {
             name = name.slice(0, posSketch)
         }
         return name
@@ -189,14 +205,16 @@ class DSExporter {
 
 
 
-    _showMessages() {
+    _showMessages()
+    {
         const dialog = new UIDialog("Completed", NSMakeRect(0, 0, 400, 400), "Dismiss", "", "")
         dialog.addTextViewBox("messages", "See what has been changed:", this.messages, 400)
         const result = dialog.run()
         dialog.finish()
     }
 
-    _showErrors() {
+    _showErrors()
+    {
         var errorsText = this.errors.join("\n\n")
 
         const dialog = new UIDialog("Found errors", NSMakeRect(0, 0, 600, 600), "Who cares!", "", "")
@@ -205,7 +223,8 @@ class DSExporter {
         dialog.finish()
     }
 
-    _showDialog() {
+    _showDialog()
+    {
         const dialog = new UIDialog("Export Styles", NSMakeRect(0, 0, 800, 300), "Export",
             "Export all text styles to \"" + this.fileName + "\".[less|scss] file")
         //dialog.removeLeftColumn()
@@ -241,9 +260,11 @@ class DSExporter {
         dialog.addCheckbox("exportLibStyles", "Export external library styles", this.confExportLibStyles)
 
 
-        while (true) {
+        while (true)
+        {
             dialog.run()
-            if (dialog.userClickedCancel) {
+            if (dialog.userClickedCancel)
+            {
                 dialog.finish()
                 return "cancel"
             }
@@ -276,7 +297,8 @@ class DSExporter {
 
     ///////////////////////////////////////////////////////////////
 
-    _export() {
+    _export()
+    {
         const textStylesText = this._getStylesAsText()
         const tokensText = this._getTokensAsText()
 
@@ -289,10 +311,12 @@ class DSExporter {
 
     }
 
-    _getStylesAsText() {
+    _getStylesAsText()
+    {
         let res = ""
         res += "///////////////// Text Styles /////////////////\n"
-        this.sDoc.sharedTextStyles.forEach(function (sStyle) {
+        this.sDoc.sharedTextStyles.forEach(function (sStyle)
+        {
             if (!this.confExportLibStyles && sStyle.getLibrary()) return
             if (DEBUG) log("export text style: " + sStyle.name)
             res += this._getStyleInfoAsText(sStyle)
@@ -305,7 +329,8 @@ class DSExporter {
         }, this)
 
         res += "///////////////// Layer Styles /////////////////\n"
-        this.sDoc.sharedLayerStyles.forEach(function (sStyle) {
+        this.sDoc.sharedLayerStyles.forEach(function (sStyle)
+        {
             if (!this.confExportLibStyles && sStyle.getLibrary()) return
             if (DEBUG) log("export layer style: " + sStyle.name)
             res += this._getStyleInfoAsText(sStyle)
@@ -316,7 +341,8 @@ class DSExporter {
             res += si.closeTags
             // save additional borders
             const borders = sStyle.style.borders.filter(s => s.enabled)
-            for (let i = 1; i < borders.length; i++) {
+            for (let i = 1; i < borders.length; i++)
+            {
                 if (1 == i)
                     res += "/////// Additional borders for " + sStyle.name + "\n"
                 res += si.openTags
@@ -325,7 +351,8 @@ class DSExporter {
             }
             // save additional fills
             const fills = sStyle.style.fills.filter(s => s.enabled)
-            for (let i = 1; i < fills.length; i++) {
+            for (let i = 1; i < fills.length; i++)
+            {
                 if (1 == i)
                     res += "/////// Additional fills for " + sStyle.name + "\n"
                 res += si.openTags
@@ -338,33 +365,40 @@ class DSExporter {
         return res
     }
 
-    _getStyleInfoAsText(sStyle) {
+    _getStyleInfoAsText(sStyle)
+    {
         let res = ""
         res += "///////////////" + sStyle.name + "\n"
 
         let sLib = sStyle.getLibrary()
-        if (sLib != null) {
+        if (sLib != null)
+        {
             res += "///////////////" + "library: " + sLib.name + "\n"
         }
         return res
     }
 
-    _getTokensAsText() {
+    _getTokensAsText()
+    {
         let res = ""
 
-        Object.keys(this.opts).forEach((optName) => {
+        Object.keys(this.opts).forEach((optName) =>
+        {
             res += this.getAbstractTokensAsText(this.opts[optName])
         }, this)
 
         return res
     }
 
-    getAbstractTokensAsText(opt) {
+    getAbstractTokensAsText(opt)
+    {
         let res = ""
-        if (opt.index) {
+        if (opt.index)
+        {
             const def = this.def
             res += "//////////// " + opt.comment + " TOKENS //////////\n"
-            Object.keys(opt.tokens).forEach((value) => {
+            Object.keys(opt.tokens).forEach((value) =>
+            {
                 const token = opt.tokens[value]
                 res += def.symb + token.name + ":         " + value + opt.postix + ";\n"
             }, this)
@@ -373,9 +407,11 @@ class DSExporter {
         return res
     }
 
-    _getAbstractToken(opt, value) {
+    _getAbstractToken(opt, value)
+    {
         let token = opt.tokens[value]
-        if (null == token) {
+        if (null == token)
+        {
             // create new token
             token = {
                 value: value,
@@ -386,29 +422,35 @@ class DSExporter {
         return this.def.symb + token.name
     }
 
-    _getColorToken(color) {
+    _getColorToken(color)
+    {
         // drop FF transparency as default
-        if (color.length == 9 && color.substring(7).toUpperCase() == "FF") {
+        if (color.length == 9 && color.substring(7).toUpperCase() == "FF")
+        {
             color = color.substring(0, 7)
         }
         if (!this.confOpts.colorTokens) return color.toUpperCase()
         return this._getAbstractToken(this.opts.colors, color)
     }
-    _getFontSizeToken(fontSize) {
+    _getFontSizeToken(fontSize)
+    {
         if (!this.confOpts.fontSizeTokens) return fontSize + "px"
         return this._getAbstractToken(this.opts.fontSizes, fontSize)
     }
-    _getFontFamilyToken(fontFamily) {
+    _getFontFamilyToken(fontFamily)
+    {
         if (!this.confOpts.fontFamilyTokens) return fontFamily
         return this._getAbstractToken(this.opts.fontFamilies, fontFamily)
     }
-    _getFontWeightToken(fontWeight) {
+    _getFontWeightToken(fontWeight)
+    {
         if (!this.confOpts.fontWeightTokens) return fontWeight
         return this._getAbstractToken(this.opts.fontWeights, fontWeight)
     }
 
 
-    _getTextStylePropsAsText(sStyle, spaces = "") {
+    _getTextStylePropsAsText(sStyle, spaces = "")
+    {
         // In some cases text object can has non-text style
         if (sStyle.styleType != "Text") return
 
@@ -427,24 +469,30 @@ class DSExporter {
             else
                 res += spaces + "font-weight" + ": " + this._getFontWeightToken(cssWeights[0].css) + eol
         }
-        if (undefined != sStyle.fontStyle) {
+        if (undefined != sStyle.fontStyle)
+        {
             res += spaces + "font-style" + ": " + sStyle.fontStyle + eol
         }
         if (null != sStyle.lineHeight)
             res += spaces + "line-height" + ": " + sStyle.lineHeight + pxeol
-        if (undefined != sStyle.textTransform && sStyle.textTransform != 'none') {
+        if (undefined != sStyle.textTransform && sStyle.textTransform != 'none')
+        {
             res += spaces + "text-transform" + ": " + sStyle.textTransform + eol
         }
-        if (undefined != sStyle.textUnderline) {
+        if (undefined != sStyle.textUnderline)
+        {
             res += spaces + "text-decoration" + ": " + "underline" + eol
         }
-        if (undefined != sStyle.textStrikethrough) {
+        if (undefined != sStyle.textStrikethrough)
+        {
             res += spaces + "text-decoration" + ": " + "line-through" + eol
         }
-        if (null != sStyle.kerning) {
+        if (null != sStyle.kerning)
+        {
             res += spaces + "letter-spacing" + ": " + sStyle.kerning + pxeol
         }
-        if (this.runningForTokens) {
+        if (this.runningForTokens)
+        {
             res += spaces + PT_PARAGRAPH_SPACING + ": " + sStyle.paragraphSpacing + eol
         }
 
@@ -452,7 +500,8 @@ class DSExporter {
     }
 
 
-    _getLayerStylePropsAsText(sSharedStyle, layer, sStyle, spaces = "") {
+    _getLayerStylePropsAsText(sSharedStyle, layer, sStyle, spaces = "")
+    {
         let res = ""
 
         // process the first fill, other will be processed later
@@ -465,7 +514,8 @@ class DSExporter {
         res += this._getLayerShadowsText(sStyle, spaces)
 
         // try to find and save border radius(es)
-        while (true) {
+        while (true)
+        {
             const layers = sSharedStyle ? sSharedStyle.getAllInstancesLayers() : [layer]
             if (0 == layers.length) break
             const l = layers[0] // take the first
@@ -476,15 +526,18 @@ class DSExporter {
 
             let str = ""
             let radiusesHash = {}
-            l.points.forEach(function (point, index) {
+            l.points.forEach(function (point, index)
+            {
                 radiusesHash[point.cornerRadius] = true
             })
-            if (Object.keys(radiusesHash).length == 1) {
+            if (Object.keys(radiusesHash).length == 1)
+            {
                 // all points have the same radius
                 // skip zero radius
                 if (0 == l.points[0].cornerRadius) break
                 str = l.points[0].cornerRadius + "px"
-            } else {
+            } else
+            {
 
                 str = l.points.map(p => p.cornerRadius).join("px ") + "px"
             }
@@ -493,7 +546,8 @@ class DSExporter {
             break
         }
 
-        if (sStyle.opacity < 1) {
+        if (sStyle.opacity < 1)
+        {
             res += spaces + "opacity" + ": " + Math.round(sStyle.opacity * 100) / 100 + eol
         }
 
@@ -501,7 +555,8 @@ class DSExporter {
     }
 
 
-    _getLayerBorderByIndexAsText(sStyle, index, spaces) {
+    _getLayerBorderByIndexAsText(sStyle, index, spaces)
+    {
         const borders = sStyle.borders != null ? sStyle.borders.filter(s => s.enabled) : null
         const border = borders && (borders.length > index) ? borders[index] : null
         if (null == border) return ""
@@ -509,7 +564,8 @@ class DSExporter {
 
         res += spaces + "border-color" + ": " + this._getColorToken(border.color) + eol
         //
-        if (border.position != Style.BorderPosition.Center) {
+        if (border.position != Style.BorderPosition.Center)
+        {
             // save non-default position
             const conversion = {
                 [Style.BorderPosition.Inside]: 'inside',
@@ -521,23 +577,29 @@ class DSExporter {
         res += spaces + "border-width" + ": " + border.thickness + pxeol
 
         // Process styles common for all borders
-        if (0 == index) {
-            if (sStyle.borderOptions != null) {
+        if (0 == index)
+        {
+            if (sStyle.borderOptions != null)
+            {
                 let bs = ""
                 const dash = sStyle.borderOptions.dashPattern
-                if (null != dash && dash.length) {
+                if (null != dash && dash.length)
+                {
                     bs = dash[0] == border.thickness ? "dotted" : "dashed"
                 }
                 if (bs != "") res += spaces + "border-style" + ": " + bs + eol
             }
             //
-            if (sStyle.borderOptions != null) {
-                if (sStyle.borderOptions.lineEnd != Style.LineEnd.Butt) {
+            if (sStyle.borderOptions != null)
+            {
+                if (sStyle.borderOptions.lineEnd != Style.LineEnd.Butt)
+                {
                     // save non-default line end
                     const borderLineEnd = bordedLineEndMap2[sStyle.borderOptions.lineEnd]
                     res += spaces + "border-line-end" + ": " + borderLineEnd + eol
                 }
-                if (sStyle.borderOptions.lineJoin != Style.LineJoin.Miter) {
+                if (sStyle.borderOptions.lineJoin != Style.LineJoin.Miter)
+                {
                     // save non-default join
                     const borderLineJoin = bordedLineJoinMap2[sStyle.borderOptions.lineJoin]
                     if (undefined != borderLineJoin)
@@ -556,40 +618,50 @@ class DSExporter {
         return res
     }
 
-    _getLayerFillByIndexAsText(sStyle, index, spaces) {
+    _getLayerFillByIndexAsText(sStyle, index, spaces)
+    {
         const fills = sStyle.fills != null ? sStyle.fills.filter(s => s.enabled) : null
         const fill = fills && (fills.length > index) ? fills[index] : null
         if (null == fill) return ""
 
         let res = spaces + "background-color" + ": "
-        if (Style.FillType.Color == fill.fill) {
+        if (Style.FillType.Color == fill.fill)
+        {
             res += this._getColorToken(fill.color) + eol
-        } else if (Style.FillType.Gradient == fill.fill) {
+        } else if (Style.FillType.Gradient == fill.fill)
+        {
             const g = fill.gradient
             // fight with gradients
-            if (Style.GradientType.Linear == g.gradientType) {
+            if (Style.GradientType.Linear == g.gradientType)
+            {
                 //linear-gradient(134deg, #004B3A 0%, #2D8B61 51%, #9BD77E 100%);
                 const deg = this._calcGradientDeg(g)
                 res += "linear-gradient("
-                if (180 != deg) {
+                if (180 != deg)
+                {
                     // 180 is default, we can omit it
                     res += deg + "deg,"
                 }
-                g.stops.forEach(function (s, index) {
+                g.stops.forEach(function (s, index)
+                {
                     res += (index > 0 ? " ," : "") + this._getColorToken(s.color)
                     if (undefined != s.position) res += " " + (s.position * 100) + "%"
                 }, this)
                 res += ")" + eol
             }
-        } else {
+        } else
+        {
             return ""
         }
         //
-        if (Style.BlendingMode.Normal != sStyle.blendingMode) {
+        if (Style.BlendingMode.Normal != sStyle.blendingMode)
+        {
             const cssValue = BLENDING_MODE_SKETCH_TO_CSS[sStyle.blendingMode]
-            if (undefined == cssValue) {
+            if (undefined == cssValue)
+            {
                 this.logError('Can not set CSS mix-blend-mode: for Sketch blendingMode ' + sStyle.blendingMode)
-            } else {
+            } else
+            {
                 res += spaces + "mix-blend-mode: " + cssValue + eol
             }
         }
@@ -597,7 +669,8 @@ class DSExporter {
         return res
     }
 
-    _getLayerShadowsText(sStyle, spaces) {
+    _getLayerShadowsText(sStyle, spaces)
+    {
         let t1 = this._getLayerTypeShadowsText(sStyle, sStyle.shadows, false, spaces)
         let t2 = this._getLayerTypeShadowsText(sStyle, sStyle.innerShadows, true, spaces)
         if ("" == t1 && "" == t2) return ""
@@ -610,28 +683,31 @@ class DSExporter {
     }
 
 
-    _getLayerTypeShadowsText(sStyle, shadows, inset, spaces) {
+    _getLayerTypeShadowsText(sStyle, shadows, inset, spaces)
+    {
         if (null == shadows || !shadows.length) return ""
 
         // to:
         // box-shadow:  0 10px 20px 2 rgba(0,0,0,0.1), inset 0 10px 20px 2 rgba(0,0,0,0.1);
         //           offset-x | offset-y | blur-radius | spread-radius | color 
         let res = ""
-        shadows.filter(s => s.enabled).forEach(function (shadow, index) {
+        shadows.filter(s => s.enabled).forEach(function (shadow, index)
+        {
             if (index) res += ", "
             if (inset) res += "inset "
             res += shadow.x + 'px'
-            if (null != shadow.y) {
+            if (null != shadow.y)
+            {
                 res += " " + shadow.y + "px"
-                if (null != shadow.blur) {
+                if (null != shadow.blur)
+                {
                     res += " " + shadow.blur + "px"
-                    if (null != shadow.spread) {
+                    if (null != shadow.spread)
+                    {
                         res += " " + shadow.spread
                     }
                 }
             }
-            log("_getLayerTypeShadowsText")
-            log(shadow.color)
 
             res += " " + this._getColorToken(shadow.color)
         }, this)
@@ -641,7 +717,8 @@ class DSExporter {
 
 
     // g: style.fills[0].gradient
-    _calcGradientDeg(g) {
+    _calcGradientDeg(g)
+    {
         const from = g.from
         const to = g.to
 
@@ -657,7 +734,8 @@ class DSExporter {
 
 
 
-    _parseStyleName(nameSrc, isText) {
+    _parseStyleName(nameSrc, isText)
+    {
         /*
         let styles = isText ? this.textStyles : this.layerStyles
         let index = 1

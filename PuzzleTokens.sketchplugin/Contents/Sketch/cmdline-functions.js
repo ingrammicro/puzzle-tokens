@@ -4,29 +4,35 @@
 // See example here: https://github.com/ingrammicro/puzzle-tokens/blob/master/README.md#command-line-api
 
 
-function applyStyles(context, runOptions) {
-    log(" APPLY STYLES...")
+function applyStyles(context, runOptions)
+{
     var myless = new DSApp(context)
+    if (DEBUG) log(" APPLY STYLES...")
     myless.runFromCmd(context.styles)
 }
 
-function showError(error) {
+function showError(error)
+{
     log(error + "\n")
     log("Command line example:")
     log(example + "\n")
 }
 
-function saveDocument(document) {
-    log(" SAVING DOCUMENT...")
-    document.save(err => {
-        if (err) {
+function saveDocument(document)
+{
+    if (DEBUG) log(" SAVING DOCUMENT...")
+    document.save(err =>
+    {
+        if (err)
+        {
             log(" Failed to save a document. Error: " + err)
         }
     })
 }
 
-function saveDocumentAs(document, filePath) {
-    log(" SAVING DOCUMENT TO " + filePath)
+function saveDocumentAs(document, filePath)
+{
+    if (DEBUG) log(" SAVING DOCUMENT TO " + filePath)
     /*document.save(filePath, {
         saveMode: Document.SaveMode.SaveTo,
     })*/
@@ -38,40 +44,48 @@ function saveDocumentAs(document, filePath) {
 }
 
 
-function closeDocument(document) {
-    log(" CLOSING DOCUMENT...")
+function closeDocument(document)
+{
+    if (DEBUG) log(" CLOSING DOCUMENT...")
     document.close()
 }
 
-var cmdRun = function (context) {
+var cmdRun = function (context)
+{
 
     // Parse command line arguments    
     let path = context.file + ""
-    if ('' == path) {
+    if ('' == path)
+    {
         return showError("context.file is not specified")
     }
 
-    log("PROCESS " + path)
+    if (DEBUG) log("PROCESS " + path)
 
     let styles = context.styles + ""
-    if ('' == styles) {
+    if ('' == styles)
+    {
         return showError("context.styles is not specified")
     }
 
     let argCommands = context.commands + ""
-    if ('' == argCommands) {
+    if ('' == argCommands)
+    {
         return showError("context.commands is not specified")
     }
 
     const commandsList = argCommands.split(',')
     const allCommands = ['save', 'apply', 'close']
     const cmds = {}
-    for (var cmd of allCommands) {
+    for (var cmd of allCommands)
+    {
         cmds[cmd] = commandsList.includes(cmd)
     }
     // Open Sketch document 
-    Document.open(path, (err, document) => {
-        if (err || !document) {
+    Document.open(path, (err, document) =>
+    {
+        if (err || !document)
+        {
             log("ERROR: Can't open  " + path)
             return
         }
@@ -83,7 +97,8 @@ var cmdRun = function (context) {
         }
         context.document = document.sketchObject
         if (cmds.apply) applyStyles(context, runOptions)
-        if (cmds.save) {
+        if (cmds.save)
+        {
             if (context.saveAs)
                 saveDocumentAs(document, context.saveAs)
             else
