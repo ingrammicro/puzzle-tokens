@@ -180,8 +180,11 @@ const bordedLineJoinMap = {
 
 const smartLayoutMap = {
     "none": null,
+    "right": SmartLayout.LeftToRight,
     "lefttoright": SmartLayout.LeftToRight,
+    "center": SmartLayout.HorizontallyCenter,
     "horizontallycenter": SmartLayout.HorizontallyCenter,
+    "left": SmartLayout.RightToLeft,
     "righttoleft": SmartLayout.RightToLeft,
     "toptobottom": SmartLayout.TopToBottom,
     "verticallycenter": SmartLayout.VerticallyCenter,
