@@ -423,7 +423,7 @@ function saveData(data, pathToJSON)
 function saveVarsToSASS(data, pathToSASS)
 {
     var json = ""
-    Object.keys(data).sort().forEach(propName =>
+    Object.keys(data).sort().filter(propName=>!propName.startsWith("@_")).forEach(propName =>
     {
         //for (let propName in data) {
         let value = data[propName]
