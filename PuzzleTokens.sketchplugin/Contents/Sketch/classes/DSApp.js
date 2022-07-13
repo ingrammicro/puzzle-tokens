@@ -2100,16 +2100,11 @@ class DSApp
                     var topParent;
                     if (relativeTo != null)
                     {
-                        var siblings = l.parent.layers;
-                        for (var sib of siblings)
-                        {
-                            if (sib.name == relativeTo)
-                            {
-                                topParent = sib;
-                                xOffset = topParent.frame.x;
-                                yOffset = topParent.frame.y;
-                                break;
-                            }
+                        var siblingsWithName = l.parent.layers.filter(l=>l.name===relativeTo);
+                        if(siblingsWithName.length){
+                            topParent = siblingsWithName[0]
+                            xOffset = topParent.frame.x;
+                            yOffset = topParent.frame.y;
                         }
                     }
                     // ...otherwise set to top parent 
