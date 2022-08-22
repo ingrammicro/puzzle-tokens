@@ -610,8 +610,7 @@ class DSApp
             // apply layer tokens
             if (rule.isLayer)
             {
-
-                const layerTokenNames = ["background-color", "border-color"]
+                const layerTokenNames = ["background-color", "border-color","box-shadow"]
                 const layerTokens = tokens.filter(t => layerTokenNames.includes(t[0]))
 
                 // Find style by name
@@ -645,7 +644,7 @@ class DSApp
                         rule.props[name] = vars[tokenName]
                     })
                 }
-                processTokens(["background-color", "border-*"])
+                processTokens(["background-color", "border-*","box-shadow"])
                 // Apply static values
                 if (inspectorStyle.static !== undefined) rule.props = Object.assign(rule.props, inspectorStyle.static)
                 //
