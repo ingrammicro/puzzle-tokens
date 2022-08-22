@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://spectrum.chat/puzzle-tokens site
 
+# Version 8.19.6 (23 Aug 2022)
+Quck apply updates shadow too
+
 # Version 8.19.5 (13 Jul 2022)
 Corrected smartlayout option names
 
