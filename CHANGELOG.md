@@ -1,5 +1,8 @@
 # Change Log
-See discussions on https://spectrum.chat/puzzle-tokens site
+See discussions on https://github.com/ingrammicro/puzzle-tokens/discussions site
+
+# Version 8.19.7 (30 Aug 2022)
+Bugfix
 
 # Version 8.19.6 (23 Aug 2022)
 Quck apply updates shadow too
