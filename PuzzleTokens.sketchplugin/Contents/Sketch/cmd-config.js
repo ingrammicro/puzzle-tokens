@@ -23,9 +23,11 @@ var onRun = function (context) {
     if (undefined == nodeJSPAth) nodeJSPAth = ""
     let sassModulePath = Settings.settingForKey(SettingKeys.PLUGIN_SASSMODULE_PATH)
     if (undefined == sassModulePath) sassModulePath = ""
+    let lesscPath = Settings.settingForKey(SettingKeys.PLUGIN_LESSC_PATH)
+    if (undefined == lesscPath) lesscPath = ""
 
     // Build dialog
-    const dialog = new UIDialog("Configure", NSMakeRect(0, 0, 450, 360), "Save", "Edit Puzzle Tokens common configuration settings.")
+    const dialog = new UIDialog("Configure", NSMakeRect(0, 0, 450, 400), "Save", "Edit Puzzle Tokens common configuration settings.")
 
     dialog.addLeftLabel("", "Apply Options")
     dialog.addCheckbox("showDoubleStyle", "Warn about style name duplicates", showDoubleStyle)
@@ -39,6 +41,9 @@ var onRun = function (context) {
     dialog.addTextInput("nodeJSPAth", "", nodeJSPAth, Constants.NODEJS_PATH, 350)
     dialog.addLeftLabel("", "Path to SASS Module", 40)
     dialog.addTextInput("sassModulePath", "", sassModulePath, Constants.DEF_SASSMODULE_PATH, 350)
+    dialog.addLeftLabel("", "Path to lessc", 40)
+    dialog.addTextInput("lesscPath", "", lesscPath, Constants.DEF_LESSC_PATH, 350)
+    
     dialog.y -= 20
 
     dialog.addDivider()
@@ -67,6 +72,7 @@ var onRun = function (context) {
         gaEnabled = dialog.views['gaEnabled'].state() == 1
         nodeJSPAth = dialog.views['nodeJSPAth'].stringValue() + ""
         sassModulePath = dialog.views['sassModulePath'].stringValue() + ""
+        lesscPath = dialog.views['lesscPath'].stringValue() + ""
 
         break
     }
@@ -82,6 +88,7 @@ var onRun = function (context) {
     Settings.setSettingForKey(SettingKeys.PLUGIN_GA_DISABLED, !gaEnabled)
     Settings.setSettingForKey(SettingKeys.PLUGIN_NODEJS_PATH, nodeJSPAth)
     Settings.setSettingForKey(SettingKeys.PLUGIN_SASSMODULE_PATH, sassModulePath)
+    Settings.setSettingForKey(SettingKeys.PLUGIN_LESSC_PATH, lesscPath)
 
     return true
 

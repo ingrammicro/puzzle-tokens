@@ -1007,6 +1007,12 @@ class DSApp
                 if (undefined != sassModulePath && sassModulePath != '')
                     args.push("-sassmodule=" + sassModulePath)
             }
+            if (!this.isSass)
+            {
+                let lesscPath = Settings.settingForKey(SettingKeys.PLUGIN_LESSC_PATH)
+                if (lesscPath!==undefined && lesscPath!=="")
+                    args.push("-lessc=" + lesscPath)
+            }
 
             if (this.pathToAssets != "")
             {

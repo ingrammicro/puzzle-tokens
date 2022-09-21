@@ -7,6 +7,7 @@ const args = parseArgs(process.argv.slice(2))
 var pathToLess = args['-styles']
 var pathToJSON = args['-json']
 var pathToResultSASS = args['-sass']
+var pathToLessc = args['-lessc']
 var pathToResultCSS = args['-css']
 var pathToResultVars = args['-vars']
 var pluginNamesSrc = args['-plugins']
@@ -468,6 +469,8 @@ function transformCustomLESStoCSS(pathToOrgLess, pathToCSS)
 
     // Convert LESS to pure CSS and save it to CSS file
     pathToCSS = pathToCSS.replace(/\s/g, "\\ ")
-    const result = require('child_process').execSync("node /usr/local/bin/lessc " + pathToCustomLess + " > " + pathToCSS, { env: process.env.PATH })
+    const pathToCompiler = pathToLessc!=undefined && pathToLessc!=""?pathToLessc:"/usr/local/bin/lessc"
+
+    const result = require('child_process').execSync("node " + pathToCompiler+ " " + pathToCustomLess + " > " + pathToCSS, { env: process.env.PATH })
     if (DEBUG) console.log("Rendered CSS LESS to CSS: " + pathToCSS)
 }
