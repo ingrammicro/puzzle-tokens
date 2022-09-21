@@ -1,6 +1,9 @@
 # Change Log
 See discussions on https://github.com/ingrammicro/puzzle-tokens/discussions site
 
+# Version 8.20.0 (21 Sep 2022)
+Support for lessc custom path
+
 # Version 8.19.7 (30 Aug 2022)
 Bugfix
 
